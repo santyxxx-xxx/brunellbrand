@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TIENDA } from "@/config/tienda";
 import { CLAVE_INTRO } from "@/lib/intro";
 
 const DURACION = 2600; // ms que dura la presentación completa
@@ -35,8 +34,6 @@ export default function PantallaCarga() {
 
   if (estado === "oculta") return null;
 
-  const letras = TIENDA.marca.split("");
-
   return (
     <div
       className={`pantalla-carga fixed inset-0 z-[100] flex flex-col items-center justify-center bg-marino ${
@@ -46,15 +43,8 @@ export default function PantallaCarga() {
     >
       <div className="grifo-brillo grifo-entrada h-36 w-32 sm:h-44 sm:w-40" />
 
-      <p className="mt-6 flex pl-[0.3em] font-serif text-3xl font-medium tracking-[0.3em] text-ocre sm:text-4xl">
-        {letras.map((letra, i) => (
-          <span key={i} className="letra-entrada" style={{ animationDelay: `${700 + i * 90}ms` }}>
-            {letra}
-          </span>
-        ))}
-      </p>
-      <span className="linea-entrada mt-4 h-px w-24 bg-ocre/70" />
-      <p className="texto-entrada mt-3 pl-[0.6em] text-[10px] font-semibold tracking-[0.6em] text-hueso/60">BRAND</p>
+      <img src="/marca/texto-dorado.webp" alt="" className="texto-revelar mt-7 h-7 w-auto sm:h-8" />
+      <span className="linea-entrada mt-5 h-px w-24 bg-ocre/70" />
     </div>
   );
 }

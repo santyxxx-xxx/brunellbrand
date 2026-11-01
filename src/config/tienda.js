@@ -17,8 +17,9 @@ export const TIENDA = {
   // Ejemplo Ecuador: 0991234567  ->  593991234567
   // El primero es el que se usa en "Pedir por WhatsApp" y en el carrito.
   whatsapp: [
-    { etiqueta: "Ventas", numero: "593900000000" },
-    { etiqueta: "Atención al cliente", numero: "593900000001" },
+    { etiqueta: "Ventas", numero: "593963085283" },
+    // Para agregar un segundo número, descomenta y cambia esta línea:
+    // { etiqueta: "Atención al cliente", numero: "5939XXXXXXXX" },
   ],
 };
 

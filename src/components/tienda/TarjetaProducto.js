@@ -30,7 +30,7 @@ export default function TarjetaProducto({ producto }) {
           </>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <img src="/marca/grifo-oscuro.webp" alt="" className="h-20 w-auto opacity-25" />
+            <img src="/marca/grifo-negro.webp" alt="" className="h-20 w-auto opacity-15" />
           </div>
         )}
 

@@ -3,6 +3,7 @@ import { TALLAS } from "@/config/tienda";
 import { obtenerCategorias, obtenerProductos } from "@/lib/consultas";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
 import Revelar from "@/components/marca/Revelar";
+import { arbolCategorias, categoriaPrincipal } from "@/lib/categorias";
 
 export const revalidate = 60;
 
@@ -41,6 +42,20 @@ function Chip({ href, activo, children }) {
   );
 }
 
+function SubChip({ href, activo, children }) {
+  return (
+    <Link
+      href={href}
+      scroll={false}
+      className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs transition ${
+        activo ? "bg-ocre text-white" : "bg-hueso-oscuro text-marino hover:bg-ocre/20"
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export default async function Catalogo({ searchParams }) {
   const params = await searchParams;
   const filtros = {
@@ -55,10 +70,15 @@ export default async function Catalogo({ searchParams }) {
   ]);
 
   const categoriaActual = categorias.find((c) => c.slug === filtros.categoria);
+  const arbol = arbolCategorias(categorias);
+  const principal = categoriaPrincipal(categorias, filtros.categoria);
+  const subcategorias = principal ? arbol.find((c) => c.id === principal.id)?.hijos || [] : [];
 
   return (
     <div className="contenedor pt-10">
-      <p className="etiqueta text-ocre">Catálogo</p>
+      <p className="etiqueta text-ocre">
+        {principal && principal.id !== categoriaActual?.id ? `Catálogo · ${principal.nombre}` : "Catálogo"}
+      </p>
       <h1 className="titulo-seccion mt-1">{categoriaActual ? categoriaActual.nombre : "Todos los productos"}</h1>
 
       {/* Filtros */}
@@ -69,12 +89,24 @@ export default async function Catalogo({ searchParams }) {
             <Chip href={construirUrl(filtros, { categoria: "" })} activo={!filtros.categoria}>
               Todas
             </Chip>
-            {categorias.map((c) => (
-              <Chip key={c.id} href={construirUrl(filtros, { categoria: c.slug })} activo={filtros.categoria === c.slug}>
+            {arbol.map((c) => (
+              <Chip key={c.id} href={construirUrl(filtros, { categoria: c.slug })} activo={principal?.id === c.id}>
                 {c.nombre}
               </Chip>
             ))}
           </div>
+          {subcategorias.length > 0 && (
+            <div className="-mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+              <SubChip href={construirUrl(filtros, { categoria: principal.slug })} activo={filtros.categoria === principal.slug}>
+                Todas
+              </SubChip>
+              {subcategorias.map((h) => (
+                <SubChip key={h.id} href={construirUrl(filtros, { categoria: h.slug })} activo={filtros.categoria === h.slug}>
+                  {h.nombre}
+                </SubChip>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap items-end justify-between gap-4">

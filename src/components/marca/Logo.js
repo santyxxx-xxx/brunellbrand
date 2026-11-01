@@ -1,19 +1,22 @@
 import { TIENDA } from "@/config/tienda";
 
-// Logo: grifo dorado + palabra BRUNELL.
-// tono="oscuro" para fondos claros (hueso/blanco), tono="claro" para fondos marino.
+// Logo oficial: grifo + palabra BRUNEL (imágenes recortadas del logo vectorial).
+// tono="oscuro": negro, para fondos claros · tono="claro": dorado, para fondos marino
+// tono="hueso": blanco hueso, para fondos marino más sobrios
 export default function Logo({ tono = "oscuro", tamano = "md", className = "" }) {
+  const color = { oscuro: "negro", claro: "dorado", hueso: "hueso" }[tono] || "negro";
   const alto = { sm: "h-8", md: "h-10", lg: "h-14" }[tamano];
-  const texto = { sm: "text-lg", md: "text-xl", lg: "text-3xl" }[tamano];
-  const src = tono === "claro" ? "/marca/grifo-claro.webp" : "/marca/grifo-oscuro.webp";
+  const altoTexto = { sm: "h-3.5", md: "h-4", lg: "h-6" }[tamano];
 
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
-      <img src={src} alt="" className={`${alto} w-auto select-none`} draggable="false" />
-      <span className="flex flex-col leading-none">
-        <span className={`font-serif ${texto} font-semibold tracking-[0.18em]`}>{TIENDA.marca}</span>
-        <span className="mt-0.5 text-[8px] font-semibold tracking-[0.55em] text-ocre">BRAND</span>
-      </span>
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+      <img src={`/marca/grifo-${color}.webp`} alt="" className={`${alto} w-auto select-none`} draggable="false" />
+      <img
+        src={`/marca/texto-${color}.webp`}
+        alt={TIENDA.nombre}
+        className={`${altoTexto} w-auto select-none`}
+        draggable="false"
+      />
     </span>
   );
 }

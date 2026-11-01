@@ -10,7 +10,8 @@ import GrifoParallax from "@/components/marca/GrifoParallax";
 export const revalidate = 60;
 
 export default async function Inicio() {
-  const [categorias, destacados] = await Promise.all([obtenerCategorias(), obtenerDestacados(8)]);
+  const [todas, destacados] = await Promise.all([obtenerCategorias(), obtenerDestacados(8)]);
+  const categorias = todas.filter((c) => !c.parent_id);
 
   return (
     <>

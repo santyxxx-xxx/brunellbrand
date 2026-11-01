@@ -37,7 +37,8 @@ export default function FormularioProducto({ productoId }) {
   useEffect(() => {
     const supabase = obtenerClienteNavegador();
     (async () => {
-      const { data: cats } = await supabase.from("categorias").select("id, nombre").order("orden");
+      let { data: cats, error: errCats } = await supabase.from("categorias").select("id, nombre, parent_id").order("orden");
+      if (errCats) ({ data: cats } = await supabase.from("categorias").select("id, nombre").order("orden"));
       setCategorias(cats || []);
 
       if (esEdicion) {
@@ -184,9 +185,19 @@ export default function FormularioProducto({ productoId }) {
         <Campo etiqueta="Categoría">
           <select className="campo" value={datos.categoria_id} onChange={(e) => cambiar("categoria_id", e.target.value)}>
             <option value="">Sin categoría</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.id}>{c.nombre}</option>
-            ))}
+            {categorias
+              .filter((c) => !c.parent_id)
+              .map((p) => {
+                const hijos = categorias.filter((c) => c.parent_id === p.id);
+                return hijos.length ? (
+                  <optgroup key={p.id} label={p.nombre}>
+                    <option value={p.id}>{p.nombre} (general)</option>
+                    {hijos.map((h) => <option key={h.id} value={h.id}>{h.nombre}</option>)}
+                  </optgroup>
+                ) : (
+                  <option key={p.id} value={p.id}>{p.nombre}</option>
+                );
+              })}
           </select>
         </Campo>
         <div className="flex flex-col justify-end gap-3 pb-1">

@@ -16,13 +16,16 @@ function registrarError(origen, error) {
 export async function obtenerCategorias() {
   const supabase = obtenerClientePublico();
   if (!supabase) return [];
-  const { data, error } = await supabase
-    .from("categorias")
-    .select("id, nombre, slug, imagen_url, orden")
-    .order("orden", { ascending: true })
-    .order("nombre", { ascending: true });
+  const ordenar = (q) => q.order("orden", { ascending: true }).order("nombre", { ascending: true });
+  let { data, error } = await ordenar(
+    supabase.from("categorias").select("id, nombre, slug, imagen_url, orden, parent_id")
+  );
+  // Compatibilidad: si aún no se ejecutó el SQL de subcategorías (sin parent_id)
+  if (error) {
+    ({ data, error } = await ordenar(supabase.from("categorias").select("id, nombre, slug, imagen_url, orden")));
+  }
   registrarError("obtenerCategorias", error);
-  return data || [];
+  return (data || []).map((c) => ({ ...c, parent_id: c.parent_id ?? null }));
 }
 
 export async function obtenerDestacados(limite = 8) {
@@ -56,13 +59,12 @@ export async function obtenerProductos({ categoria, talla, orden } = {}) {
   let consulta = supabase.from("productos").select(CAMPOS_PRODUCTO);
 
   if (categoria) {
-    const { data: cat } = await supabase
-      .from("categorias")
-      .select("id")
-      .eq("slug", categoria)
-      .maybeSingle();
+    // Una categoría principal incluye los productos de sus subcategorías
+    const categorias = await obtenerCategorias();
+    const cat = categorias.find((c) => c.slug === categoria);
     if (!cat) return [];
-    consulta = consulta.eq("categoria_id", cat.id);
+    const ids = [cat.id, ...categorias.filter((c) => c.parent_id === cat.id).map((c) => c.id)];
+    consulta = consulta.in("categoria_id", ids);
   }
 
   if (talla) {

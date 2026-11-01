@@ -16,7 +16,7 @@ export default function PiePagina({ categorias = [] }) {
           <p className="etiqueta text-ocre">Tienda</p>
           <ul className="mt-4 space-y-2 text-sm text-hueso/80">
             <li><Link href="/catalogo" className="hover:text-ocre">Catálogo completo</Link></li>
-            {categorias.map((c) => (
+            {categorias.filter((c) => !c.parent_id).map((c) => (
               <li key={c.id}>
                 <Link href={`/catalogo?categoria=${c.slug}`} className="hover:text-ocre">{c.nombre}</Link>
               </li>

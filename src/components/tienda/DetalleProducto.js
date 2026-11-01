@@ -64,7 +64,7 @@ export default function DetalleProducto({ producto }) {
             <img src={imagenes[fotoActiva]} alt={producto.nombre} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full items-center justify-center">
-            <img src="/marca/grifo-oscuro.webp" alt="" className="h-32 w-auto opacity-25" />
+            <img src="/marca/grifo-negro.webp" alt="" className="h-32 w-auto opacity-15" />
           </div>
           )}
         </div>

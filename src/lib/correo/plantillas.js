@@ -39,9 +39,8 @@ function marco({ urlSitio, titulo, preencabezado, contenido }) {
 <tr><td align="center">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:${C.blanco};border-radius:14px;overflow:hidden;">
     <tr><td align="center" style="background:${C.marino};padding:28px 24px 22px;">
-      <img src="${urlSitio}/marca/grifo-correo.png" width="62" height="70" alt="" style="display:block;border:0;margin:0 auto 10px;">
-      <div style="font-size:24px;letter-spacing:6px;color:${C.ocre};">${esc(TIENDA.marca)}</div>
-      <div style="font-family:Arial,sans-serif;font-size:9px;letter-spacing:5px;color:${C.hueso};opacity:.7;margin-top:4px;">BRAND</div>
+      <img src="${urlSitio}/marca/grifo-correo.png" width="62" height="72" alt="" style="display:block;border:0;margin:0 auto 12px;">
+      <img src="${urlSitio}/marca/texto-correo.png" width="132" height="23" alt="${esc(TIENDA.marca)}" style="display:block;border:0;margin:0 auto;">
     </td></tr>
     <tr><td style="padding:28px 24px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.55;color:${C.marino};">
       ${contenido}

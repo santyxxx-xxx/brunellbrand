@@ -13,21 +13,32 @@ export async function refrescarTienda() {
   }
 }
 
-// Reduce el tamaño de la foto antes de subirla (más rápido en celular y ahorra espacio)
-export async function comprimirImagen(archivo, anchoMaximo = 1600, calidad = 0.85) {
+// Reduce la foto antes de subirla: máximo 1200 px por lado y formato WebP (≈ 80–200 KB).
+// Si el navegador no puede crear WebP (iPhone antiguo), usa JPEG.
+export async function comprimirImagen(archivo, ladoMaximo = 1200, calidad = 0.8) {
   if (!archivo.type.startsWith("image/") || archivo.type === "image/gif") return archivo;
   try {
     const bitmap = await createImageBitmap(archivo);
-    const escala = Math.min(1, anchoMaximo / Math.max(bitmap.width, bitmap.height));
+    const escala = Math.min(1, ladoMaximo / Math.max(bitmap.width, bitmap.height));
     const ancho = Math.round(bitmap.width * escala);
     const alto = Math.round(bitmap.height * escala);
     const lienzo = document.createElement("canvas");
     lienzo.width = ancho;
     lienzo.height = alto;
-    lienzo.getContext("2d").drawImage(bitmap, 0, 0, ancho, alto);
-    const blob = await new Promise((resolver) => lienzo.toBlob(resolver, "image/jpeg", calidad));
+    const ctx = lienzo.getContext("2d");
+    ctx.fillStyle = "#ffffff"; // fondo blanco por si la foto tiene transparencia
+    ctx.fillRect(0, 0, ancho, alto);
+    ctx.drawImage(bitmap, 0, 0, ancho, alto);
+
+    const crear = (tipo) => new Promise((resolver) => lienzo.toBlob(resolver, tipo, calidad));
+    let blob = await crear("image/webp");
+    let extension = "webp";
+    if (!blob || blob.type !== "image/webp") {
+      blob = await crear("image/jpeg");
+      extension = "jpg";
+    }
     if (!blob || blob.size >= archivo.size) return archivo;
-    return new File([blob], archivo.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+    return new File([blob], `${archivo.name.replace(/\.\w+$/, "")}.${extension}`, { type: blob.type });
   } catch {
     return archivo;
   }

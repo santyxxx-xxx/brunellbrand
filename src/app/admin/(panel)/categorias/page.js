@@ -12,11 +12,16 @@ export default function Categorias() {
   const [ocupado, setOcupado] = useState(false);
 
   async function cargar() {
-    const { data, error } = await obtenerClienteNavegador()
+    const supabase = obtenerClienteNavegador();
+    let { data, error } = await supabase
       .from("categorias")
-      .select("id, nombre, slug, orden, imagen_url")
+      .select("id, nombre, slug, orden, imagen_url, parent_id")
       .order("orden")
       .order("nombre");
+    if (error) {
+      // Sin la columna parent_id (falta ejecutar supabase/subcategorias.sql)
+      ({ data, error } = await supabase.from("categorias").select("id, nombre, slug, orden, imagen_url").order("orden"));
+    }
     if (error) setMensaje(error.message);
     setCategorias(data || []);
   }
@@ -78,6 +83,12 @@ export default function Categorias() {
     refrescarTienda();
   }
 
+  // Principales primero, cada una seguida de sus subcategorías
+  const ordenadas = categorias
+    .filter((c) => !c.parent_id)
+    .flatMap((p) => [p, ...categorias.filter((c) => c.parent_id === p.id)])
+    .concat(categorias.filter((c) => c.parent_id && !categorias.some((p) => p.id === c.parent_id)));
+
   return (
     <div>
       <h1 className="font-serif text-3xl">Categorías</h1>
@@ -89,16 +100,33 @@ export default function Categorias() {
 
       {mensaje && <p className="mt-4 rounded-lg bg-white p-3 text-sm">{mensaje}</p>}
 
-      <ul className="mt-6 divide-y divide-marino/10 overflow-hidden rounded-xl bg-white">
-        {categorias.map((c) => (
-          <li key={c.id} className="flex flex-wrap items-center gap-3 p-4">
+      <p className="mt-4 text-xs text-marino/60">
+        Para crear un menú desplegable (ej. Camisas → A rayas, Rayas finas…), elige la “Categoría principal” de cada subcategoría.
+      </p>
+
+      <ul className="mt-4 divide-y divide-marino/10 overflow-hidden rounded-xl bg-white">
+        {ordenadas.map((c) => (
+          <li key={c.id} className={`flex flex-wrap items-center gap-3 p-4 ${c.parent_id ? "bg-hueso/40 pl-10" : ""}`}>
             <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-hueso-oscuro">
               {c.imagen_url && <img src={c.imagen_url} alt="" className="h-full w-full object-cover" />}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="font-medium">{c.nombre}</p>
+              <p className="font-medium">{c.parent_id ? "↳ " : ""}{c.nombre}</p>
               <p className="text-xs text-marino/60">/{c.slug}</p>
             </div>
+            <label className="flex items-center gap-1 text-xs">
+              Principal
+              <select
+                className="campo w-36 py-1.5"
+                value={c.parent_id || ""}
+                onChange={(e) => actualizar(c.id, { parent_id: e.target.value ? Number(e.target.value) : null })}
+              >
+                <option value="">— Ninguna —</option>
+                {categorias
+                  .filter((p) => p.id !== c.id && !p.parent_id)
+                  .map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+            </label>
             <label className="flex items-center gap-1 text-xs">
               Orden
               <input
