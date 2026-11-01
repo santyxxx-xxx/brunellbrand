@@ -6,6 +6,7 @@
 
 export const TIENDA = {
   nombre: "Brunel Brand",
+  marca: "BRUNELL", // palabra que acompaña al grifo en el logo
   ciudad: "Quito, Ecuador",
   descripcion: "Camisas y polos para hombre con corte impecable. Hechos para el día a día en Quito.",
 
@@ -32,7 +33,7 @@ export const BANNER = {
 };
 
 // Tallas que se muestran en filtros, formularios e importación.
-export const TALLAS = ["S", "M", "L"];
+export const TALLAS = ["S", "M", "L", "XL"];
 
 // Guía de tallas (medidas referenciales en centímetros).
 // Ajusta los valores a tus prendas reales.
@@ -43,6 +44,7 @@ export const GUIA_TALLAS = {
     ["S", "96–100", "72", "44", "62"],
     ["M", "102–106", "74", "46", "63"],
     ["L", "108–112", "76", "48", "64"],
+    ["XL", "114–118", "78", "50", "65"],
   ],
   comoMedir: [
     "Pecho: mide alrededor de la parte más ancha del pecho, por debajo de las axilas.",

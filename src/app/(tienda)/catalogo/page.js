@@ -2,6 +2,7 @@ import Link from "next/link";
 import { TALLAS } from "@/config/tienda";
 import { obtenerCategorias, obtenerProductos } from "@/lib/consultas";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
+import Revelar from "@/components/marca/Revelar";
 
 export const revalidate = 60;
 
@@ -110,8 +111,10 @@ export default async function Catalogo({ searchParams }) {
 
       {productos.length > 0 ? (
         <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
-          {productos.map((p) => (
-            <TarjetaProducto key={p.id} producto={p} />
+          {productos.map((p, i) => (
+            <Revelar key={p.id} retraso={(i % 4) * 80}>
+              <TarjetaProducto producto={p} />
+            </Revelar>
           ))}
         </div>
       ) : (

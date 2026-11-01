@@ -1,7 +1,7 @@
 // Lógica para convertir las filas del CSV en productos listos para guardar.
 // Columnas aceptadas (no importan mayúsculas ni tildes):
 //   sku | codigo, nombre, descripcion, precio, precio_anterior, categoria,
-//   destacado, activo, stock_s, stock_m, stock_l (o simplemente s, m, l),
+//   destacado, activo, stock_s, stock_m, stock_l, stock_xl (o simplemente s, m, l, xl),
 //   imagenes (URLs separadas por "|")
 
 import { TALLAS } from "@/config/tienda";

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { obtenerProductoPorSlug, obtenerRelacionados } from "@/lib/consultas";
 import DetalleProducto from "@/components/tienda/DetalleProducto";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
+import Revelar from "@/components/marca/Revelar";
 
 export const revalidate = 60;
 
@@ -46,8 +47,10 @@ export default async function PaginaProducto({ params }) {
         <section className="mt-20">
           <h2 className="titulo-seccion">También te puede gustar</h2>
           <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-4">
-            {relacionados.map((p) => (
-              <TarjetaProducto key={p.id} producto={p} />
+            {relacionados.map((p, i) => (
+              <Revelar key={p.id} retraso={(i % 4) * 80}>
+                <TarjetaProducto producto={p} />
+              </Revelar>
             ))}
           </div>
         </section>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TIENDA } from "@/config/tienda";
+import Logo from "@/components/marca/Logo";
 
 export default function PiePagina({ categorias = [] }) {
   const anio = new Date().getFullYear();
@@ -7,8 +8,7 @@ export default function PiePagina({ categorias = [] }) {
     <footer className="mt-20 bg-marino text-hueso">
       <div className="contenedor grid gap-10 py-14 sm:grid-cols-3">
         <div>
-          <p className="font-serif text-2xl tracking-[0.18em]">BRUNEL</p>
-          <p className="text-[9px] font-semibold tracking-[0.5em] text-ocre">BRAND</p>
+          <Logo tono="claro" tamano="lg" />
           <p className="mt-4 max-w-xs text-sm text-hueso/70">{TIENDA.descripcion}</p>
         </div>
         <div>

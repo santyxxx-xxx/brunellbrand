@@ -8,13 +8,15 @@ Hecha con **Next.js 15 + Tailwind CSS 4 + Supabase** y lista para publicar en **
 | Sección | Ruta | Qué hace |
 |---|---|---|
 | Inicio | `/` | Banner, categorías y productos destacados |
-| Catálogo | `/catalogo` | Filtros por categoría, talla (S, M, L) y orden por precio |
+| Catálogo | `/catalogo` | Filtros por categoría, talla (S, M, L, XL) y orden por precio |
 | Producto | `/producto/[slug]` | Fotos, tallas con stock, guía de tallas, carrito y “Pedir por WhatsApp” |
 | Carrito | `/carrito` | Se guarda en el celular del cliente y envía el pedido completo por WhatsApp |
 | Admin | `/admin` | Login, crear/editar/borrar productos con fotos, precio y stock; categorías |
 | Importar | `/admin/importar` | Carga masiva del inventario desde un CSV |
 
-Además: botones fijos de Instagram y WhatsApp (con 2 números) en toda la tienda.
+Además: botones fijos de Instagram y WhatsApp (con 2 números) en toda la tienda, presentación animada
+con el grifo de la marca al abrir la tienda (una vez por visita), grifo con movimiento en el banner y
+apariciones suaves de productos al deslizar.
 
 ## Estructura del código
 
@@ -28,6 +30,8 @@ src/
   app/api/revalidar/        ← refresca la tienda al guardar cambios en el panel
   components/tienda/        ← encabezado, tarjetas, detalle de producto, botones flotantes
   components/admin/         ← formulario de producto y marco del panel
+  components/marca/         ← logo, pantalla de carga y animaciones
+public/marca/               ← grifo del logo (versiones clara y oscura)
   context/CarritoContext.js ← lógica del carrito
   lib/                      ← consultas a Supabase, utilidades, importación CSV
   middleware.js             ← protege /admin

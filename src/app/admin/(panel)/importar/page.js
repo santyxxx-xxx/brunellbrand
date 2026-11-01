@@ -135,7 +135,7 @@ export default function ImportarCsv() {
           <li><strong>nombre</strong> — obligatorio</li>
           <li><strong>precio</strong> — ej: 34.90 o 34,90 (obligatorio)</li>
           <li><strong>categoria</strong> — se crea si no existe</li>
-          <li><strong>stock_s, stock_m, stock_l</strong> — unidades por talla</li>
+          <li><strong>stock_s, stock_m, stock_l, stock_xl</strong> — unidades por talla</li>
           <li><strong>precio_anterior</strong> — opcional, para ofertas</li>
           <li><strong>descripcion</strong> — opcional</li>
           <li><strong>destacado</strong> / <strong>activo</strong> — si / no</li>

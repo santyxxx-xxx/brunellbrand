@@ -208,7 +208,7 @@ export default function FormularioProducto({ productoId }) {
 
       <section className="rounded-xl bg-white p-5">
         <h2 className="etiqueta mb-3">Stock por talla</h2>
-        <div className="grid grid-cols-3 gap-3 sm:max-w-md">
+        <div className="grid grid-cols-4 gap-3 sm:max-w-lg">
           {TALLAS.map((t) => (
             <label key={t} className="text-center">
               <span className="mb-1 block text-sm font-semibold">{t}</span>

@@ -30,7 +30,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es-EC" className={`${fuenteTitulos.variable} ${fuenteTexto.variable}`}>
+    <html lang="es-EC" suppressHydrationWarning className={`${fuenteTitulos.variable} ${fuenteTexto.variable}`}>
       <body className="min-h-screen antialiased">
         <CarritoProvider>{children}</CarritoProvider>
       </body>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
+import Logo from "@/components/marca/Logo";
 
 export default function LoginAdmin() {
   const [correo, setCorreo] = useState("");
@@ -29,8 +30,7 @@ export default function LoginAdmin() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <form onSubmit={ingresar} className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
         <div className="mb-8 text-center">
-          <p className="font-serif text-3xl tracking-[0.18em]">BRUNEL</p>
-          <p className="text-[9px] font-semibold tracking-[0.5em] text-ocre">BRAND</p>
+          <Logo tamano="lg" />
           <p className="mt-4 text-sm text-marino/60">Panel de administración</p>
         </div>
 

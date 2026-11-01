@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCarrito } from "@/context/CarritoContext";
 import { IconoBolsa, IconoCerrar, IconoMenu } from "./Iconos";
+import Logo from "@/components/marca/Logo";
 
 export default function Encabezado({ categorias = [] }) {
   const ENLACES = [
@@ -15,10 +16,19 @@ export default function Encabezado({ categorias = [] }) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const { cantidadTotal, cargado } = useCarrito();
   const ruta = usePathname();
+  const [conSombra, setConSombra] = useState(false);
+
+  // Al deslizar, el encabezado se compacta y toma sombra
+  useEffect(() => {
+    const alDeslizar = () => setConSombra(window.scrollY > 12);
+    alDeslizar();
+    window.addEventListener("scroll", alDeslizar, { passive: true });
+    return () => window.removeEventListener("scroll", alDeslizar);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-marino/10 bg-hueso/95 backdrop-blur">
-      <div className="contenedor flex h-16 items-center justify-between">
+    <header className={`sticky top-0 z-40 border-b bg-hueso/95 backdrop-blur transition-shadow duration-300 ${conSombra ? "border-transparent shadow-[0_8px_30px_-12px_rgba(31,42,68,0.25)]" : "border-marino/10"}`}>
+      <div className={`contenedor flex items-center justify-between transition-all duration-300 ${conSombra ? "h-14" : "h-16"}`}>
         <button
           type="button"
           className="-ml-2 p-2 md:hidden"
@@ -28,9 +38,8 @@ export default function Encabezado({ categorias = [] }) {
           <IconoMenu />
         </button>
 
-        <Link href="/" className="flex flex-col items-center leading-none md:items-start">
-          <span className="font-serif text-2xl font-semibold tracking-[0.18em]">BRUNEL</span>
-          <span className="text-[9px] font-semibold tracking-[0.5em] text-ocre">BRAND</span>
+        <Link href="/" aria-label="Ir al inicio">
+          <Logo tamano={conSombra ? "sm" : "md"} />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -63,7 +72,7 @@ export default function Encabezado({ categorias = [] }) {
           <div className="absolute inset-0 bg-marino/40" onClick={() => setMenuAbierto(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-hueso p-6 shadow-xl">
             <div className="mb-8 flex items-center justify-between">
-              <span className="font-serif text-xl tracking-[0.18em]">BRUNEL</span>
+              <Logo tamano="sm" />
               <button type="button" onClick={() => setMenuAbierto(false)} aria-label="Cerrar menú">
                 <IconoCerrar />
               </button>

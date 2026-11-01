@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
+import Logo from "@/components/marca/Logo";
 
 const MENU = [
   { href: "/admin", texto: "Productos" },
@@ -58,8 +59,9 @@ export default function PanelAdmin({ children }) {
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 bg-marino text-hueso">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href="/admin" className="font-serif text-xl tracking-[0.18em]">
-            BRUNEL <span className="text-xs tracking-normal text-ocre">admin</span>
+          <Link href="/admin" className="flex items-center gap-2">
+            <Logo tono="claro" tamano="sm" />
+            <span className="text-xs text-ocre">admin</span>
           </Link>
           <div className="flex items-center gap-4 text-xs">
             <Link href="/" target="_blank" className="hidden text-hueso/70 hover:text-ocre sm:inline">Ver tienda</Link>

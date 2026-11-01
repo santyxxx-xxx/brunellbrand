@@ -29,8 +29,8 @@ export default function TarjetaProducto({ producto }) {
             )}
           </>
         ) : (
-          <div className="flex h-full items-center justify-center font-serif text-xl tracking-[0.2em] text-marino/30">
-            BRUNEL
+          <div className="flex h-full items-center justify-center">
+            <img src="/marca/grifo-oscuro.webp" alt="" className="h-20 w-auto opacity-25" />
           </div>
         )}
 

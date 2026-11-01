@@ -1,4 +1,4 @@
-sku,nombre,categoria,precio,precio_anterior,stock_s,stock_m,stock_l,destacado,activo,descripcion,imagenes
-BB-CAM-001,Camisa Oxford celeste,Camisas,34.90,39.90,4,6,3,si,si,"Camisa de vestir en algodón Oxford, corte slim.",
-BB-CAM-002,Camisa lino blanca,Camisas,39.90,,2,5,0,no,si,Lino fresco ideal para el día.,
-BB-POL-001,Polo piqué azul marino,Polos,24.90,,8,10,6,si,si,Polo de algodón piqué con cuello acanalado.,
+sku,nombre,categoria,precio,precio_anterior,stock_s,stock_m,stock_l,stock_xl,destacado,activo,descripcion,imagenes
+BB-CAM-001,Camisa Oxford celeste,Camisas,34.90,39.90,4,6,3,1,si,si,"Camisa de vestir en algodón Oxford, corte slim.",
+BB-CAM-002,Camisa lino blanca,Camisas,39.90,,2,5,0,0,no,si,Lino fresco ideal para el día.,
+BB-POL-001,Polo piqué azul marino,Polos,24.90,,8,10,6,2,si,si,Polo de algodón piqué con cuello acanalado.,
