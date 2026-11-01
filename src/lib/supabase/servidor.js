@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { SUPABASE_CLAVE, SUPABASE_URL } from "./config";
 
 // Cliente de Supabase en el servidor con la sesión del usuario (cookies).
 export async function obtenerClienteServidor() {
   const almacen = await cookies();
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL,
+    SUPABASE_CLAVE,
     {
       cookies: {
         getAll() {

@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { SUPABASE_CLAVE, SUPABASE_CONFIGURADO, SUPABASE_URL } from "@/lib/supabase/config";
 
 // Protege el panel /admin: si no hay sesión, envía al login.
 // (Los permisos reales los aplica Supabase con RLS: solo los admins pueden escribir.)
 export async function middleware(request) {
   let respuesta = NextResponse.next({ request });
+  if (!SUPABASE_CONFIGURADO) return respuesta;
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL,
+    SUPABASE_CLAVE,
     {
       cookies: {
         getAll() {
