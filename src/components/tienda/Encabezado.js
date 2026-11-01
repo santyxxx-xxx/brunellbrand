@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCarrito } from "@/context/CarritoContext";
-import { IconoBolsa, IconoCerrar, IconoMenu } from "./Iconos";
+import { IconoBolsa, IconoCerrar, IconoMenu, IconoUsuario } from "./Iconos";
 import Logo from "@/components/marca/Logo";
 
 export default function Encabezado({ categorias = [] }) {
@@ -56,6 +56,10 @@ export default function Encabezado({ categorias = [] }) {
           ))}
         </nav>
 
+        <div className="flex items-center">
+        <Link href="/cuenta" className="hidden p-2 sm:block" aria-label="Mi cuenta">
+          <IconoUsuario />
+        </Link>
         <Link href="/carrito" className="relative -mr-2 p-2" aria-label="Ver carrito">
           <IconoBolsa />
           {cargado && cantidadTotal > 0 && (
@@ -64,6 +68,7 @@ export default function Encabezado({ categorias = [] }) {
             </span>
           )}
         </Link>
+        </div>
       </div>
 
       {/* Menú móvil */}
@@ -94,6 +99,13 @@ export default function Encabezado({ categorias = [] }) {
                 className="border-b border-marino/10 py-3 font-serif text-xl"
               >
                 Carrito {cantidadTotal > 0 && `(${cantidadTotal})`}
+              </Link>
+              <Link
+                href="/cuenta"
+                onClick={() => setMenuAbierto(false)}
+                className="border-b border-marino/10 py-3 font-serif text-xl"
+              >
+                Mi cuenta
               </Link>
             </nav>
           </div>

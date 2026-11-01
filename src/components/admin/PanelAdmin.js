@@ -7,10 +7,13 @@ import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 import Logo from "@/components/marca/Logo";
 
 const MENU = [
+  { href: "/admin/pedidos", texto: "Pedidos" },
   { href: "/admin", texto: "Productos" },
   { href: "/admin/productos/nuevo", texto: "Nuevo producto" },
   { href: "/admin/categorias", texto: "Categorías" },
   { href: "/admin/importar", texto: "Importar CSV" },
+  { href: "/admin/envios", texto: "Envíos" },
+  { href: "/admin/paginas", texto: "Páginas legales" },
 ];
 
 // Envuelve todas las páginas del panel: verifica que el usuario sea admin

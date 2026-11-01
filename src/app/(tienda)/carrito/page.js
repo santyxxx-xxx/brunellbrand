@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useCarrito } from "@/context/CarritoContext";
 import { TIENDA } from "@/config/tienda";
 import { enlaceWhatsApp, formatearPrecio } from "@/lib/utilidades";
@@ -9,9 +8,6 @@ import { IconoCerrar, IconoWhatsApp } from "@/components/tienda/Iconos";
 
 export default function PaginaCarrito() {
   const { items, cargado, cambiarCantidad, quitar, vaciar, subtotal } = useCarrito();
-  const [nombre, setNombre] = useState("");
-  const [sector, setSector] = useState("");
-  const [nota, setNota] = useState("");
 
   if (!cargado) {
     return <div className="contenedor min-h-[50vh] pt-10" />;
@@ -37,9 +33,6 @@ export default function PaginaCarrito() {
     ),
     "",
     `Total: ${formatearPrecio(subtotal)}`,
-    nombre ? `Nombre: ${nombre}` : null,
-    sector ? `Sector / ciudad: ${sector}` : null,
-    nota ? `Nota: ${nota}` : null,
   ]
     .filter((l) => l !== null)
     .join("\n");
@@ -92,21 +85,19 @@ export default function PaginaCarrito() {
             <span>Subtotal</span>
             <span className="font-semibold">{formatearPrecio(subtotal)}</span>
           </div>
-          <p className="mt-1 text-xs text-marino/60">El costo de envío se coordina por WhatsApp.</p>
+          <p className="mt-1 text-xs text-marino/60">El envío se calcula en el siguiente paso según tu provincia.</p>
 
-          <div className="mt-6 space-y-3">
-            <input className="campo" placeholder="Tu nombre (opcional)" value={nombre} onChange={(e) => setNombre(e.target.value)} />
-            <input className="campo" placeholder="Sector o ciudad de entrega (opcional)" value={sector} onChange={(e) => setSector(e.target.value)} />
-            <textarea className="campo" rows={2} placeholder="Nota para tu pedido (opcional)" value={nota} onChange={(e) => setNota(e.target.value)} />
-          </div>
-
+          <Link href="/checkout" className="btn-ocre mt-6 w-full py-4">
+            Continuar al pago
+          </Link>
+          <p className="mt-2 text-center text-[11px] text-marino/50">Pago seguro con tarjeta vía PayPhone</p>
           <a
             href={enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensaje)}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-ocre mt-6 w-full py-4"
+            className="btn-borde mt-4 w-full"
           >
-            <IconoWhatsApp className="h-5 w-5" /> Enviar pedido por WhatsApp
+            <IconoWhatsApp className="h-5 w-5" /> Prefiero pedir por WhatsApp
           </a>
           <button type="button" onClick={vaciar} className="mt-3 w-full text-center text-xs text-marino/60 underline underline-offset-4">
             Vaciar carrito

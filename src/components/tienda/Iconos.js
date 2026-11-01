@@ -67,3 +67,12 @@ export function IconoFlecha({ className = "h-4 w-4" }) {
     </svg>
   );
 }
+
+export function IconoUsuario({ className = "h-6 w-6" }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" strokeLinecap="round" />
+    </svg>
+  );
+}

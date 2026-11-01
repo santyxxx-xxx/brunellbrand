@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { TIENDA } from "@/config/tienda";
 import Logo from "@/components/marca/Logo";
+import { PAGINAS_LEGALES } from "@/config/envios";
 
 export default function PiePagina({ categorias = [] }) {
   const anio = new Date().getFullYear();
   return (
     <footer className="mt-20 bg-marino text-hueso">
-      <div className="contenedor grid gap-10 py-14 sm:grid-cols-3">
+      <div className="contenedor grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <Logo tono="claro" tamano="lg" />
           <p className="mt-4 max-w-xs text-sm text-hueso/70">{TIENDA.descripcion}</p>
@@ -21,6 +22,17 @@ export default function PiePagina({ categorias = [] }) {
               </li>
             ))}
             <li><Link href="/carrito" className="hover:text-ocre">Mi carrito</Link></li>
+            <li><Link href="/cuenta" className="hover:text-ocre">Mi cuenta</Link></li>
+          </ul>
+        </div>
+        <div>
+          <p className="etiqueta text-ocre">Información</p>
+          <ul className="mt-4 space-y-2 text-sm text-hueso/80">
+            {PAGINAS_LEGALES.map((p) => (
+              <li key={p.slug}>
+                <Link href={`/politicas/${p.slug}`} className="hover:text-ocre">{p.titulo}</Link>
+              </li>
+            ))}
           </ul>
         </div>
         <div>

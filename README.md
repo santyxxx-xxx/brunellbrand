@@ -54,8 +54,8 @@ public/marca/               ← grifo del logo (versiones clara y oscura)
    select id from auth.users where email = 'tu-correo@ejemplo.com'
    on conflict do nothing;
    ```
-5. Recomendado: en **Authentication → Sign In / Providers → Email**, desactiva **Allow new users to sign up**
-   para que nadie más pueda crearse una cuenta.
+5. Desde la Fase 2 los clientes pueden crear cuenta, así que **deja activado** "Allow new users to sign up".
+   El panel sigue protegido: solo entran los correos registrados en la tabla `admins`.
 
 ## Paso 2 · Correrlo en tu computador
 
@@ -136,4 +136,62 @@ Abre `src/config/tienda.js` y cambia:
 
 ## Para después (no incluido aún)
 
-Pagos en línea, comprobante por correo, envíos por zona, estadísticas y chat de ventas.
+Facturación electrónica, estadísticas, chat de ventas y bot de WhatsApp.
+
+---
+
+# Fase 2 · Compra en línea
+
+Incluye: checkout como invitado (cuenta opcional), envíos por zona editables, pagos con PayPhone,
+comprobante de compra por correo (Resend), panel de pedidos y páginas legales editables.
+
+## Cómo funciona una compra
+
+1. El cliente llena el checkout. El servidor recalcula precios, stock, envío y total con la base de datos
+   (lo que manda el navegador se ignora) y crea el pedido como **pendiente de pago**.
+2. Se envía al cliente a PayPhone. Al volver, el servidor **confirma el pago directamente con PayPhone**
+   y verifica que el monto coincida.
+3. Solo entonces el pedido pasa a **pagado**: la base de datos descuenta el stock (trigger) y se envían
+   el comprobante al cliente y el aviso a tu correo. Todo es idempotente: no se duplica stock ni correos.
+4. Si algo falla, el pedido queda pendiente y el cliente puede reintentar el pago desde la página del pedido.
+5. Si cancelas un pedido que ya descontó stock, el stock se devuelve solo (el reembolso del dinero se hace en PayPhone).
+
+## Archivos nuevos principales
+
+```
+supabase/fase2.sql                   ← tablas orders, order_items, order_payments, tarifas_envio, perfiles, páginas + RLS
+src/lib/pagos/                       ← módulo de pasarela (index.js elige; payphone.js implementa)
+src/lib/correo/                      ← envío con Resend y plantillas de correo con la marca
+src/lib/pedidos/                     ← validación y lógica de pedidos en el servidor
+src/app/(tienda)/checkout            ← checkout
+src/app/(tienda)/pedido/[id]         ← página del pedido (seguimiento, reintentar pago)
+src/app/(tienda)/cuenta              ← cuenta del cliente
+src/app/(tienda)/politicas/[slug]    ← páginas legales
+src/app/api/pedidos                  ← crear pedido / reintentar pago
+src/app/api/pagos/payphone/...       ← retorno de PayPhone y notificación (webhook)
+src/app/admin/(panel)/pedidos|envios|paginas
+```
+
+## Variables de entorno nuevas (Vercel → Settings → Environment Variables)
+
+| Nombre | Dónde se obtiene |
+|---|---|
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API Keys → **Secret key** (`sb_secret_...`). SECRETA |
+| `NEXT_PUBLIC_SITE_URL` | Tu dirección pública, ej. `https://brunelbrand.com` (sin barra final) |
+| `PAYPHONE_TOKEN` | PayPhone Developer → tu aplicación → Credenciales. SECRETA |
+| `PAYPHONE_STORE_ID` | PayPhone Developer → tu aplicación / sucursal |
+| `RESEND_API_KEY` | Resend → API Keys. SECRETA |
+| `EMAIL_FROM` | Ej. `Brunel Brand <pedidos@tudominio.com>` (dominio verificado en Resend) |
+| `EMAIL_ADMIN` | Tu correo, recibe el aviso de cada pedido pagado |
+| `PASARELA_PAGOS` | Opcional, por defecto `payphone` |
+
+Después de agregarlas: **Deployments → ⋯ → Redeploy**.
+
+## Pruebas antes de lanzar
+
+Ver la guía completa en la conversación de la Fase 2. Resumen:
+1. Ejecutar `supabase/fase2.sql`.
+2. Configurar variables y volver a desplegar.
+3. Revisar costos en **Panel → Envíos** y completar los `[CORCHETES]` en **Panel → Páginas legales**.
+4. Compra de prueba con PayPhone en modo pruebas → revisar correo, estado "Pagado" y stock.
+5. Probar cancelación del pago, reintento, cambio a "Enviado" con guía y cancelación de pedido.
