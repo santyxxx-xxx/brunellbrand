@@ -6,7 +6,7 @@
 
 export const TIENDA = {
   nombre: "Brunel Brand",
-  marca: "BRUNELL", // palabra que acompaña al grifo en el logo
+  marca: "BRUNEL", // palabra que acompaña al grifo en el logo
   ciudad: "Quito, Ecuador",
   descripcion: "Camisas y polos para hombre con corte impecable. Hechos para el día a día en Quito.",
 

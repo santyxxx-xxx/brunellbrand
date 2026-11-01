@@ -83,7 +83,7 @@ export default async function Inicio() {
       <section className="contenedor pt-16">
         <Revelar className="flex items-end justify-between">
           <div>
-            <p className="etiqueta text-ocre">Selección Brunell</p>
+            <p className="etiqueta text-ocre">Selección Brunel</p>
             <h2 className="titulo-seccion mt-1">Destacados</h2>
           </div>
           <Link href="/catalogo" className="text-sm underline underline-offset-4 hover:text-ocre">
