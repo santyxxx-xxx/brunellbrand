@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Paleta Brunel Brand */
+@theme {
+  --color-marino: #1f2a44;
+  --color-marino-claro: #2c3a5c;
+  --color-hueso: #f5f1e8;
+  --color-hueso-oscuro: #e9e2d2;
+  --color-ocre: #c99a2e;
+  --color-ocre-oscuro: #a97f1f;
+
+  --font-serif: var(--fuente-titulos), "Georgia", serif;
+  --font-sans: var(--fuente-texto), system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-hueso);
+  color: var(--color-marino);
+  font-family: var(--font-sans);
+}
+
+/* Componentes reutilizables */
+@layer components {
+  .contenedor {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+  }
+
+  .btn-ocre {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ocre px-6 py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-ocre-oscuro disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-borde {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-marino px-6 py-3 text-sm font-semibold tracking-wide text-marino transition hover:bg-marino hover:text-white disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-marino {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-marino px-6 py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-marino-claro disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .etiqueta {
+    @apply text-[11px] font-semibold uppercase tracking-[0.2em];
+  }
+
+  .campo {
+    @apply w-full rounded-lg border border-marino/20 bg-white px-3 py-2.5 text-sm text-marino outline-none transition focus:border-ocre focus:ring-2 focus:ring-ocre/30;
+  }
+
+  .titulo-seccion {
+    @apply font-serif text-3xl font-medium sm:text-4xl;
+  }
+}
