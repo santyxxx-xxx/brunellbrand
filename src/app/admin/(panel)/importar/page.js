@@ -98,8 +98,26 @@ export default function ImportarCsv() {
         if (error) throw error;
       }
 
+      // 5. Costos (solo si el archivo trae la columna "costo" y eres admin)
+      const conCosto = resultado.productos.filter((p) => p.costo !== null && p.costo >= 0 && idsPorSku.get(p.sku));
+      let aviso = "";
+      if (conCosto.length) {
+        setProgreso("Guardando costos...");
+        const { data: rol } = await supabase.rpc("mi_rol");
+        if (rol?.rol === "admin") {
+          for (const lote of enLotes(conCosto, 200)) {
+            const { error } = await supabase
+              .from("productos_costos")
+              .upsert(lote.map((p) => ({ producto_id: idsPorSku.get(p.sku), costo: p.costo })));
+            if (error) throw error;
+          }
+        } else {
+          aviso = " (los costos no se guardaron: solo el admin puede hacerlo)";
+        }
+      }
+
       await refrescarTienda();
-      setTerminado({ ok: true, texto: `¡Listo! Se importaron ${guardados} productos.` });
+      setTerminado({ ok: true, texto: `¡Listo! Se importaron ${guardados} productos.${aviso}` });
     } catch (err) {
       const duplicado = err?.code === "23505";
       setTerminado({
@@ -137,6 +155,7 @@ export default function ImportarCsv() {
           <li><strong>categoria</strong> — se crea si no existe</li>
           <li><strong>stock_s, stock_m, stock_l, stock_xl</strong> — unidades por talla</li>
           <li><strong>precio_anterior</strong> — opcional, para ofertas</li>
+          <li><strong>costo</strong> — opcional, costo unitario (solo admin)</li>
           <li><strong>descripcion</strong> — opcional</li>
           <li><strong>destacado</strong> / <strong>activo</strong> — si / no</li>
           <li className="sm:col-span-2"><strong>imagenes</strong> — URLs separadas por “|” (opcional; las fotos también se pueden subir después desde el panel)</li>

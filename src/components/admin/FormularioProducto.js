@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 import { borrarFotos, refrescarTienda, subirFoto } from "@/lib/admin";
-import { aNumero, crearSlug, slugProducto } from "@/lib/utilidades";
+import { aNumero, crearSlug, formatearPrecio, slugProducto } from "@/lib/utilidades";
 import { TALLAS } from "@/config/tienda";
 
 const VACIO = {
@@ -33,6 +33,8 @@ export default function FormularioProducto({ productoId }) {
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(esEdicion);
   const [error, setError] = useState("");
+  const [esAdminTotal, setEsAdminTotal] = useState(false);
+  const [costo, setCosto] = useState("");
 
   useEffect(() => {
     const supabase = obtenerClienteNavegador();
@@ -40,6 +42,15 @@ export default function FormularioProducto({ productoId }) {
       let { data: cats, error: errCats } = await supabase.from("categorias").select("id, nombre, parent_id").order("orden");
       if (errCats) ({ data: cats } = await supabase.from("categorias").select("id, nombre").order("orden"));
       setCategorias(cats || []);
+
+      // El costo solo lo ve y edita el rol admin
+      const { data: rol } = await supabase.rpc("mi_rol");
+      const admin = rol?.rol === "admin";
+      setEsAdminTotal(admin);
+      if (admin && esEdicion) {
+        const { data: c } = await supabase.from("productos_costos").select("costo").eq("producto_id", productoId).maybeSingle();
+        if (c) setCosto(String(c.costo));
+      }
 
       if (esEdicion) {
         const { data, error } = await supabase
@@ -154,6 +165,18 @@ export default function FormularioProducto({ productoId }) {
       return setError(`Producto guardado, pero falló el stock: ${errorStock.message}`);
     }
 
+    if (esAdminTotal) {
+      const valorCosto = aNumero(costo);
+      const r =
+        valorCosto === null
+          ? await supabase.from("productos_costos").delete().eq("producto_id", id)
+          : await supabase.from("productos_costos").upsert({ producto_id: id, costo: valorCosto });
+      if (r.error) {
+        setGuardando(false);
+        return setError(`Producto guardado, pero falló el costo: ${r.error.message}`);
+      }
+    }
+
     if (fotosQuitadas.length) await borrarFotos(fotosQuitadas);
     await refrescarTienda();
     router.push("/admin");
@@ -182,6 +205,18 @@ export default function FormularioProducto({ productoId }) {
         <Campo etiqueta="Precio anterior (opcional)" ayuda="Si es mayor al precio, se muestra como oferta.">
           <input className="campo" inputMode="decimal" value={datos.precio_anterior} onChange={(e) => cambiar("precio_anterior", e.target.value)} placeholder="39,90" />
         </Campo>
+        {esAdminTotal && (
+          <Campo
+            etiqueta="Costo (solo lo ve el admin)"
+            ayuda={
+              aNumero(costo) !== null && aNumero(datos.precio)
+                ? `Margen: ${formatearPrecio(aNumero(datos.precio) - aNumero(costo))} (${Math.round(((aNumero(datos.precio) - aNumero(costo)) / aNumero(datos.precio)) * 100)}%)`
+                : "Se usa para calcular la utilidad en el dashboard."
+            }
+          >
+            <input className="campo border-dashed" inputMode="decimal" value={costo} onChange={(e) => setCosto(e.target.value)} placeholder="Ej: 30,00" />
+          </Campo>
+        )}
         <Campo etiqueta="Categoría">
           <select className="campo" value={datos.categoria_id} onChange={(e) => cambiar("categoria_id", e.target.value)}>
             <option value="">Sin categoría</option>

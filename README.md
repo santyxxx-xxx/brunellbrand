@@ -195,3 +195,17 @@ Ver la guía completa en la conversación de la Fase 2. Resumen:
 3. Revisar costos en **Panel → Envíos** y completar los `[CORCHETES]` en **Panel → Páginas legales**.
 4. Compra de prueba con PayPhone en modo pruebas → revisar correo, estado "Pagado" y stock.
 5. Probar cancelación del pago, reintento, cambio a "Enviado" con guía y cancelación de pedido.
+
+---
+
+# Fase 3 · Ventas en tienda, stock y dashboard
+
+- **SQL:** ejecutar `supabase/fase3.sql` y luego `supabase/costos-inventario.sql` (costos del reporte de inventario).
+  Al final de `fase3.sql` están las líneas para registrar a Santiago y Mateo con su nombre y rol.
+- **Vender** (`/admin/vender`): venta rápida desde el celular; usa la función `registrar_venta_tienda`
+  (valida stock, guarda canal = tienda y el vendedor según la sesión, descuenta stock).
+- **Por reponer** (`/admin/reponer`): tallas con stock bajo; umbral configurable.
+- **Dashboard** (`/admin/dashboard`, solo rol admin): función `dashboard_datos`.
+- **Roles:** `admin` ve todo; `vendedor` vende y ve pedidos, sin costos ni dashboard.
+- **Correo semanal:** `vercel.json` programa `/api/cron/reposicion` los lunes 13:00 UTC (08:00 en Ecuador).
+  Requiere la variable `CRON_SECRET` en Vercel.

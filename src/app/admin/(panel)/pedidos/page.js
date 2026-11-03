@@ -11,6 +11,7 @@ const FILTROS = [{ clave: "", texto: "Todos" }, ...Object.entries(ESTADOS_PEDIDO
 export default function ListaPedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [estado, setEstado] = useState("");
+  const [canal, setCanal] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -20,16 +21,17 @@ export default function ListaPedidos() {
       setCargando(true);
       let consulta = obtenerClienteNavegador()
         .from("orders")
-        .select("id, numero, estado, cliente_nombre, cliente_telefono, provincia, ciudad, envio_nombre, total, creado_en, numero_guia, stock_insuficiente")
+        .select("id, numero, estado, canal, vendedor_nombre, metodo_pago, cliente_nombre, cliente_telefono, provincia, ciudad, envio_nombre, total, creado_en, numero_guia, stock_insuficiente")
         .order("creado_en", { ascending: false })
         .limit(300);
       if (estado) consulta = consulta.eq("estado", estado);
+      if (canal) consulta = consulta.eq("canal", canal);
       const { data, error } = await consulta;
       if (error) setError(error.message);
       setPedidos(data || []);
       setCargando(false);
     })();
-  }, [estado]);
+  }, [estado, canal]);
 
   const filtrados = useMemo(() => {
     const q = busqueda.trim().toLowerCase().replace("#", "");
@@ -58,6 +60,19 @@ export default function ListaPedidos() {
         ))}
       </div>
 
+      <div className="mt-3 flex gap-2 text-xs">
+        {[["", "Todos los canales"], ["web", "Web"], ["tienda", "Tienda"]].map(([clave, texto]) => (
+          <button
+            key={clave}
+            type="button"
+            onClick={() => setCanal(clave)}
+            className={`rounded-full px-3 py-1 ${canal === clave ? "bg-ocre text-white" : "bg-hueso-oscuro"}`}
+          >
+            {texto}
+          </button>
+        ))}
+      </div>
+
       <input className="campo mt-4" placeholder="Buscar por número, nombre o teléfono..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
 
       {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
@@ -77,11 +92,14 @@ export default function ListaPedidos() {
                     <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${ESTADOS_PEDIDO[p.estado]?.color}`}>
                       {ESTADOS_PEDIDO[p.estado]?.texto}
                     </span>
+                    <span className="rounded-full bg-marino/10 px-2 py-0.5 text-[11px]">
+                      {p.canal === "tienda" ? `Tienda${p.vendedor_nombre ? ` · ${p.vendedor_nombre}` : ""}` : "Web"}
+                    </span>
                     {p.stock_insuficiente && <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] text-red-700">Revisar stock</span>}
                   </p>
                   <p className="mt-1 truncate text-sm">{p.cliente_nombre}</p>
                   <p className="truncate text-xs text-marino/60">
-                    {new Date(p.creado_en).toLocaleString("es-EC", { dateStyle: "short", timeStyle: "short" })} · {p.ciudad}, {p.provincia} · {p.envio_nombre}
+                    {new Date(p.creado_en).toLocaleString("es-EC", { dateStyle: "short", timeStyle: "short" })} · {p.canal === "tienda" ? `Pago: ${p.metodo_pago || "—"}` : `${p.ciudad}, ${p.provincia} · ${p.envio_nombre}`}
                     {p.numero_guia ? ` · Guía ${p.numero_guia}` : ""}
                   </p>
                 </div>

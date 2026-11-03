@@ -6,7 +6,7 @@
 
 import { revalidatePath } from "next/cache";
 import { obtenerPasarela, nuevoClientTransactionId, aCentavos } from "@/lib/pagos";
-import { enviarCorreo, correoAdmin } from "@/lib/correo/enviar";
+import { enviarCorreo, correoAdmin, correosAdmin } from "@/lib/correo/enviar";
 import { comprobanteCliente, avisoAdmin, avisoEnvio } from "@/lib/correo/plantillas";
 
 export class ErrorPedido extends Error {
@@ -31,6 +31,10 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
   if (error) throw new ErrorPedido("No pudimos revisar los productos. Intenta de nuevo.", 500);
 
   const porId = new Map((productos || []).map((p) => [p.id, p]));
+
+  // Costos (solo para calcular la utilidad en el dashboard; nunca se muestran al cliente)
+  const { data: costos } = await admin.from("productos_costos").select("producto_id, costo").in("producto_id", ids);
+  const costoPorId = new Map((costos || []).map((c) => [c.producto_id, Number(c.costo)]));
   const lineas = [];
   const problemas = [];
 
@@ -60,6 +64,7 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
       precio_unitario: precio,
       cantidad: item.cantidad,
       subtotal: redondear(precio * item.cantidad),
+      costo_unitario: costoPorId.has(producto.id) ? costoPorId.get(producto.id) : null,
     });
   }
 
@@ -102,6 +107,8 @@ export async function crearPedido(admin, { cliente, calculo, userId }) {
       subtotal: calculo.subtotal,
       total: calculo.total,
       acepto_politicas_en: new Date().toISOString(),
+      canal: "web",
+      metodo_pago: "payphone",
     })
     .select("*")
     .single();
@@ -220,7 +227,7 @@ export async function confirmarPago(admin, { transaccionId, clientTransactionId 
   } else if (pedido?.estado === "cancelado") {
     // Pago aprobado sobre un pedido cancelado: avisar al admin para revisarlo
     await enviarCorreo({
-      para: correoAdmin(),
+      para: correosAdmin(),
       asunto: `⚠️ Pago recibido en pedido cancelado #${pedido.numero}`,
       html: `<p>Se aprobó un pago (${clientTransactionId}) para el pedido #${pedido.numero}, que estaba cancelado. Revísalo en el panel.</p>`,
     });
@@ -246,8 +253,8 @@ export async function enviarCorreosPago(admin, pedido, urlSitio) {
   const envios = [
     enviarCorreo({ para: pedido.cliente_correo, asunto: cliente.asunto, html: cliente.html, responderA: correoAdmin() || undefined }),
   ];
-  if (correoAdmin()) {
-    envios.push(enviarCorreo({ para: correoAdmin(), asunto: aviso.asunto, html: aviso.html, responderA: pedido.cliente_correo }));
+  if (correosAdmin().length) {
+    envios.push(enviarCorreo({ para: correosAdmin(), asunto: aviso.asunto, html: aviso.html, responderA: pedido.cliente_correo }));
   }
   const resultados = await Promise.all(envios);
 

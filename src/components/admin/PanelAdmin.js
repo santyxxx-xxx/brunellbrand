@@ -6,8 +6,12 @@ import { usePathname } from "next/navigation";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 import Logo from "@/components/marca/Logo";
 
+// soloAdmin: no se muestra al rol "vendedor"
 const MENU = [
+  { href: "/admin/vender", texto: "＋ Vender", destacado: true },
+  { href: "/admin/dashboard", texto: "Dashboard", soloAdmin: true },
   { href: "/admin/pedidos", texto: "Pedidos" },
+  { href: "/admin/reponer", texto: "Por reponer" },
   { href: "/admin", texto: "Productos" },
   { href: "/admin/productos/nuevo", texto: "Nuevo producto" },
   { href: "/admin/categorias", texto: "Categorías" },
@@ -20,6 +24,7 @@ const MENU = [
 export default function PanelAdmin({ children }) {
   const [estado, setEstado] = useState("verificando"); // verificando | admin | sin-permiso
   const [correo, setCorreo] = useState("");
+  const [perfil, setPerfil] = useState({ rol: "admin", nombre: "" });
   const ruta = usePathname();
 
   useEffect(() => {
@@ -32,6 +37,9 @@ export default function PanelAdmin({ children }) {
       }
       setCorreo(data.user.email || "");
       const { data: esAdmin } = await supabase.rpc("es_admin");
+      // Nombre y rol (si aún no se ejecutó fase3.sql, se asume admin)
+      const { data: rol } = await supabase.rpc("mi_rol");
+      if (rol) setPerfil(rol);
       setEstado(esAdmin ? "admin" : "sin-permiso");
     })();
   }, []);
@@ -64,20 +72,25 @@ export default function PanelAdmin({ children }) {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link href="/admin" className="flex items-center gap-2">
             <Logo tono="claro" tamano="sm" />
-            <span className="text-xs text-ocre">admin</span>
+            <span className="text-xs text-ocre">{perfil.rol === "vendedor" ? "ventas" : "admin"}</span>
           </Link>
           <div className="flex items-center gap-4 text-xs">
+            {perfil.nombre && <span className="text-hueso/90">Hola, {perfil.nombre}</span>}
             <Link href="/" target="_blank" className="hidden text-hueso/70 hover:text-ocre sm:inline">Ver tienda</Link>
             <button type="button" onClick={cerrarSesion} className="text-hueso/70 hover:text-ocre">Salir</button>
           </div>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-2 pb-2">
-          {MENU.map((m) => (
+          {MENU.filter((m) => !(m.soloAdmin && perfil.rol === "vendedor")).map((m) => (
             <Link
               key={m.href}
               href={m.href}
               className={`shrink-0 rounded-full px-4 py-1.5 text-sm transition ${
-                ruta === m.href ? "bg-ocre text-white" : "text-hueso/80 hover:bg-white/10"
+                ruta === m.href
+                  ? "bg-ocre text-white"
+                  : m.destacado
+                    ? "bg-white text-marino font-semibold hover:bg-hueso"
+                    : "text-hueso/80 hover:bg-white/10"
               }`}
             >
               {m.texto}

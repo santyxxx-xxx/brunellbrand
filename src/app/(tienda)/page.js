@@ -5,6 +5,7 @@ import TarjetaProducto from "@/components/tienda/TarjetaProducto";
 import { IconoFlecha } from "@/components/tienda/Iconos";
 import Revelar from "@/components/marca/Revelar";
 import GrifoParallax from "@/components/marca/GrifoParallax";
+import FranjaConfianza from "@/components/tienda/FranjaConfianza";
 
 // Los datos se actualizan cada 60 segundos
 export const revalidate = 60;
@@ -40,6 +41,13 @@ export default async function Inicio() {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Franja de confianza */}
+      <section className="contenedor -mt-6 relative z-10">
+        <Revelar>
+          <FranjaConfianza />
+        </Revelar>
       </section>
 
       {/* Categorías */}
@@ -106,21 +114,6 @@ export default async function Inicio() {
         )}
       </section>
 
-      {/* Beneficios */}
-      <section className="contenedor pt-16">
-        <Revelar className="grid gap-4 rounded-2xl bg-white p-6 sm:grid-cols-3 sm:p-10">
-          {[
-            ["Atención personalizada", "Te asesoramos por WhatsApp para elegir tu talla ideal."],
-            ["Calidad que se siente", "Telas seleccionadas y acabados cuidados en cada prenda."],
-            ["Desde Quito", "Coordinamos la entrega de tu pedido de forma rápida y segura."],
-          ].map(([titulo, texto]) => (
-            <div key={titulo} className="border-l-2 border-ocre pl-4">
-              <p className="font-serif text-xl">{titulo}</p>
-              <p className="mt-1 text-sm text-marino/70">{texto}</p>
-            </div>
-          ))}
-        </Revelar>
-      </section>
     </>
   );
 }

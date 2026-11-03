@@ -3,6 +3,8 @@ import { TALLAS } from "@/config/tienda";
 import { obtenerCategorias, obtenerProductos } from "@/lib/consultas";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
 import Revelar from "@/components/marca/Revelar";
+import SelectorOrden from "@/components/catalogo/SelectorOrden";
+import FranjaConfianza from "@/components/tienda/FranjaConfianza";
 import { arbolCategorias, categoriaPrincipal } from "@/lib/categorias";
 
 export const revalidate = 60;
@@ -11,11 +13,6 @@ export const metadata = {
   title: "Catálogo",
 };
 
-const ORDENES = [
-  { valor: "", texto: "Más recientes" },
-  { valor: "precio-asc", texto: "Menor precio" },
-  { valor: "precio-desc", texto: "Mayor precio" },
-];
 
 // Arma la URL conservando los filtros actuales
 function construirUrl(actual, cambios) {
@@ -61,7 +58,7 @@ export default async function Catalogo({ searchParams }) {
   const filtros = {
     categoria: typeof params?.categoria === "string" ? params.categoria : "",
     talla: typeof params?.talla === "string" && TALLAS.includes(params.talla) ? params.talla : "",
-    orden: typeof params?.orden === "string" ? params.orden : "",
+    orden: ["precio-asc", "recientes"].includes(params?.orden) ? params.orden : "",
   };
 
   const [categorias, productos] = await Promise.all([
@@ -80,6 +77,10 @@ export default async function Catalogo({ searchParams }) {
         {principal && principal.id !== categoriaActual?.id ? `Catálogo · ${principal.nombre}` : "Catálogo"}
       </p>
       <h1 className="titulo-seccion mt-1">{categoriaActual ? categoriaActual.nombre : "Todos los productos"}</h1>
+
+      <div className="mt-5">
+        <FranjaConfianza compacta />
+      </div>
 
       {/* Filtros */}
       <div className="mt-6 space-y-4">
@@ -124,16 +125,7 @@ export default async function Catalogo({ searchParams }) {
             </div>
           </div>
 
-          <div>
-            <p className="etiqueta mb-2 text-marino/60">Ordenar</p>
-            <div className="flex gap-2 overflow-x-auto">
-              {ORDENES.map((o) => (
-                <Chip key={o.valor} href={construirUrl(filtros, { orden: o.valor })} activo={filtros.orden === o.valor}>
-                  {o.texto}
-                </Chip>
-              ))}
-            </div>
-          </div>
+          <SelectorOrden actual={filtros.orden} parametros={{ categoria: filtros.categoria, talla: filtros.talla }} />
         </div>
       </div>
 

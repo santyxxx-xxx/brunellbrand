@@ -20,7 +20,11 @@ export default function DetallePedido() {
     const supabase = obtenerClienteNavegador();
     const [{ data: p }, { data: it }, { data: pg }] = await Promise.all([
       supabase.from("orders").select("*").eq("id", id).maybeSingle(),
-      supabase.from("order_items").select("*").eq("order_id", id).order("id"),
+      supabase
+        .from("order_items")
+        .select("id, producto_id, sku, nombre, talla, imagen, precio_unitario, cantidad, subtotal")
+        .eq("order_id", id)
+        .order("id"),
       supabase.from("order_payments").select("*").eq("order_id", id).order("creado_en", { ascending: false }),
     ]);
     setPedido(p || null);
@@ -82,6 +86,11 @@ export default function DetallePedido() {
               {ESTADOS_PEDIDO[pedido.estado]?.texto}
             </span>
           </h1>
+          <p className="mt-1 flex flex-wrap gap-2 text-xs">
+            <span className="rounded-full bg-marino/10 px-2.5 py-0.5">{pedido.canal === "tienda" ? "Venta en tienda" : "Venta web"}</span>
+            {pedido.vendedor_nombre && <span className="rounded-full bg-ocre/15 px-2.5 py-0.5">Vendedor: {pedido.vendedor_nombre}</span>}
+            {pedido.metodo_pago && <span className="rounded-full bg-marino/10 px-2.5 py-0.5 capitalize">{pedido.metodo_pago}</span>}
+          </p>
           <p className="text-sm text-marino/60">
             Creado {new Date(pedido.creado_en).toLocaleString("es-EC")}
             {pedido.pagado_en && ` · Pagado ${new Date(pedido.pagado_en).toLocaleString("es-EC")}`}

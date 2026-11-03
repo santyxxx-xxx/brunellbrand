@@ -1,6 +1,6 @@
 // Lógica para convertir las filas del CSV en productos listos para guardar.
 // Columnas aceptadas (no importan mayúsculas ni tildes):
-//   sku | codigo, nombre, descripcion, precio, precio_anterior, categoria,
+//   sku | codigo, nombre, descripcion, precio, precio_anterior, costo, categoria,
 //   destacado, activo, stock_s, stock_m, stock_l, stock_xl (o simplemente s, m, l, xl),
 //   imagenes (URLs separadas por "|")
 
@@ -68,6 +68,7 @@ export function procesarFilas(filasCrudas) {
       descripcion: String(fila.descripcion || "").trim() || null,
       precio,
       precio_anterior: aNumero(fila.precio_anterior),
+      costo: aNumero(fila.costo ?? fila.costo_unitario),
       categoria: String(fila.categoria || "").trim(),
       destacado: aBooleano(fila.destacado, false),
       activo: aBooleano(fila.activo, true),

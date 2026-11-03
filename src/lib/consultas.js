@@ -80,9 +80,10 @@ export async function obtenerProductos({ categoria, talla, orden } = {}) {
     consulta = consulta.in("id", ids);
   }
 
+  // Por defecto: de la prenda más cara a la más barata
   if (orden === "precio-asc") consulta = consulta.order("precio", { ascending: true });
-  else if (orden === "precio-desc") consulta = consulta.order("precio", { ascending: false });
-  else consulta = consulta.order("creado_en", { ascending: false });
+  else if (orden === "recientes") consulta = consulta.order("creado_en", { ascending: false });
+  else consulta = consulta.order("precio", { ascending: false }).order("nombre", { ascending: true });
 
   const { data, error } = await consulta.limit(500);
   registrarError("obtenerProductos", error);
@@ -112,4 +113,13 @@ export async function obtenerRelacionados(producto, limite = 4) {
     .limit(limite);
   registrarError("obtenerRelacionados", error);
   return data || [];
+}
+
+// Número real de pedidos entregados (función pública en Supabase; null si no está disponible)
+export async function obtenerPedidosEntregados() {
+  const supabase = obtenerClientePublico();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("pedidos_entregados");
+  if (error) return null;
+  return Number(data) || 0;
 }

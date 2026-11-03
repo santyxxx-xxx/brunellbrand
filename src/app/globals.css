@@ -151,6 +151,18 @@ body {
   to { transform: none; }
 }
 
+/* Hojas inferiores y pantalla de éxito (venta en tienda) */
+.hoja-entrada { animation: subir 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+@keyframes subir {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.exito-entrada { animation: exito 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes exito {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
 /* Aparición al deslizar */
 .revelar {
   opacity: 0;

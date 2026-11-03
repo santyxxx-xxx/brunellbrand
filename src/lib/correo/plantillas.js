@@ -151,3 +151,37 @@ export function avisoEnvio({ pedido, urlSitio }) {
     html: marco({ urlSitio, titulo: "Pedido enviado", preencabezado: `Pedido #${pedido.numero} en camino`, contenido }),
   };
 }
+
+/** Reporte semanal de stock bajo para el equipo. */
+export function reporteReposicion({ lista, umbral, urlSitio }) {
+  const filas = lista
+    .map(
+      (p) => `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid #eee;">${esc(p.nombre)}<br>
+          <span style="color:${C.gris};font-size:11px;">${esc(p.categoria || "Sin categoría")} · ${esc(p.sku)}</span></td>
+        <td align="right" style="padding:10px 0;border-bottom:1px solid #eee;font-size:12px;white-space:nowrap;">
+          ${p.tallas
+            .map(
+              (t) =>
+                `<span style="display:inline-block;margin:2px 0 2px 4px;padding:2px 8px;border-radius:99px;background:${t.stock === 0 ? "#FEE2E2" : "#FEF3C7"};color:${t.stock === 0 ? "#991B1B" : "#92400E"};font-weight:bold;">${esc(t.talla)}: ${t.stock}</span>`
+            )
+            .join("")}
+        </td>
+      </tr>`
+    )
+    .join("");
+  const totalTallas = lista.reduce((s, p) => s + p.tallas.length, 0);
+  const contenido = lista.length
+    ? `<h1 style="font-family:Georgia,serif;font-weight:normal;font-size:22px;margin:0 0 6px;">Prendas por reponer</h1>
+       <p style="margin:0 0 18px;color:${C.gris};">${lista.length} productos y ${totalTallas} tallas con stock de ${umbral} o menos · ${fecha()}</p>
+       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">${filas}</table>
+       ${boton(`${urlSitio}/admin/reponer`, "Ver en el panel")}`
+    : `<h1 style="font-family:Georgia,serif;font-weight:normal;font-size:22px;margin:0 0 6px;">Todo en orden</h1>
+       <p style="margin:0;color:${C.gris};">Esta semana no hay tallas con stock de ${umbral} o menos.</p>`;
+  return {
+    asunto: lista.length
+      ? `📦 Por reponer: ${lista.length} productos con stock bajo · ${TIENDA.nombre}`
+      : `✅ Stock en orden esta semana · ${TIENDA.nombre}`,
+    html: marco({ urlSitio, titulo: "Por reponer", preencabezado: `${totalTallas} tallas por reponer`, contenido }),
+  };
+}

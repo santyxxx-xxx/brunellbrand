@@ -34,7 +34,15 @@ export async function enviarCorreo({ para, asunto, html, responderA }) {
   }
 }
 
-// Correo del dueño de la tienda (para avisos de pedidos)
+// Correos del equipo (EMAIL_ADMIN admite varios separados por coma)
+export function correosAdmin() {
+  return (process.env.EMAIL_ADMIN || "")
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean);
+}
+
+// Primer correo del equipo (se usa como "responder a")
 export function correoAdmin() {
-  return (process.env.EMAIL_ADMIN || "").trim();
+  return correosAdmin()[0] || "";
 }
