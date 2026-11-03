@@ -209,3 +209,14 @@ Ver la guía completa en la conversación de la Fase 2. Resumen:
 - **Roles:** `admin` ve todo; `vendedor` vende y ve pedidos, sin costos ni dashboard.
 - **Correo semanal:** `vercel.json` programa `/api/cron/reposicion` los lunes 13:00 UTC (08:00 en Ecuador).
   Requiere la variable `CRON_SECRET` en Vercel.
+
+---
+
+# Historial de Treinta (importación única) y Balance
+
+- `supabase/historico.sql`: tablas `ventas_historicas`, `ventas_historicas_items`, `prendas_historicas`,
+  `gastos_historicos` (solo rol admin) y la función `balance_datos` que une historial + ventas nuevas.
+- `supabase/importar-treinta.sql`: los datos ya limpios (207 ventas, 397 líneas, 34 gastos). Repetible sin duplicar.
+- `scripts/treinta/`: scripts de Python usados para leer el PDF de Treinta y generar el SQL (referencia).
+- Panel → **Prendas historial**: confirmar o corregir la relación de prendas con el catálogo.
+- Panel → **Dashboard**: balance con filtro de fechas.
