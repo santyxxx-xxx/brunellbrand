@@ -13,11 +13,23 @@ const METODOS = [
   { valor: "tarjeta", texto: "Tarjeta", icono: "💳" },
 ];
 
-// Venta en tienda: buscar → talla y cantidad → cobrar. Pensado para el celular.
+const ORDENES = [
+  { clave: "nombre", texto: "A–Z" },
+  { clave: "stock", texto: "Más stock" },
+  { clave: "precio", texto: "Mayor precio" },
+];
+
+// Venta en tienda: categoría o búsqueda → talla y cantidad → cobrar.
+// En el celular el cobro va en una hoja inferior; en la compu, en un panel a la derecha.
 export default function NuevaVenta() {
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState("");
+  const [categoria, setCategoria] = useState(null); // id de categoría principal
+  const [subcategoria, setSubcategoria] = useState(null);
+  const [soloConStock, setSoloConStock] = useState(true);
+  const [orden, setOrden] = useState("nombre");
   const [elegido, setElegido] = useState(null); // producto en la hoja de "agregar"
   const [lineas, setLineas] = useState([]);
   const [cobrando, setCobrando] = useState(false);
@@ -29,11 +41,21 @@ export default function NuevaVenta() {
   const buscador = useRef(null);
 
   async function cargar() {
-    const { data } = await obtenerClienteNavegador()
-      .from("productos")
-      .select("id, sku, nombre, precio, imagenes, activo, tallas:producto_tallas(talla, stock)")
-      .order("nombre");
-    setProductos(data || []);
+    const supabase = obtenerClienteNavegador();
+    const [{ data: prods }, cats] = await Promise.all([
+      supabase
+        .from("productos")
+        .select("id, sku, nombre, precio, imagenes, activo, categoria_id, tallas:producto_tallas(talla, stock)")
+        .order("nombre"),
+      supabase.from("categorias").select("id, nombre, parent_id, orden").order("orden"),
+    ]);
+    let listaCats = cats.data;
+    if (cats.error) {
+      const r = await supabase.from("categorias").select("id, nombre, orden").order("orden");
+      listaCats = r.data;
+    }
+    setProductos(prods || []);
+    setCategorias((listaCats || []).map((c) => ({ ...c, parent_id: c.parent_id ?? null })));
     setCargando(false);
   }
 
@@ -41,16 +63,48 @@ export default function NuevaVenta() {
     cargar();
   }, []);
 
+  const principales = categorias.filter((c) => !c.parent_id);
+  const hijas = categoria ? categorias.filter((c) => c.parent_id === categoria) : [];
+
+  const conteoPorCategoria = useMemo(() => {
+    const cuenta = {};
+    for (const p of productos) {
+      if (soloConStock && stockTotal(p.tallas) === 0) continue;
+      const cat = categorias.find((c) => c.id === p.categoria_id);
+      const principal = cat?.parent_id || cat?.id;
+      if (principal) cuenta[principal] = (cuenta[principal] || 0) + 1;
+      if (cat?.parent_id) cuenta[cat.id] = (cuenta[cat.id] || 0) + 1;
+    }
+    return cuenta;
+  }, [productos, categorias, soloConStock]);
+
   const resultados = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
-    const lista = q
-      ? productos.filter((p) => p.nombre.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))
-      : productos.filter((p) => stockTotal(p.tallas) > 0);
-    return lista.slice(0, 40);
-  }, [productos, busqueda]);
+    let lista = productos;
+    if (q) {
+      lista = lista.filter((p) => p.nombre.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+    } else if (subcategoria) {
+      lista = lista.filter((p) => p.categoria_id === subcategoria);
+    } else if (categoria) {
+      const ids = [categoria, ...hijas.map((h) => h.id)];
+      lista = lista.filter((p) => ids.includes(p.categoria_id));
+    }
+    if (soloConStock && !q) lista = lista.filter((p) => stockTotal(p.tallas) > 0);
+    const ordenada = [...lista];
+    if (orden === "stock") ordenada.sort((a, b) => stockTotal(b.tallas) - stockTotal(a.tallas));
+    else if (orden === "precio") ordenada.sort((a, b) => Number(b.precio) - Number(a.precio));
+    // Con búsqueda, primero los que tienen stock
+    if (q) ordenada.sort((a, b) => (stockTotal(b.tallas) > 0) - (stockTotal(a.tallas) > 0));
+    return ordenada;
+  }, [productos, busqueda, categoria, subcategoria, hijas, soloConStock, orden]);
 
   const total = lineas.reduce((s, l) => s + l.precio * l.cantidad, 0);
   const prendas = lineas.reduce((s, l) => s + l.cantidad, 0);
+  const enCarrito = useMemo(() => {
+    const m = {};
+    for (const l of lineas) m[l.productoId] = (m[l.productoId] || 0) + l.cantidad;
+    return m;
+  }, [lineas]);
 
   function agregar(linea) {
     setLineas((actual) => {
@@ -60,7 +114,6 @@ export default function NuevaVenta() {
       return [...actual, { ...linea, clave }];
     });
     setElegido(null);
-    setBusqueda("");
   }
 
   function cambiarLinea(clave, cambios) {
@@ -97,78 +150,127 @@ export default function NuevaVenta() {
   function nuevaVenta() {
     setExito(null);
     setMetodo("efectivo");
-    setTimeout(() => buscador.current?.focus(), 50);
+    setBusqueda("");
   }
 
+  function elegirCategoria(id) {
+    setCategoria(id);
+    setSubcategoria(null);
+    setBusqueda("");
+  }
+
+  const panelCobro = (
+    <PanelCobro
+      lineas={lineas}
+      cambiarLinea={cambiarLinea}
+      metodo={metodo}
+      setMetodo={setMetodo}
+      cliente={cliente}
+      setCliente={setCliente}
+      error={error}
+      guardando={guardando}
+      total={total}
+      onRegistrar={registrar}
+    />
+  );
+
   return (
-    <div className="-mx-4 -my-8 min-h-[calc(100vh-7rem)] bg-hueso px-4 pb-32 pt-4">
-      {/* Buscador */}
-      <div className="sticky top-[6.5rem] z-10 -mx-4 bg-hueso/95 px-4 pb-3 pt-1 backdrop-blur">
-        <div className="flex items-center justify-between pb-2">
-          <h1 className="font-serif text-2xl">Nueva venta</h1>
-          <Link href="/admin/pedidos" className="text-xs underline underline-offset-4">Ver ventas</Link>
+    <div className="-mx-4 -my-8 min-h-[calc(100vh-7rem)] bg-hueso px-4 pb-32 pt-4 lg:pb-10">
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-6">
+        <div className="min-w-0">
+          {/* Encabezado, buscador y categorías */}
+          <div className="sticky top-[6.5rem] z-10 -mx-4 space-y-2.5 bg-hueso/95 px-4 pb-3 pt-1 backdrop-blur">
+            <div className="flex items-center justify-between">
+              <h1 className="font-serif text-2xl">Nueva venta</h1>
+              <Link href="/admin/pedidos" className="text-xs underline underline-offset-4">Ver ventas</Link>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setOrden(ORDENES[(ORDENES.findIndex((o) => o.clave === orden) + 1) % ORDENES.length].clave)}
+                className="flex shrink-0 items-center gap-1 rounded-xl bg-marino px-3 text-xs font-semibold text-white"
+                title="Cambiar orden"
+              >
+                ⇅ <span className="hidden sm:inline">{ORDENES.find((o) => o.clave === orden).texto}</span>
+              </button>
+              <input
+                ref={buscador}
+                type="search"
+                inputMode="search"
+                className="campo py-3 text-base"
+                placeholder="Buscar por nombre o código..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+
+            {!busqueda && (
+              <>
+                <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-0.5 [scrollbar-width:none]">
+                  <Chip activo={!categoria} onClick={() => elegirCategoria(null)}>Todas</Chip>
+                  {principales.map((c) => (
+                    <Chip key={c.id} activo={categoria === c.id} onClick={() => elegirCategoria(c.id)}>
+                      {c.nombre}
+                      {conteoPorCategoria[c.id] ? <span className="ml-1 opacity-50">{conteoPorCategoria[c.id]}</span> : null}
+                    </Chip>
+                  ))}
+                </div>
+                {hijas.length > 0 && (
+                  <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]">
+                    <SubChip activo={!subcategoria} onClick={() => setSubcategoria(null)}>Todas</SubChip>
+                    {hijas.map((h) => (
+                      <SubChip key={h.id} activo={subcategoria === h.id} onClick={() => setSubcategoria(h.id)}>
+                        {h.nombre}
+                        {conteoPorCategoria[h.id] ? <span className="ml-1 opacity-60">{conteoPorCategoria[h.id]}</span> : null}
+                      </SubChip>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+            <label className="flex items-center gap-2 text-xs text-marino/70">
+              <input type="checkbox" className="h-4 w-4 accent-ocre" checked={soloConStock} onChange={(e) => setSoloConStock(e.target.checked)} />
+              Solo con stock · {resultados.length} {resultados.length === 1 ? "prenda" : "prendas"}
+            </label>
+          </div>
+
+          {/* Cuadrícula de productos */}
+          {cargando ? (
+            <p className="mt-6 text-center text-sm text-marino/60">Cargando productos...</p>
+          ) : resultados.length === 0 ? (
+            <p className="py-10 text-center text-sm text-marino/60">
+              {busqueda ? `Sin resultados para “${busqueda}”.` : "No hay prendas con stock en esta categoría."}
+            </p>
+          ) : (
+            <ul className="mt-1 grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {resultados.map((p) => (
+                <li key={p.id}>
+                  <TarjetaVenta producto={p} enCarrito={enCarrito[p.id]} onElegir={() => setElegido(p)} />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <input
-          ref={buscador}
-          type="search"
-          inputMode="search"
-          autoFocus
-          className="campo py-3.5 text-base"
-          placeholder="Buscar por nombre o código..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+
+        {/* Panel de cobro (compu) */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-[7.5rem] max-h-[calc(100vh-8.5rem)] overflow-y-auto rounded-2xl bg-white p-5 shadow-sm">
+            <h2 className="font-serif text-2xl">Venta actual</h2>
+            {lineas.length === 0 ? (
+              <div className="py-10 text-center text-sm text-marino/50">
+                <img src="/marca/grifo-negro.webp" alt="" className="mx-auto mb-3 h-12 w-auto opacity-15" />
+                Toca una prenda para agregarla.
+              </div>
+            ) : (
+              panelCobro
+            )}
+          </div>
+        </aside>
       </div>
 
-      {/* Resultados */}
-      {cargando ? (
-        <p className="mt-6 text-center text-sm text-marino/60">Cargando productos...</p>
-      ) : (
-        <>
-          {!busqueda && <p className="mb-2 mt-1 text-xs text-marino/50">Productos con stock</p>}
-          <ul className="space-y-2">
-            {resultados.map((p) => {
-              const tallas = ordenarTallas(p.tallas || []);
-              const sinStock = stockTotal(tallas) === 0;
-              return (
-                <li key={p.id}>
-                  <button
-                    type="button"
-                    disabled={sinStock}
-                    onClick={() => setElegido(p)}
-                    className="flex w-full items-center gap-3 rounded-xl bg-white p-2.5 text-left shadow-sm transition active:scale-[0.99] disabled:opacity-45"
-                  >
-                    <div className="aspect-[3/4] w-12 shrink-0 overflow-hidden rounded-lg bg-hueso-oscuro">
-                      {p.imagenes?.[0] ? (
-                        <img src={p.imagenes[0]} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <img src="/marca/grifo-negro.webp" alt="" className="mx-auto mt-3 h-8 w-auto opacity-15" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{p.nombre}</p>
-                      <p className="text-[11px] text-marino/50">{p.sku}</p>
-                      <p className="mt-0.5 flex gap-1.5 text-[11px]">
-                        {tallas.map((t) => (
-                          <span key={t.talla} className={t.stock > 0 ? "font-semibold" : "text-marino/30 line-through"}>
-                            {t.talla}·{t.stock}
-                          </span>
-                        ))}
-                      </p>
-                    </div>
-                    <span className="text-sm font-semibold">{formatearPrecio(p.precio)}</span>
-                  </button>
-                </li>
-              );
-            })}
-            {resultados.length === 0 && <li className="py-8 text-center text-sm text-marino/60">Sin resultados para “{busqueda}”.</li>}
-          </ul>
-        </>
-      )}
-
-      {/* Barra inferior con el total */}
+      {/* Barra inferior con el total (celular) */}
       {lineas.length > 0 && !cobrando && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-marino/10 bg-white p-3 shadow-[0_-10px_30px_-15px_rgba(31,42,68,0.4)]">
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-marino/10 bg-white p-3 shadow-[0_-10px_30px_-15px_rgba(31,42,68,0.4)] lg:hidden">
           <button type="button" onClick={() => setCobrando(true)} className="btn-ocre w-full justify-between py-4 text-base">
             <span>{prendas} {prendas === 1 ? "prenda" : "prendas"}</span>
             <span>Cobrar {formatearPrecio(total)} →</span>
@@ -179,75 +281,10 @@ export default function NuevaVenta() {
       {/* Hoja: elegir talla, cantidad y precio */}
       {elegido && <HojaAgregar producto={elegido} onCerrar={() => setElegido(null)} onAgregar={agregar} />}
 
-      {/* Hoja: cobrar */}
+      {/* Hoja: cobrar (celular) */}
       {cobrando && (
         <Hoja onCerrar={() => setCobrando(false)} titulo="Cobrar venta">
-          <ul className="divide-y divide-marino/10">
-            {lineas.map((l) => (
-              <li key={l.clave} className="flex items-center gap-2 py-3">
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{l.nombre}</p>
-                  <p className="text-xs text-marino/60">Talla {l.talla}</p>
-                </div>
-                <div className="flex items-center rounded-full border border-marino/20">
-                  <button type="button" className="h-9 w-9 text-lg" onClick={() => cambiarLinea(l.clave, { cantidad: l.cantidad - 1 })} aria-label="Restar">−</button>
-                  <span className="w-6 text-center text-sm font-semibold">{l.cantidad}</span>
-                  <button
-                    type="button"
-                    className="h-9 w-9 text-lg disabled:opacity-30"
-                    disabled={l.cantidad >= l.stock}
-                    onClick={() => cambiarLinea(l.clave, { cantidad: l.cantidad + 1 })}
-                    aria-label="Sumar"
-                  >
-                    +
-                  </button>
-                </div>
-                <label className="flex items-center text-sm">
-                  $
-                  <input
-                    className="campo ml-1 w-20 px-2 py-1.5 text-right"
-                    inputMode="decimal"
-                    defaultValue={l.precio.toFixed(2)}
-                    onBlur={(e) => {
-                      const n = aNumero(e.target.value);
-                      if (n !== null && n >= 0) cambiarLinea(l.clave, { precio: n });
-                    }}
-                  />
-                </label>
-              </li>
-            ))}
-          </ul>
-
-          <p className="etiqueta mb-2 mt-5">Método de pago</p>
-          <div className="grid grid-cols-3 gap-2">
-            {METODOS.map((m) => (
-              <button
-                key={m.valor}
-                type="button"
-                onClick={() => setMetodo(m.valor)}
-                className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 text-xs font-semibold transition ${
-                  metodo === m.valor ? "border-marino bg-marino text-white" : "border-marino/15 bg-white"
-                }`}
-              >
-                <span className="text-xl">{m.icono}</span>
-                {m.texto}
-              </button>
-            ))}
-          </div>
-
-          <details className="mt-4 rounded-xl bg-hueso p-3 text-sm">
-            <summary className="cursor-pointer text-marino/70">Datos del cliente (opcional)</summary>
-            <div className="mt-3 grid gap-2">
-              <input className="campo" placeholder="Nombre" value={cliente.nombre} onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })} />
-              <input className="campo" placeholder="Teléfono" inputMode="tel" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
-            </div>
-          </details>
-
-          {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-
-          <button type="button" onClick={registrar} disabled={guardando || lineas.length === 0} className="btn-ocre mt-5 w-full py-4 text-base">
-            {guardando ? "Registrando..." : `Registrar venta · ${formatearPrecio(total)}`}
-          </button>
+          {panelCobro}
         </Hoja>
       )}
 
@@ -266,6 +303,148 @@ export default function NuevaVenta() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function Chip({ activo, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-lg border px-3.5 py-1.5 text-xs font-medium transition ${
+        activo ? "border-ocre bg-ocre text-white" : "border-marino/15 bg-white hover:border-marino/40"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function SubChip({ activo, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`shrink-0 rounded-full px-3 py-1 text-[11px] transition ${activo ? "bg-marino text-white" : "bg-hueso-oscuro text-marino"}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function TarjetaVenta({ producto: p, enCarrito, onElegir }) {
+  const stock = stockTotal(p.tallas);
+  const agotado = stock === 0;
+  const insignia = agotado
+    ? "bg-red-100 text-red-700"
+    : stock <= 2
+      ? "bg-amber-100 text-amber-800"
+      : "bg-green-100 text-green-800";
+  return (
+    <button
+      type="button"
+      disabled={agotado}
+      onClick={onElegir}
+      className="relative flex h-full w-full flex-col items-center rounded-2xl border border-marino/10 bg-white p-2.5 text-center transition hover:border-ocre hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:hover:border-marino/10 disabled:hover:shadow-none"
+    >
+      {enCarrito && (
+        <span className="absolute right-2 top-2 z-[1] flex h-6 min-w-6 items-center justify-center rounded-full bg-ocre px-1.5 text-[11px] font-bold text-white">
+          {enCarrito}
+        </span>
+      )}
+      <div className="aspect-square w-full overflow-hidden rounded-xl bg-hueso">
+        {p.imagenes?.[0] ? (
+          <img src={p.imagenes[0]} alt="" loading="lazy" className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <img src="/marca/grifo-negro.webp" alt="" className="h-1/2 w-auto opacity-10" />
+          </div>
+        )}
+      </div>
+      <p className="mt-2 text-base font-semibold">{formatearPrecio(p.precio)}</p>
+      <p className="line-clamp-2 min-h-[2.5em] text-xs leading-tight text-marino/80">{p.nombre}</p>
+      <span className={`mt-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold ${insignia}`}>
+        {agotado ? "Agotado" : `${stock} disponibles`}
+      </span>
+    </button>
+  );
+}
+
+function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setCliente, error, guardando, total, onRegistrar }) {
+  return (
+    <div>
+      <ul className="divide-y divide-marino/10">
+        {lineas.map((l) => (
+          <li key={l.clave} className="flex items-center gap-2 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{l.nombre}</p>
+              <p className="text-xs text-marino/60">Talla {l.talla}</p>
+            </div>
+            <div className="flex items-center rounded-full border border-marino/20">
+              <button type="button" className="h-8 w-8 text-lg" onClick={() => cambiarLinea(l.clave, { cantidad: l.cantidad - 1 })} aria-label="Restar">−</button>
+              <span className="w-5 text-center text-sm font-semibold">{l.cantidad}</span>
+              <button
+                type="button"
+                className="h-8 w-8 text-lg disabled:opacity-30"
+                disabled={l.cantidad >= l.stock}
+                onClick={() => cambiarLinea(l.clave, { cantidad: l.cantidad + 1 })}
+                aria-label="Sumar"
+              >
+                +
+              </button>
+            </div>
+            <label className="flex items-center text-sm">
+              $
+              <input
+                key={`${l.clave}-${l.precio}`}
+                className="campo ml-1 w-[4.5rem] px-2 py-1.5 text-right"
+                inputMode="decimal"
+                defaultValue={l.precio.toFixed(2)}
+                onBlur={(e) => {
+                  const n = aNumero(e.target.value);
+                  if (n !== null && n >= 0) cambiarLinea(l.clave, { precio: n });
+                }}
+              />
+            </label>
+          </li>
+        ))}
+      </ul>
+
+      <p className="etiqueta mb-2 mt-5">Método de pago</p>
+      <div className="grid grid-cols-3 gap-2">
+        {METODOS.map((m) => (
+          <button
+            key={m.valor}
+            type="button"
+            onClick={() => setMetodo(m.valor)}
+            className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 text-xs font-semibold transition ${
+              metodo === m.valor ? "border-marino bg-marino text-white" : "border-marino/15 bg-white"
+            }`}
+          >
+            <span className="text-xl">{m.icono}</span>
+            {m.texto}
+          </button>
+        ))}
+      </div>
+
+      <details className="mt-4 rounded-xl bg-hueso p-3 text-sm">
+        <summary className="cursor-pointer text-marino/70">Datos del cliente (opcional)</summary>
+        <div className="mt-3 grid gap-2">
+          <input className="campo" placeholder="Nombre" value={cliente.nombre} onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })} />
+          <input className="campo" placeholder="Teléfono" inputMode="tel" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
+        </div>
+      </details>
+
+      {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+
+      <div className="mt-5 flex items-baseline justify-between border-t border-marino/10 pt-4">
+        <span className="text-sm">Total</span>
+        <span className="font-serif text-3xl">{formatearPrecio(total)}</span>
+      </div>
+      <button type="button" onClick={onRegistrar} disabled={guardando || lineas.length === 0} className="btn-ocre mt-4 w-full py-4 text-base">
+        {guardando ? "Registrando..." : "Registrar venta"}
+      </button>
     </div>
   );
 }
