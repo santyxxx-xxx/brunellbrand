@@ -7,8 +7,8 @@ import { urlSitio } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
 
-// Correo semanal "Por reponer".
-// Vercel lo llama cada lunes según vercel.json ("crons") y envía
+// Correo mensual "Por reponer".
+// Vercel lo llama el día 1 de cada mes (08:00 Ecuador) según vercel.json ("crons") y envía
 // "Authorization: Bearer <CRON_SECRET>". Sin ese secreto, no se ejecuta.
 export async function GET(request) {
   const secreto = (process.env.CRON_SECRET || "").trim();

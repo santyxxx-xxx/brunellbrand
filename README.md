@@ -207,7 +207,7 @@ Ver la guía completa en la conversación de la Fase 2. Resumen:
 - **Por reponer** (`/admin/reponer`): tallas con stock bajo; umbral configurable.
 - **Dashboard** (`/admin/dashboard`, solo rol admin): función `dashboard_datos`.
 - **Roles:** `admin` ve todo; `vendedor` vende y ve pedidos, sin costos ni dashboard.
-- **Correo semanal:** `vercel.json` programa `/api/cron/reposicion` los lunes 13:00 UTC (08:00 en Ecuador).
+- **Correo semanal:** `vercel.json` programa `/api/cron/reposicion` el día 1 de cada mes a las 13:00 UTC (08:00 en Ecuador).
   Requiere la variable `CRON_SECRET` en Vercel.
 
 ---

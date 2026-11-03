@@ -152,7 +152,7 @@ export function avisoEnvio({ pedido, urlSitio }) {
   };
 }
 
-/** Reporte semanal de stock bajo para el equipo. */
+/** Reporte mensual de stock bajo para el equipo. */
 export function reporteReposicion({ lista, umbral, urlSitio }) {
   const filas = lista
     .map(

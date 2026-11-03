@@ -1,5 +1,5 @@
 // Lista de productos/tallas con stock bajo. Funciona con el cliente del navegador
-// (panel, protegido por RLS) o con el cliente de servidor (correo semanal).
+// (panel, protegido por RLS) o con el cliente de servidor (correo mensual).
 
 export async function leerConfigReposicion(supabase) {
   const { data } = await supabase.from("configuracion").select("clave, valor").in("clave", ["umbral_stock", "correo_reposicion"]);
