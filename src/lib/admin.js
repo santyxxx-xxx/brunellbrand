@@ -5,9 +5,10 @@ import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 const BUCKET = "productos";
 
 // Refresca la tienda pública después de un cambio en el panel
+// y envía las alertas de stock que hayan quedado pendientes
 export async function refrescarTienda() {
   try {
-    await fetch("/api/revalidar", { method: "POST" });
+    await Promise.all([fetch("/api/revalidar", { method: "POST" }), fetch("/api/alertas/stock", { method: "POST" })]);
   } catch {
     /* si falla, la tienda se actualiza sola en máximo 60 segundos */
   }

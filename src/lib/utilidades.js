@@ -40,12 +40,11 @@ export function enlaceWhatsApp(numero, mensaje) {
   return `https://wa.me/${limpio}?text=${encodeURIComponent(mensaje)}`;
 }
 
-// Ordena las tallas según el orden de la tienda (S, M, L...)
+// Deja solo las tallas que maneja la tienda (S, M, L) y las ordena
 export function ordenarTallas(tallas = []) {
-  const orden = ["XS", ...TALLAS, "XL", "XXL"];
-  return [...tallas].sort((a, b) => orden.indexOf(a.talla) - orden.indexOf(b.talla));
+  return tallas.filter((t) => TALLAS.includes(t.talla)).sort((a, b) => TALLAS.indexOf(a.talla) - TALLAS.indexOf(b.talla));
 }
 
 export function stockTotal(tallas = []) {
-  return tallas.reduce((suma, t) => suma + (Number(t.stock) || 0), 0);
+  return tallas.filter((t) => TALLAS.includes(t.talla)).reduce((suma, t) => suma + (Number(t.stock) || 0), 0);
 }

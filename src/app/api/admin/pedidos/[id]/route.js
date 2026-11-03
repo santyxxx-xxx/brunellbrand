@@ -4,6 +4,7 @@ import { obtenerClienteAdmin } from "@/lib/supabase/admin";
 import { verificarAdmin } from "@/lib/supabase/verificarAdmin";
 import { enviarAvisoEnvio, enviarCorreosPago } from "@/lib/pedidos/servidor";
 import { ESTADOS_PEDIDO } from "@/config/envios";
+import { enviarAlertasStock } from "@/lib/alertas";
 import { urlSitio } from "@/lib/sitio";
 
 export const dynamic = "force-dynamic";
@@ -46,7 +47,10 @@ export async function POST(request, { params }) {
 
   const avisos = [];
   const cambioEstado = anterior.estado !== pedido.estado;
-  if (cambioEstado) revalidatePath("/", "layout"); // el stock pudo cambiar
+  if (cambioEstado) {
+    revalidatePath("/", "layout"); // el stock pudo cambiar
+    await enviarAlertasStock(admin, base).catch(() => {});
+  }
 
   // Pago confirmado manualmente (por ejemplo, transferencia): enviar comprobante
   if (cambioEstado && pedido.estado === "pagado" && anterior.estado === "pendiente_pago") {

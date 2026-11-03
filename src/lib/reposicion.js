@@ -1,3 +1,5 @@
+import { TALLAS } from "@/config/tienda";
+
 // Lista de productos/tallas con stock bajo. Funciona con el cliente del navegador
 // (panel, protegido por RLS) o con el cliente de servidor (correo mensual).
 
@@ -16,6 +18,7 @@ export async function obtenerPorReponer(supabase, { umbral = 2, soloActivos = tr
     .from("producto_tallas")
     .select("talla, stock, producto:productos(id, sku, nombre, activo, imagenes, categoria:categorias(nombre))")
     .lte("stock", umbral)
+    .in("talla", TALLAS)
     .order("stock", { ascending: true });
   if (error) throw error;
 
@@ -36,7 +39,7 @@ export async function obtenerPorReponer(supabase, { umbral = 2, soloActivos = tr
     }
     porProducto.get(p.id).tallas.push({ talla: fila.talla, stock: fila.stock });
   }
-  const orden = ["XS", "S", "M", "L", "XL", "XXL"];
+  const orden = TALLAS;
   return [...porProducto.values()]
     .map((p) => ({ ...p, tallas: p.tallas.sort((a, b) => orden.indexOf(a.talla) - orden.indexOf(b.talla)) }))
     .sort((a, b) => a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre));

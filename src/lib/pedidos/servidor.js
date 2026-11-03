@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { obtenerPasarela, nuevoClientTransactionId, aCentavos } from "@/lib/pagos";
 import { enviarCorreo, correoAdmin, correosAdmin } from "@/lib/correo/enviar";
 import { comprobanteCliente, avisoAdmin, avisoEnvio } from "@/lib/correo/plantillas";
+import { enviarAlertasStock } from "@/lib/alertas";
 
 export class ErrorPedido extends Error {
   constructor(mensaje, estado = 400) {
@@ -224,6 +225,7 @@ export async function confirmarPago(admin, { transaccionId, clientTransactionId 
   if (actualizados?.length) {
     revalidatePath("/", "layout"); // el stock cambió
     await enviarCorreosPago(admin, pedido, urlSitio);
+    await enviarAlertasStock(admin, urlSitio).catch(() => {});
   } else if (pedido?.estado === "cancelado") {
     // Pago aprobado sobre un pedido cancelado: avisar al admin para revisarlo
     await enviarCorreo({

@@ -185,3 +185,34 @@ export function reporteReposicion({ lista, umbral, urlSitio }) {
     html: marco({ urlSitio, titulo: "Por reponer", preencabezado: `${totalTallas} tallas por reponer`, contenido }),
   };
 }
+
+/** Alerta inmediata: una o varias tallas acaban de bajar al umbral de stock. */
+export function alertaStockBajo({ alertas, urlSitio }) {
+  const filas = alertas
+    .map(
+      (a) => `<tr>
+        <td style="padding:12px 0;border-bottom:1px solid #eee;">
+          <a href="${urlSitio}/admin/productos/${a.producto_id}" style="color:${C.marino};text-decoration:none;font-weight:bold;">${esc(a.nombre)}</a><br>
+          <span style="color:${C.gris};font-size:11px;">${esc(a.sku)} · bajó de ${a.stock_anterior} a ${a.stock}</span></td>
+        <td align="right" style="padding:12px 0;border-bottom:1px solid #eee;white-space:nowrap;">
+          <span style="display:inline-block;padding:4px 10px;border-radius:99px;background:${a.stock_actual === 0 ? "#FEE2E2" : "#FEF3C7"};color:${a.stock_actual === 0 ? "#991B1B" : "#92400E"};font-weight:bold;font-size:13px;">
+            Talla ${esc(a.talla)}: quedan ${a.stock_actual}</span></td>
+      </tr>`
+    )
+    .join("");
+  const primera = alertas[0];
+  const contenido = `
+    <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:22px;margin:0 0 6px;">${
+      alertas.length === 1 ? "Una talla se está acabando" : `${alertas.length} tallas se están acabando`
+    }</h1>
+    <p style="margin:0 0 16px;color:${C.gris};">Es buen momento para pedir al proveedor.</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">${filas}</table>
+    ${boton(`${urlSitio}/admin/reponer`, "Ver Por reponer")}`;
+  return {
+    asunto:
+      alertas.length === 1
+        ? `⚠️ Quedan ${primera.stock_actual}: ${primera.nombre} talla ${primera.talla}`
+        : `⚠️ ${alertas.length} tallas por agotarse · ${TIENDA.nombre}`,
+    html: marco({ urlSitio, titulo: "Stock bajo", preencabezado: "Prendas por agotarse", contenido }),
+  };
+}
