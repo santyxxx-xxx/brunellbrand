@@ -35,6 +35,7 @@ export default function FormularioProducto({ productoId }) {
   const [error, setError] = useState("");
   const [esAdminTotal, setEsAdminTotal] = useState(false);
   const [costo, setCosto] = useState("");
+  const [reposicion, setReposicion] = useState("");
 
   useEffect(() => {
     const supabase = obtenerClienteNavegador();
@@ -48,8 +49,16 @@ export default function FormularioProducto({ productoId }) {
       const admin = rol?.rol === "admin";
       setEsAdminTotal(admin);
       if (admin && esEdicion) {
-        const { data: c } = await supabase.from("productos_costos").select("costo").eq("producto_id", productoId).maybeSingle();
-        if (c) setCosto(String(c.costo));
+        let { data: c, error: errC } = await supabase
+          .from("productos_costos")
+          .select("costo, costo_reposicion")
+          .eq("producto_id", productoId)
+          .maybeSingle();
+        if (errC) ({ data: c } = await supabase.from("productos_costos").select("costo").eq("producto_id", productoId).maybeSingle());
+        if (c) {
+          setCosto(String(c.costo));
+          if (c.costo_reposicion !== null && c.costo_reposicion !== undefined) setReposicion(String(c.costo_reposicion));
+        }
       }
 
       if (esEdicion) {
@@ -170,7 +179,11 @@ export default function FormularioProducto({ productoId }) {
       const r =
         valorCosto === null
           ? await supabase.from("productos_costos").delete().eq("producto_id", id)
-          : await supabase.from("productos_costos").upsert({ producto_id: id, costo: valorCosto });
+          : await supabase.from("productos_costos").upsert({
+              producto_id: id,
+              costo: valorCosto,
+              costo_reposicion: aNumero(reposicion),
+            });
       if (r.error) {
         setGuardando(false);
         return setError(`Producto guardado, pero falló el costo: ${r.error.message}`);
@@ -215,6 +228,14 @@ export default function FormularioProducto({ productoId }) {
             }
           >
             <input className="campo border-dashed" inputMode="decimal" value={costo} onChange={(e) => setCosto(e.target.value)} placeholder="Ej: 30,00" />
+          </Campo>
+        )}
+        {esAdminTotal && (
+          <Campo
+            etiqueta="Costo de reposición (solo admin)"
+            ayuda="Lo que cuesta hoy volver a comprarla. Vacío = igual al costo. Sirve para saber si la empresa gana o pierde al reponer."
+          >
+            <input className="campo border-dashed" inputMode="decimal" value={reposicion} onChange={(e) => setReposicion(e.target.value)} placeholder="Igual al costo" />
           </Campo>
         )}
         <Campo etiqueta="Categoría">

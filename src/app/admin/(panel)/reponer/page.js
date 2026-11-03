@@ -75,7 +75,7 @@ export default function PorReponer() {
           </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" className="h-4 w-4 accent-ocre" checked={config.correoActivo} disabled={!esAdminTotal} onChange={(e) => guardarConfig({ correoActivo: e.target.checked })} />
-            Correo el día 1 de cada mes
+            Resumen mensual por correo (día 1)
           </label>
           {mensaje && <span className="text-xs text-marino/60">{mensaje}</span>}
         </div>

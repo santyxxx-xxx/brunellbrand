@@ -38,6 +38,9 @@ export default function NuevaVenta() {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
   const [exito, setExito] = useState(null);
+  const [esAdminTotal, setEsAdminTotal] = useState(false);
+  const [costos, setCostos] = useState({}); // producto_id -> costo (solo admin)
+  const [aporteUnit, setAporteUnit] = useState(3);
   const buscador = useRef(null);
 
   async function cargar() {
@@ -53,6 +56,17 @@ export default function NuevaVenta() {
     if (cats.error) {
       const r = await supabase.from("categorias").select("id, nombre, orden").order("orden");
       listaCats = r.data;
+    }
+    // Costos y aporte por prenda: solo el rol admin puede leerlos
+    const { data: rol } = await supabase.rpc("mi_rol");
+    if (rol?.rol === "admin") {
+      setEsAdminTotal(true);
+      const [{ data: cs }, { data: conf }] = await Promise.all([
+        supabase.from("productos_costos").select("producto_id, costo"),
+        supabase.from("configuracion").select("valor").eq("clave", "aporte_por_prenda").maybeSingle(),
+      ]);
+      setCostos(Object.fromEntries((cs || []).map((c) => [c.producto_id, Number(c.costo)])));
+      if (conf && Number.isFinite(Number(conf.valor))) setAporteUnit(Number(conf.valor));
     }
     setProductos(prods || []);
     setCategorias((listaCats || []).map((c) => ({ ...c, parent_id: c.parent_id ?? null })));
@@ -171,6 +185,17 @@ export default function NuevaVenta() {
       guardando={guardando}
       total={total}
       onRegistrar={registrar}
+      reparto={
+        esAdminTotal
+          ? (() => {
+              const sinCosto = lineas.some((l) => costos[l.productoId] === undefined);
+              const costo = lineas.reduce((s, l) => s + (costos[l.productoId] || 0) * l.cantidad, 0);
+              const aporte = prendas * aporteUnit;
+              return { sinCosto, costo, aporte, ganancia: total - costo - aporte, aporteUnit };
+            })()
+          : null
+      }
+      esAdminTotal={esAdminTotal}
     />
   );
 
@@ -371,7 +396,7 @@ function TarjetaVenta({ producto: p, enCarrito, onElegir }) {
   );
 }
 
-function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setCliente, error, guardando, total, onRegistrar }) {
+function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setCliente, error, guardando, total, onRegistrar, reparto, esAdminTotal }) {
   return (
     <div>
       <ul className="divide-y divide-marino/10">
@@ -428,13 +453,7 @@ function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setClien
         ))}
       </div>
 
-      <details className="mt-4 rounded-xl bg-hueso p-3 text-sm">
-        <summary className="cursor-pointer text-marino/70">Datos del cliente (opcional)</summary>
-        <div className="mt-3 grid gap-2">
-          <input className="campo" placeholder="Nombre" value={cliente.nombre} onChange={(e) => setCliente({ ...cliente, nombre: e.target.value })} />
-          <input className="campo" placeholder="Teléfono" inputMode="tel" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
-        </div>
-      </details>
+      <ClienteVenta cliente={cliente} setCliente={setCliente} conHistorial={esAdminTotal} />
 
       {error && <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
@@ -442,9 +461,114 @@ function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setClien
         <span className="text-sm">Total</span>
         <span className="font-serif text-3xl">{formatearPrecio(total)}</span>
       </div>
+      {reparto && lineas.length > 0 && (
+        <div className="mt-3 rounded-xl bg-hueso p-3 text-xs">
+          {reparto.sinCosto ? (
+            <p className="text-marino/60">Hay prendas sin costo registrado; no se puede calcular la ganancia.</p>
+          ) : (
+            <>
+              <div className="flex justify-between"><span>Para la empresa (costo)</span><span>{formatearPrecio(reparto.costo)}</span></div>
+              <div className="flex justify-between">
+                <span>Aporte a la empresa ({formatearPrecio(reparto.aporteUnit)} × prenda)</span>
+                <span>{formatearPrecio(reparto.aporte)}</span>
+              </div>
+              <div className={`mt-1 flex justify-between border-t border-marino/10 pt-1 text-sm font-semibold ${reparto.ganancia < 0 ? "text-red-700" : ""}`}>
+                <span>Tu ganancia</span><span>{formatearPrecio(reparto.ganancia)}</span>
+              </div>
+            </>
+          )}
+        </div>
+      )}
       <button type="button" onClick={onRegistrar} disabled={guardando || lineas.length === 0} className="btn-ocre mt-4 w-full py-4 text-base">
         {guardando ? "Registrando..." : "Registrar venta"}
       </button>
+    </div>
+  );
+}
+
+// Cliente de la venta: busca clientes anteriores (Treinta, web y tienda) y muestra qué compraron
+function ClienteVenta({ cliente, setCliente, conHistorial }) {
+  const [sugerencias, setSugerencias] = useState([]);
+  const [historial, setHistorial] = useState(null);
+  const [abierto, setAbierto] = useState(Boolean(cliente.nombre));
+
+  // Al terminar una venta el cliente se limpia: también su historial
+  useEffect(() => {
+    if (!cliente.nombre) setHistorial(null);
+  }, [cliente.nombre]);
+
+  useEffect(() => {
+    if (!conHistorial || cliente.nombre.trim().length < 2 || historial) {
+      setSugerencias([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      const { data } = await obtenerClienteNavegador().rpc("buscar_clientes", { p_texto: cliente.nombre });
+      setSugerencias(data || []);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [cliente.nombre, conHistorial, historial]);
+
+  async function elegir(c) {
+    setCliente({ nombre: c.nombre, telefono: c.telefono || cliente.telefono });
+    setSugerencias([]);
+    const { data } = await obtenerClienteNavegador().rpc("historial_cliente", { p_nombre: c.nombre });
+    setHistorial({ ...c, compras: data || [] });
+  }
+
+  return (
+    <div className="mt-4 rounded-xl bg-hueso p-3 text-sm">
+      <button type="button" onClick={() => setAbierto((v) => !v)} className="flex w-full justify-between text-marino/70">
+        <span>{cliente.nombre ? `Cliente: ${cliente.nombre}` : "Cliente (opcional)"}</span>
+        <span>{abierto ? "−" : "+"}</span>
+      </button>
+      {abierto && (
+        <div className="mt-3 grid gap-2">
+          <div className="relative">
+            <input
+              className="campo"
+              placeholder={conHistorial ? "Nombre (busca clientes anteriores)" : "Nombre"}
+              value={cliente.nombre}
+              onChange={(e) => {
+                setHistorial(null);
+                setCliente({ ...cliente, nombre: e.target.value });
+              }}
+            />
+            {sugerencias.length > 0 && (
+              <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-56 overflow-y-auto rounded-xl border border-marino/10 bg-white shadow-lg">
+                {sugerencias.map((c) => (
+                  <li key={c.nombre}>
+                    <button type="button" onClick={() => elegir(c)} className="flex w-full justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-hueso">
+                      <span>{c.nombre}</span>
+                      <span className="text-xs text-marino/50">{c.compras} compras · {formatearPrecio(c.total)}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <input className="campo" placeholder="Teléfono" inputMode="tel" value={cliente.telefono} onChange={(e) => setCliente({ ...cliente, telefono: e.target.value })} />
+
+          {historial && (
+            <div className="rounded-lg bg-white p-3">
+              <p className="text-xs font-semibold">
+                {historial.compras.length} compras · {formatearPrecio(historial.total)} en total
+              </p>
+              <ul className="mt-2 max-h-48 space-y-2 overflow-y-auto text-xs">
+                {historial.compras.map((c, i) => (
+                  <li key={i} className="border-t border-marino/5 pt-2 first:border-0 first:pt-0">
+                    <div className="flex justify-between gap-2 font-medium">
+                      <span>{new Date(`${c.fecha}T12:00:00`).toLocaleDateString("es-EC", { day: "numeric", month: "short", year: "2-digit" })} · {c.origen}</span>
+                      <span>{formatearPrecio(c.valor)}</span>
+                    </div>
+                    <p className="text-marino/60">{c.detalle}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

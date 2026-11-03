@@ -3,7 +3,7 @@
   "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/reposicion",
+      "path": "/api/cron/resumen-mensual",
       "schedule": "0 13 1 * *"
     },
     {

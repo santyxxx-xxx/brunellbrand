@@ -165,6 +165,30 @@ export default function Balance() {
         <p className="mt-3 text-[11px] text-marino/50">Se compara el mes de la fecha final del filtro.</p>
       </Tarjeta>
 
+      {/* Ganancia de cada uno */}
+      {datos.ganancias && (
+        <Tarjeta titulo="Ganancia de cada vendedor">
+          <GananciasVendedor ganancias={datos.ganancias} mensual={datos.ganancias_mensual} aporte={datos.aporte_por_prenda} />
+        </Tarjeta>
+      )}
+
+      {/* Empresa */}
+      {datos.empresa && (
+        <Tarjeta titulo="La empresa">
+          <Empresa
+            empresa={datos.empresa}
+            mensual={datos.empresa_mensual}
+            inventario={datos.inventario}
+            aporte={datos.aporte_por_prenda}
+            onGuardarAporte={async (valor) => {
+              const { error } = await obtenerClienteNavegador().from("configuracion").upsert({ clave: "aporte_por_prenda", valor });
+              if (!error) setRango((r) => ({ ...r }));
+              return error;
+            }}
+          />
+        </Tarjeta>
+      )}
+
       {/* Día a día */}
       <Tarjeta titulo="Ventas y utilidad día a día">
         <LineaDiaria diario={datos.diario} desde={datos.desde} hasta={datos.hasta} />
@@ -248,6 +272,46 @@ export default function Balance() {
           )}
           <p className="mt-2 text-[11px] text-marino/50">Productos visibles del catálogo con 0 o 1 unidad vendida en el periodo.</p>
         </Tarjeta>
+
+        {datos.reponer_pronto && (
+          <Tarjeta titulo="Reponer pronto">
+            {datos.reponer_pronto.length === 0 ? (
+              <Vacio texto="Nada urgente: ninguna talla que se venda está por acabarse." />
+            ) : (
+              <ul className="divide-y divide-marino/10 text-sm">
+                {datos.reponer_pronto.map((p, i) => (
+                  <li key={i} className="flex items-center justify-between gap-3 py-2">
+                    <span className="min-w-0">
+                      <span className="block truncate">{p.nombre} · talla {p.talla}</span>
+                      <span className="text-[11px] text-marino/50">Vendiste {p.unidades_60d} en 60 días</span>
+                    </span>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${p.stock === 0 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"}`}>
+                      {p.stock === 0 ? "Agotada" : `Quedan ${p.stock} · ~${p.dias} días`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-2 text-[11px] text-marino/50">Tallas con 3 o menos que sí se venden, ordenadas por cuándo se acaban.</p>
+          </Tarjeta>
+        )}
+
+        {datos.plata_quieta && (
+          <Tarjeta titulo="Plata quieta">
+            <p className="font-serif text-3xl">{formatearPrecio(datos.plata_quieta.total)}</p>
+            <p className="text-xs text-marino/60">
+              a costo, en {datos.plata_quieta.productos} productos con stock que no se vendieron en este periodo
+            </p>
+            <ul className="mt-3 divide-y divide-marino/10 text-sm">
+              {datos.plata_quieta.top.map((p, i) => (
+                <li key={i} className="flex justify-between gap-3 py-2">
+                  <span className="truncate">{p.nombre}</span>
+                  <span className="shrink-0 text-xs text-marino/60">{p.stock} u. · {formatearPrecio(p.valor)}</span>
+                </li>
+              ))}
+            </ul>
+          </Tarjeta>
+        )}
 
         <Tarjeta titulo="Compras de mercadería">
           <ComprasMensuales compras={datos.gastos.compras_mensual} />
@@ -620,5 +684,148 @@ function ComprasMensuales({ compras }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+function GananciasVendedor({ ganancias, mensual, aporte }) {
+  if (!ganancias.length) return <Vacio />;
+  const meses = [...new Set(mensual.map((m) => m.mes))].sort().reverse();
+  const nombres = ganancias.map((g) => g.nombre);
+  const valor = (mes, nombre) => mensual.find((m) => m.mes === mes && m.nombre === nombre);
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {ganancias.map((g) => (
+          <div key={g.nombre} className="rounded-xl bg-hueso p-4">
+            <p className="text-xs font-semibold">{NOMBRES[g.nombre] || g.nombre}</p>
+            <p className="mt-1 font-serif text-3xl">{formatearPrecio(g.ganancia)}</p>
+            <p className="text-[11px] text-marino/60">ganancia en el periodo</p>
+            <div className="mt-3 space-y-0.5 text-xs">
+              <div className="flex justify-between"><span>Ventas ({g.n})</span><span>{formatearPrecio(g.ventas)}</span></div>
+              <div className="flex justify-between"><span>− Costo de las prendas</span><span>{formatearPrecio(g.costo)}</span></div>
+              <div className="flex justify-between"><span>− Aporte ({g.prendas} prendas × {formatearPrecio(aporte)})</span><span>{formatearPrecio(g.aporte)}</span></div>
+            </div>
+            {g.sin_costo > 0 && <p className="mt-2 text-[11px] text-red-700">{g.sin_costo} ventas sin costo no se incluyen en la ganancia.</p>}
+          </div>
+        ))}
+      </div>
+      {meses.length > 1 && (
+        <div className="-mx-5 mt-4 overflow-x-auto px-5">
+          <table className="w-full min-w-[320px] text-sm">
+            <thead className="text-xs text-marino/50">
+              <tr>
+                <th className="py-1 text-left font-normal">Mes</th>
+                {nombres.map((n) => <th key={n} className="text-right font-normal">{NOMBRES[n] || n}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {meses.map((m) => (
+                <tr key={m} className="border-t border-marino/5">
+                  <td className="py-1.5 capitalize">{mesTexto(m, true)}</td>
+                  {nombres.map((n) => {
+                    const v = valor(m, n);
+                    return (
+                      <td key={n} className="text-right">
+                        {v ? <><strong>{formatearPrecio(v.ganancia)}</strong><span className="block text-[10px] text-marino/50">{v.prendas} prendas</span></> : "—"}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className="mt-3 text-[11px] text-marino/50">
+        Ganancia = lo que pagó el cliente (sin envío) − costo de las prendas − aporte de {formatearPrecio(aporte)} por prenda a la empresa.
+      </p>
+    </>
+  );
+}
+
+function Empresa({ empresa, mensual, inventario, aporte, onGuardarAporte }) {
+  const [editando, setEditando] = useState(false);
+  const [valor, setValor] = useState(String(aporte));
+  const [mensaje, setMensaje] = useState("");
+  const recibido = n(empresa.costo_devuelto) + n(empresa.aportes);
+  const saldo = n(empresa.saldo);
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="rounded-xl bg-hueso p-3">
+          <p className="text-xs text-marino/60">Recibió de las ventas</p>
+          <p className="font-serif text-2xl">{formatearPrecio(recibido)}</p>
+          <p className="text-[11px] text-marino/50">costo {formatearPrecio(empresa.costo_devuelto)} + aportes {formatearPrecio(empresa.aportes)}</p>
+        </div>
+        <div className="rounded-xl bg-hueso p-3">
+          <p className="text-xs text-marino/60">Cuesta reponer lo vendido</p>
+          <p className="font-serif text-2xl">{formatearPrecio(empresa.reposicion)}</p>
+          <p className="text-[11px] text-marino/50">{empresa.prendas} prendas a costo de reposición</p>
+        </div>
+        <div className="rounded-xl bg-hueso p-3">
+          <p className="text-xs text-marino/60">Resultado de la empresa</p>
+          <p className={`font-serif text-2xl ${saldo < 0 ? "text-red-700" : "text-green-700"}`}>{formatearPrecio(saldo)}</p>
+          <p className="text-[11px] text-marino/50">{saldo >= 0 ? "gana: el inventario puede crecer" : "pierde: reponer cuesta más de lo que entra"}</p>
+        </div>
+        <div className="rounded-xl bg-hueso p-3">
+          <p className="text-xs text-marino/60">Inventario hoy</p>
+          <p className="font-serif text-2xl">{formatearPrecio(inventario.a_costo)}</p>
+          <p className="text-[11px] text-marino/50">
+            {inventario.prendas} prendas · a reposición {formatearPrecio(inventario.a_reposicion)}
+          </p>
+        </div>
+      </div>
+
+      {mensual.length > 0 && (
+        <div className="-mx-5 mt-4 overflow-x-auto px-5">
+          <table className="w-full min-w-[460px] text-right text-xs">
+            <thead className="text-marino/50">
+              <tr><th className="py-1 text-left font-normal">Mes</th><th className="font-normal">Costo devuelto</th><th className="font-normal">Aportes</th><th className="font-normal">Compras</th><th className="font-normal">Resultado</th></tr>
+            </thead>
+            <tbody>
+              {[...mensual].reverse().map((m) => (
+                <tr key={m.mes} className="border-t border-marino/5">
+                  <td className="py-1.5 text-left capitalize">{mesTexto(m.mes, true)}</td>
+                  <td>{formatearPrecio(m.costo_devuelto)}</td>
+                  <td>{formatearPrecio(m.aportes)}</td>
+                  <td>{formatearPrecio(m.compras)}</td>
+                  <td className={n(m.saldo) < 0 ? "text-red-700" : ""}>{formatearPrecio(m.saldo)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <p className="mt-3 text-[11px] leading-relaxed text-marino/50">
+        Resultado = costo devuelto + aportes − lo que cuesta hoy reponer esas prendas. Los aportes son lo que hace crecer el inventario.
+        “Compras” son las compras de mercadería registradas en Treinta.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+        <span>Aporte por prenda: <strong>{formatearPrecio(aporte)}</strong></span>
+        {editando ? (
+          <>
+            <input className="campo w-20 py-1" inputMode="decimal" value={valor} onChange={(e) => setValor(e.target.value)} />
+            <button
+              type="button"
+              className="rounded-full bg-marino px-3 py-1 text-white"
+              onClick={async () => {
+                const num = Number(String(valor).replace(",", "."));
+                if (!Number.isFinite(num) || num < 0) return setMensaje("Valor inválido");
+                const error = await onGuardarAporte(num);
+                setMensaje(error ? error.message : "Guardado. Aplica a las ventas nuevas.");
+                setEditando(false);
+              }}
+            >
+              Guardar
+            </button>
+          </>
+        ) : (
+          <button type="button" className="underline" onClick={() => setEditando(true)}>Cambiar</button>
+        )}
+        {mensaje && <span className="text-marino/60">{mensaje}</span>}
+      </div>
+    </>
   );
 }

@@ -216,3 +216,88 @@ export function alertaStockBajo({ alertas, urlSitio }) {
     html: marco({ urlSitio, titulo: "Stock bajo", preencabezado: "Prendas por agotarse", contenido }),
   };
 }
+
+/** Resumen del mes para el equipo (día 1 de cada mes). `d` = resultado de balance_datos del mes. */
+export function resumenMensual({ d, mesNombre, urlSitio }) {
+  const pct = (a, b) => (Number(b) > 0 ? ((Number(a) - Number(b)) / Number(b)) * 100 : null);
+  const flecha = (v) =>
+    v === null ? "" : `<span style="color:${v >= 0 ? "#15803D" : "#B91C1C"};font-weight:bold;">${v >= 0 ? "▲" : "▼"} ${Math.abs(v).toFixed(0)}%</span>`;
+  const r = d.resumen;
+  const comp = d.comparacion;
+  const margen = Number(r.ventas_con_costo) > 0 ? (Number(r.utilidad) / Number(r.ventas_con_costo)) * 100 : null;
+  const titulo = (t) =>
+    `<div style="font-size:11px;letter-spacing:2px;color:${C.ocre};font-weight:bold;margin:26px 0 10px;">${esc(t)}</div>`;
+  const fila = (izq, der, extra = "") =>
+    `<tr><td style="padding:7px 0;border-bottom:1px solid #eee;${extra}">${izq}</td><td align="right" style="padding:7px 0;border-bottom:1px solid #eee;white-space:nowrap;${extra}">${der}</td></tr>`;
+  const tabla = (filas) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;">${filas}</table>`;
+  const kpi = (etq, val, sub = "") =>
+    `<td width="50%" style="padding:6px;"><div style="background:${C.hueso};border-radius:10px;padding:12px;">
+      <div style="font-size:11px;color:${C.gris};">${etq}</div>
+      <div style="font-family:Georgia,serif;font-size:22px;margin-top:2px;">${val}</div>
+      <div style="font-size:11px;margin-top:2px;">${sub}</div></div></td>`;
+
+  const prendas = (d.ganancias || []).reduce((s, g) => s + Number(g.prendas || 0), 0);
+  const emp = d.empresa || {};
+  const saldo = Number(emp.saldo || 0);
+
+  const contenido = `
+    <h1 style="font-family:Georgia,serif;font-weight:normal;font-size:24px;margin:0 0 4px;">Resumen de ${esc(mesNombre)}</h1>
+    <p style="margin:0 0 10px;color:${C.gris};">Lo más importante del mes, en un minuto.</p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 -6px;">
+      <tr>${kpi("Ventas", formatearPrecio(r.ventas), `${flecha(pct(comp.actual.ventas, comp.anterior.ventas))} vs. mes anterior`)}
+          ${kpi("Utilidad", formatearPrecio(r.utilidad), margen === null ? "" : `margen ${margen.toFixed(0)}%`)}</tr>
+      <tr>${kpi("Ventas registradas", r.n, `ticket promedio ${formatearPrecio(r.ticket)}`)}
+          ${kpi("Prendas vendidas", prendas, "")}</tr>
+    </table>
+
+    ${titulo("GANANCIA DE CADA UNO")}
+    ${tabla(
+      (d.ganancias || [])
+        .map((g) => fila(`<strong>${esc(g.nombre)}</strong><br><span style="color:${C.gris};font-size:11px;">${g.n} ventas · ${g.prendas} prendas · ventas ${formatearPrecio(g.ventas)}</span>`, `<strong style="font-size:15px;">${formatearPrecio(g.ganancia ?? 0)}</strong>`))
+        .join("") || fila("Sin ventas este mes", "")
+    )}
+    <p style="font-size:11px;color:${C.gris};margin:6px 0 0;">Después de devolver el costo y aportar ${formatearPrecio(d.aporte_por_prenda)} por prenda a la empresa.</p>
+
+    ${titulo("LA EMPRESA")}
+    ${tabla(
+      fila("Costo devuelto por las ventas", formatearPrecio(emp.costo_devuelto)) +
+        fila("Aportes", formatearPrecio(emp.aportes)) +
+        fila("Cuesta reponer lo vendido", formatearPrecio(emp.reposicion)) +
+        fila(`<strong>Resultado</strong>`, `<strong style="color:${saldo < 0 ? "#B91C1C" : "#15803D"};">${formatearPrecio(saldo)}</strong>`) +
+        fila("Inventario hoy (a costo)", `${formatearPrecio(d.inventario?.a_costo)} · ${d.inventario?.prendas ?? 0} prendas`)
+    )}
+
+    ${titulo("LAS 5 MÁS VENDIDAS")}
+    ${tabla(
+      (d.prendas_vendidas || []).slice(0, 5).map((p, i) => fila(`${i + 1}. ${esc(p.nombre)}`, `${p.unidades} u.`)).join("") ||
+        fila("Sin ventas este mes", "")
+    )}
+
+    ${titulo("REPONER PRONTO")}
+    ${tabla(
+      (d.reponer_pronto || []).slice(0, 8)
+        .map((p) => fila(`${esc(p.nombre)} · talla ${esc(p.talla)}<br><span style="color:${C.gris};font-size:11px;">vendiste ${p.unidades_60d} en 60 días</span>`,
+          `<span style="font-weight:bold;color:${p.stock === 0 ? "#B91C1C" : "#92400E"};">${p.stock === 0 ? "Agotada" : `quedan ${p.stock} · ~${p.dias} días`}</span>`))
+        .join("") || fila("Nada urgente este mes", "")
+    )}
+
+    ${titulo("PLATA QUIETA")}
+    <p style="margin:0 0 6px;"><strong style="font-family:Georgia,serif;font-size:20px;">${formatearPrecio(d.plata_quieta?.total)}</strong>
+      <span style="color:${C.gris};font-size:12px;"> a costo en ${d.plata_quieta?.productos ?? 0} productos con stock que no se vendieron en el mes</span></p>
+    ${tabla((d.plata_quieta?.top || []).map((p) => fila(esc(p.nombre), `${p.stock} u. · ${formatearPrecio(p.valor)}`)).join(""))}
+
+    ${titulo("ONLINE VS. TIENDA")}
+    ${tabla(
+      (d.por_canal || [])
+        .map((c) => fila({ web: "Tienda online", tienda: "Tienda física", historico: "Historial (Treinta)" }[c.nombre] || esc(c.nombre), `${formatearPrecio(c.ventas)} · ${c.n} ventas`))
+        .join("") || fila("Sin ventas este mes", "")
+    )}
+
+    ${boton(`${urlSitio}/admin/dashboard`, "Ver el dashboard completo")}`;
+
+  return {
+    asunto: `📊 Resumen de ${mesNombre}: ${formatearPrecio(r.ventas)} en ventas · ${TIENDA.nombre}`,
+    html: marco({ urlSitio, titulo: `Resumen de ${mesNombre}`, preencabezado: `Ventas ${formatearPrecio(r.ventas)} · utilidad ${formatearPrecio(r.utilidad)}`, contenido }),
+  };
+}
