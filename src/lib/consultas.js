@@ -139,3 +139,12 @@ export async function obtenerPedidosEntregados() {
   if (error) return null;
   return Number(data) || 0;
 }
+
+// Prendas entregadas en todo el historial (2024 en adelante); null si la función no existe aún
+export async function obtenerPrendasEntregadas() {
+  const supabase = obtenerClientePublico();
+  if (!supabase) return null;
+  const { data, error } = await supabase.rpc("prendas_entregadas");
+  if (error) return null;
+  return Number(data) || 0;
+}

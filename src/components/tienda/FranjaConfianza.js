@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { obtenerPedidosEntregados } from "@/lib/consultas";
+import { obtenerPedidosEntregados, obtenerPrendasEntregadas } from "@/lib/consultas";
 
 function Icono({ tipo }) {
   const comun = { className: "h-5 w-5 shrink-0 text-ocre", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, "aria-hidden": true };
@@ -12,16 +12,24 @@ function Icono({ tipo }) {
   return (<svg {...comun}><rect x="5" y="10.5" width="14" height="9" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>);
 }
 
-// Franja de confianza. El contador sale de la base de datos: si aún no hay
-// pedidos entregados, ese dato no se muestra (nunca se inventan cifras).
+// "Más de 900": redondea hacia abajo para que la frase siempre sea cierta
+function masDe(total) {
+  const paso = total > 100 ? 100 : 10;
+  return Math.floor((total - 1) / paso) * paso;
+}
+
+// Franja de confianza. El contador sale de la base de datos (historial real desde 2024)
+// y se redondea hacia abajo; si no hay datos, no se muestra (nunca se inventan cifras).
 export default async function FranjaConfianza({ compacta = false }) {
-  const entregados = await obtenerPedidosEntregados();
+  const [prendas, pedidos] = await Promise.all([obtenerPrendasEntregadas(), obtenerPedidosEntregados()]);
+  const contador =
+    prendas > 10
+      ? { titulo: `Más de ${masDe(prendas).toLocaleString("es-EC")} prendas entregadas`, texto: "Clientes reales, compras reales" }
+      : pedidos > 0
+        ? { titulo: `${pedidos.toLocaleString("es-EC")} ${pedidos === 1 ? "pedido entregado" : "pedidos entregados"}`, texto: "Clientes reales, compras reales" }
+        : null;
   const items = [
-    entregados > 0 && {
-      tipo: "entregados",
-      titulo: `${entregados.toLocaleString("es-EC")} ${entregados === 1 ? "pedido entregado" : "pedidos entregados"}`,
-      texto: "Clientes reales, compras reales",
-    },
+    contador && { tipo: "entregados", ...contador },
     { tipo: "envios", titulo: "Envíos a todo el país", texto: "Servientrega y entrega local en Quito" },
     { tipo: "cambios", titulo: "Cambios fáciles", texto: "15 días para cambiar tu prenda", href: "/politicas/cambios-y-devoluciones" },
     { tipo: "pago", titulo: "Pago seguro", texto: "Tarjeta de crédito o débito con PayPhone" },
