@@ -11,6 +11,8 @@ import { TALLAS } from "@/config/tienda";
 const VACIO = {
   sku: "",
   nombre: "",
+  nombre_interno: "",
+  opcion: "",
   descripcion: "",
   precio: "",
   precio_anterior: "",
@@ -73,6 +75,8 @@ export default function FormularioProducto({ productoId }) {
           setDatos({
             sku: data.sku,
             nombre: data.nombre,
+            nombre_interno: data.nombre_interno || "",
+            opcion: data.opcion || "",
             descripcion: data.descripcion || "",
             precio: data.precio ?? "",
             precio_anterior: data.precio_anterior ?? "",
@@ -131,7 +135,7 @@ export default function FormularioProducto({ productoId }) {
     setError("");
 
     const precio = aNumero(datos.precio);
-    if (!datos.nombre.trim() || !datos.sku.trim()) return setError("El nombre y el código son obligatorios.");
+    if (!datos.nombre.trim() || !datos.sku.trim()) return setError("El nombre de la web y el código son obligatorios.");
     if (precio === null || precio < 0) return setError("Ingresa un precio válido.");
 
     setGuardando(true);
@@ -139,7 +143,7 @@ export default function FormularioProducto({ productoId }) {
     const registro = {
       sku: datos.sku.trim(),
       nombre: datos.nombre.trim(),
-      slug: slugProducto(datos.nombre, datos.sku),
+      slug: slugProducto(`${datos.nombre} ${datos.opcion}`, datos.sku),
       descripcion: datos.descripcion.trim() || null,
       precio,
       precio_anterior: aNumero(datos.precio_anterior),
@@ -149,9 +153,19 @@ export default function FormularioProducto({ productoId }) {
       imagenes: datos.imagenes,
     };
 
-    const respuesta = esEdicion
-      ? await supabase.from("productos").update(registro).eq("id", productoId).select("id").single()
-      : await supabase.from("productos").insert(registro).select("id").single();
+    // Nombre del panel y modelo de la web: mismo nombre en la web = se muestran juntas (Oxford / Casual)
+    const extra = {
+      nombre_interno: datos.nombre_interno.trim() || datos.nombre.trim(),
+      opcion: datos.opcion || null,
+      grupo: crearSlug(datos.nombre),
+    };
+    const enviar = (fila) =>
+      esEdicion
+        ? supabase.from("productos").update(fila).eq("id", productoId).select("id").single()
+        : supabase.from("productos").insert(fila).select("id").single();
+    let respuesta = await enviar({ ...registro, ...extra });
+    // Si aún no se ejecutó fase5.sql
+    if (respuesta.error && /nombre_interno|grupo|opcion/.test(respuesta.error.message || "")) respuesta = await enviar(registro);
 
     if (respuesta.error) {
       setGuardando(false);
@@ -206,8 +220,18 @@ export default function FormularioProducto({ productoId }) {
       </div>
 
       <section className="grid gap-4 rounded-xl bg-white p-5 sm:grid-cols-2">
-        <Campo etiqueta="Nombre *">
-          <input className="campo" value={datos.nombre} onChange={(e) => cambiar("nombre", e.target.value)} placeholder="Camisa Oxford celeste" required />
+        <Campo etiqueta="Nombre en el panel" ayuda="Solo lo ve el equipo: proveedor, apodos, lo que les sirva. Vacío = igual al de la web.">
+          <input className="campo border-dashed" value={datos.nombre_interno} onChange={(e) => cambiar("nombre_interno", e.target.value)} placeholder="Camisa oxford susy blanca" />
+        </Campo>
+        <Campo etiqueta="Nombre en la web *" ayuda="Lo que ve el cliente. Prendas con el mismo nombre se muestran juntas y el cliente elige el estilo.">
+          <input className="campo" value={datos.nombre} onChange={(e) => cambiar("nombre", e.target.value)} placeholder="Camisa blanca" required />
+        </Campo>
+        <Campo etiqueta="Estilo" ayuda="Para camisas que vienen en Oxford y en Casual.">
+          <select className="campo" value={datos.opcion} onChange={(e) => cambiar("opcion", e.target.value)}>
+            <option value="">Ninguno</option>
+            <option value="Oxford">Oxford</option>
+            <option value="Casual">Casual</option>
+          </select>
         </Campo>
         <Campo etiqueta="Código (SKU) *" ayuda="Único por producto. Se usa para importar el CSV.">
           <input className="campo" value={datos.sku} onChange={(e) => cambiar("sku", e.target.value)} placeholder="BB-CAM-001" required />

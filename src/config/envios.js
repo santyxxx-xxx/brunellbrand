@@ -35,6 +35,7 @@ export const METODOS_ENVIO = {
 // Estados del pedido: clave en la base de datos -> texto para mostrar
 export const ESTADOS_PEDIDO = {
   pendiente_pago: { texto: "Pendiente de pago", color: "bg-amber-100 text-amber-800" },
+  por_cobrar: { texto: "Por cobrar", color: "bg-orange-100 text-orange-800" },
   pagado: { texto: "Pagado", color: "bg-green-100 text-green-800" },
   enviado: { texto: "Enviado", color: "bg-blue-100 text-blue-800" },
   entregado: { texto: "Entregado", color: "bg-marino text-white" },

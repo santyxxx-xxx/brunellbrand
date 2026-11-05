@@ -15,9 +15,13 @@ export default function Categorias() {
     const supabase = obtenerClienteNavegador();
     let { data, error } = await supabase
       .from("categorias")
-      .select("id, nombre, slug, orden, imagen_url, parent_id")
+      .select("id, nombre, slug, orden, imagen_url, parent_id, visible")
       .order("orden")
       .order("nombre");
+    if (error) {
+      // Sin la columna "visible" (falta ejecutar supabase/fase5.sql)
+      ({ data, error } = await supabase.from("categorias").select("id, nombre, slug, orden, imagen_url, parent_id").order("orden").order("nombre"));
+    }
     if (error) {
       // Sin la columna parent_id (falta ejecutar supabase/subcategorias.sql)
       ({ data, error } = await supabase.from("categorias").select("id, nombre, slug, orden, imagen_url").order("orden"));
@@ -136,6 +140,17 @@ export default function Categorias() {
                 onBlur={(e) => Number(e.target.value) !== c.orden && actualizar(c.id, { orden: Number(e.target.value) || 0 })}
               />
             </label>
+            {c.visible !== undefined && (
+              <label className="flex items-center gap-1 text-xs" title="Si está apagado, sus prendas se venden solo desde el panel">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-ocre"
+                  checked={c.visible}
+                  onChange={(e) => actualizar(c.id, { visible: e.target.checked })}
+                />
+                En la web
+              </label>
+            )}
             <div className="flex gap-2 text-xs">
               <label className="cursor-pointer rounded-full border border-marino/20 px-3 py-1.5 hover:border-marino">
                 Foto

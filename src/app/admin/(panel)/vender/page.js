@@ -13,6 +13,18 @@ const METODOS = [
   { valor: "tarjeta", texto: "Tarjeta", icono: "💳" },
 ];
 
+const ENTREGAS = [
+  { valor: "personal", texto: "Personal", icono: "🤝" },
+  { valor: "domicilio", texto: "A domicilio", icono: "🛵" },
+  { valor: "servientrega", texto: "Servientrega", icono: "📦" },
+];
+
+const ESTADO_VENTA = {
+  entregado: "Entregada y cobrada",
+  pagado: "Cobrada · falta enviar (síguela en Pedidos)",
+  por_cobrar: "Por cobrar",
+};
+
 const ORDENES = [
   { clave: "nombre", texto: "A–Z" },
   { clave: "stock", texto: "Más stock" },
@@ -34,6 +46,8 @@ export default function NuevaVenta() {
   const [lineas, setLineas] = useState([]);
   const [cobrando, setCobrando] = useState(false);
   const [metodo, setMetodo] = useState("efectivo");
+  const [entrega, setEntrega] = useState("personal");
+  const [cobrado, setCobrado] = useState(true);
   const [cliente, setCliente] = useState({ nombre: "", telefono: "" });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState("");
@@ -48,7 +62,7 @@ export default function NuevaVenta() {
     const [{ data: prods }, cats] = await Promise.all([
       supabase
         .from("productos")
-        .select("id, sku, nombre, precio, imagenes, activo, categoria_id, tallas:producto_tallas(talla, stock)")
+        .select("*, tallas:producto_tallas(talla, stock)")
         .order("nombre"),
       supabase.from("categorias").select("id, nombre, parent_id, orden").order("orden"),
     ]);
@@ -68,7 +82,12 @@ export default function NuevaVenta() {
       setCostos(Object.fromEntries((cs || []).map((c) => [c.producto_id, Number(c.costo)])));
       if (conf && Number.isFinite(Number(conf.valor))) setAporteUnit(Number(conf.valor));
     }
-    setProductos(prods || []);
+    // En el panel se trabaja con el nombre interno (proveedor, jerga…)
+    setProductos(
+      (prods || [])
+        .map((p) => ({ ...p, nombreWeb: p.nombre, nombre: p.nombre_interno || p.nombre }))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre, "es"))
+    );
     setCategorias((listaCats || []).map((c) => ({ ...c, parent_id: c.parent_id ?? null })));
     setCargando(false);
   }
@@ -96,7 +115,9 @@ export default function NuevaVenta() {
     const q = busqueda.trim().toLowerCase();
     let lista = productos;
     if (q) {
-      lista = lista.filter((p) => p.nombre.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+      lista = lista.filter(
+        (p) => p.nombre.toLowerCase().includes(q) || p.nombreWeb.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)
+      );
     } else if (subcategoria) {
       lista = lista.filter((p) => p.categoria_id === subcategoria);
     } else if (categoria) {
@@ -139,19 +160,25 @@ export default function NuevaVenta() {
   async function registrar() {
     setGuardando(true);
     setError("");
-    const { data, error } = await obtenerClienteNavegador().rpc("registrar_venta_tienda", {
+    const supabase = obtenerClienteNavegador();
+    const base = {
       p_items: lineas.map((l) => ({ productoId: l.productoId, talla: l.talla, cantidad: l.cantidad, precio: l.precio })),
       p_metodo_pago: metodo,
       p_cliente_nombre: cliente.nombre || null,
       p_cliente_telefono: cliente.telefono || null,
       p_notas: null,
-    });
+    };
+    let { data, error } = await supabase.rpc("registrar_venta_tienda", { ...base, p_entrega: entrega, p_cobrado: cobrado });
+    // Si aún no se ejecutó fase5.sql, la función vieja solo sabe de ventas entregadas y cobradas
+    if (error && /p_entrega|p_cobrado|registrar_venta_tienda/.test(error.message || "") && entrega === "personal" && cobrado) {
+      ({ data, error } = await supabase.rpc("registrar_venta_tienda", base));
+    }
     setGuardando(false);
     if (error) {
       setError(error.message || "No se pudo registrar la venta.");
       return;
     }
-    setExito({ ...data, metodo });
+    setExito({ ...data, metodo, estado: data?.estado || "entregado" });
     setCobrando(false);
     setLineas([]);
     setCliente({ nombre: "", telefono: "" });
@@ -164,6 +191,8 @@ export default function NuevaVenta() {
   function nuevaVenta() {
     setExito(null);
     setMetodo("efectivo");
+    setEntrega("personal");
+    setCobrado(true);
     setBusqueda("");
   }
 
@@ -179,6 +208,10 @@ export default function NuevaVenta() {
       cambiarLinea={cambiarLinea}
       metodo={metodo}
       setMetodo={setMetodo}
+      entrega={entrega}
+      setEntrega={setEntrega}
+      cobrado={cobrado}
+      setCobrado={setCobrado}
       cliente={cliente}
       setCliente={setCliente}
       error={error}
@@ -323,6 +356,9 @@ export default function NuevaVenta() {
             <p className="mt-3 text-sm text-hueso/70">
               Venta #{exito.numero} · {METODOS.find((m) => m.valor === exito.metodo)?.texto} · {exito.vendedor}
             </p>
+            <p className={`mx-auto mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${exito.estado === "por_cobrar" ? "bg-ocre text-white" : "bg-hueso/15"}`}>
+              {ESTADO_VENTA[exito.estado] || ESTADO_VENTA.entregado}
+            </p>
             <button type="button" onClick={nuevaVenta} className="btn-ocre mt-8 px-10 py-4 text-base">Nueva venta</button>
             <Link href={`/admin/pedidos/${exito.id}`} className="mt-4 block text-xs text-hueso/60 underline">Ver detalle</Link>
           </div>
@@ -396,7 +432,7 @@ function TarjetaVenta({ producto: p, enCarrito, onElegir }) {
   );
 }
 
-function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setCliente, error, guardando, total, onRegistrar, reparto, esAdminTotal }) {
+function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, entrega, setEntrega, cobrado, setCobrado, cliente, setCliente, error, guardando, total, onRegistrar, reparto, esAdminTotal }) {
   return (
     <div>
       <ul className="divide-y divide-marino/10">
@@ -436,7 +472,48 @@ function PanelCobro({ lineas, cambiarLinea, metodo, setMetodo, cliente, setClien
         ))}
       </ul>
 
-      <p className="etiqueta mb-2 mt-5">Método de pago</p>
+      <p className="etiqueta mb-2 mt-5">Entrega</p>
+      <div className="grid grid-cols-3 gap-2">
+        {ENTREGAS.map((m) => (
+          <button
+            key={m.valor}
+            type="button"
+            onClick={() => setEntrega(m.valor)}
+            className={`flex flex-col items-center gap-1 rounded-xl border-2 py-3 text-xs font-semibold transition ${
+              entrega === m.valor ? "border-marino bg-marino text-white" : "border-marino/15 bg-white"
+            }`}
+          >
+            <span className="text-xl">{m.icono}</span>
+            {m.texto}
+          </button>
+        ))}
+      </div>
+
+      <p className="etiqueta mb-2 mt-5">¿Ya pagó?</p>
+      <div className="grid grid-cols-2 gap-2">
+        {[
+          { valor: true, texto: "Sí, cobrada" },
+          { valor: false, texto: "Por cobrar" },
+        ].map((o) => (
+          <button
+            key={o.texto}
+            type="button"
+            onClick={() => setCobrado(o.valor)}
+            className={`rounded-xl border-2 py-2.5 text-xs font-semibold transition ${
+              cobrado === o.valor ? (o.valor ? "border-marino bg-marino text-white" : "border-ocre bg-ocre text-white") : "border-marino/15 bg-white"
+            }`}
+          >
+            {o.texto}
+          </button>
+        ))}
+      </div>
+      {!cobrado && (
+        <p className="mt-2 text-[11px] text-marino/60">
+          La prenda se descuenta del stock. Cuando te paguen, cámbiala a “Pagado” o “Entregado” en Pedidos.
+        </p>
+      )}
+
+      <p className="etiqueta mb-2 mt-5">{cobrado ? "Método de pago" : "¿Cómo va a pagar?"}</p>
       <div className="grid grid-cols-3 gap-2">
         {METODOS.map((m) => (
           <button

@@ -16,7 +16,7 @@ export async function leerConfigReposicion(supabase) {
 export async function obtenerPorReponer(supabase, { umbral = 2, soloActivos = true } = {}) {
   const { data, error } = await supabase
     .from("producto_tallas")
-    .select("talla, stock, producto:productos(id, sku, nombre, activo, imagenes, categoria:categorias(nombre))")
+    .select("talla, stock, producto:productos(*, categoria:categorias(nombre))")
     .lte("stock", umbral)
     .in("talla", TALLAS)
     .order("stock", { ascending: true });
@@ -30,7 +30,7 @@ export async function obtenerPorReponer(supabase, { umbral = 2, soloActivos = tr
       porProducto.set(p.id, {
         id: p.id,
         sku: p.sku,
-        nombre: p.nombre,
+        nombre: p.nombre_interno || p.nombre,
         activo: p.activo,
         imagen: p.imagenes?.[0] || null,
         categoria: p.categoria?.nombre || "",

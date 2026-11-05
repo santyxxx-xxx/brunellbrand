@@ -1,11 +1,21 @@
 import { obtenerClientePublico } from "@/lib/supabase/publico";
+import { agruparModelos } from "@/lib/utilidades";
 
 // Campos que usan las tarjetas y la página de producto
 const CAMPOS_PRODUCTO = `
-  id, sku, nombre, slug, descripcion, precio, precio_anterior, imagenes, destacado,
+  id, sku, nombre, slug, descripcion, precio, precio_anterior, imagenes, destacado, grupo, opcion, creado_en,
   categoria:categorias ( id, nombre, slug ),
   tallas:producto_tallas ( talla, stock )
 `;
+// Mientras no se ejecute fase5.sql (sin grupo/opción)
+const CAMPOS_BASICOS = CAMPOS_PRODUCTO.replace(" grupo, opcion,", "");
+
+// Ejecuta la consulta con los campos nuevos y, si la base aún no los tiene, con los básicos
+async function conCampos(armar) {
+  const r = await armar(CAMPOS_PRODUCTO);
+  if (r.error && /grupo|opcion/.test(r.error.message || "")) return armar(CAMPOS_BASICOS);
+  return r;
+}
 
 // Todas las consultas devuelven datos vacíos si algo falla,
 // para que la tienda nunca se caiga (por ejemplo, antes de crear las tablas).
@@ -18,9 +28,12 @@ export async function obtenerCategorias() {
   if (!supabase) return [];
   const ordenar = (q) => q.order("orden", { ascending: true }).order("nombre", { ascending: true });
   let { data, error } = await ordenar(
-    supabase.from("categorias").select("id, nombre, slug, imagen_url, orden, parent_id")
+    supabase.from("categorias").select("id, nombre, slug, imagen_url, orden, parent_id, visible").eq("visible", true)
   );
-  // Compatibilidad: si aún no se ejecutó el SQL de subcategorías (sin parent_id)
+  // Compatibilidad: si aún no se ejecutó fase5.sql (sin "visible") o el SQL de subcategorías (sin parent_id)
+  if (error) {
+    ({ data, error } = await ordenar(supabase.from("categorias").select("id, nombre, slug, imagen_url, orden, parent_id")));
+  }
   if (error) {
     ({ data, error } = await ordenar(supabase.from("categorias").select("id, nombre, slug, imagen_url, orden")));
   }
@@ -31,40 +44,35 @@ export async function obtenerCategorias() {
 export async function obtenerDestacados(limite = 8) {
   const supabase = obtenerClientePublico();
   if (!supabase) return [];
-  let { data, error } = await supabase
-    .from("productos")
-    .select(CAMPOS_PRODUCTO)
-    .eq("destacado", true)
-    .order("creado_en", { ascending: false })
-    .limit(limite);
+  let { data, error } = await conCampos((campos) =>
+    supabase.from("productos").select(campos).eq("destacado", true).order("creado_en", { ascending: false }).limit(limite * 3)
+  );
   registrarError("obtenerDestacados", error);
 
   // Si aún no hay destacados, muestra los más recientes
   if (!error && (!data || data.length === 0)) {
-    const respuesta = await supabase
-      .from("productos")
-      .select(CAMPOS_PRODUCTO)
-      .order("creado_en", { ascending: false })
-      .limit(limite);
+    const respuesta = await conCampos((campos) =>
+      supabase.from("productos").select(campos).order("creado_en", { ascending: false }).limit(limite * 3)
+    );
     registrarError("obtenerDestacados (recientes)", respuesta.error);
     data = respuesta.data;
   }
-  return data || [];
+  return agruparModelos(data || []).slice(0, limite);
 }
 
 export async function obtenerProductos({ categoria, talla, orden } = {}) {
   const supabase = obtenerClientePublico();
   if (!supabase) return [];
 
-  let consulta = supabase.from("productos").select(CAMPOS_PRODUCTO);
+  let ids_categoria = null;
+  let ids_talla = null;
 
   if (categoria) {
     // Una categoría principal incluye los productos de sus subcategorías
     const categorias = await obtenerCategorias();
     const cat = categorias.find((c) => c.slug === categoria);
     if (!cat) return [];
-    const ids = [cat.id, ...categorias.filter((c) => c.parent_id === cat.id).map((c) => c.id)];
-    consulta = consulta.in("categoria_id", ids);
+    ids_categoria = [cat.id, ...categorias.filter((c) => c.parent_id === cat.id).map((c) => c.id)];
   }
 
   if (talla) {
@@ -75,44 +83,52 @@ export async function obtenerProductos({ categoria, talla, orden } = {}) {
       .eq("talla", talla)
       .gt("stock", 0);
     registrarError("obtenerProductos (talla)", error);
-    const ids = [...new Set((conTalla || []).map((t) => t.producto_id))];
-    if (ids.length === 0) return [];
-    consulta = consulta.in("id", ids);
+    ids_talla = [...new Set((conTalla || []).map((t) => t.producto_id))];
+    if (ids_talla.length === 0) return [];
   }
 
-  // Por defecto: de la prenda más cara a la más barata
-  if (orden === "precio-asc") consulta = consulta.order("precio", { ascending: true });
-  else if (orden === "recientes") consulta = consulta.order("creado_en", { ascending: false });
-  else consulta = consulta.order("precio", { ascending: false }).order("nombre", { ascending: true });
-
-  const { data, error } = await consulta.limit(500);
+  const { data, error } = await conCampos((campos) => {
+    let consulta = supabase.from("productos").select(campos);
+    if (ids_categoria) consulta = consulta.in("categoria_id", ids_categoria);
+    if (ids_talla) consulta = consulta.in("id", ids_talla);
+    // Por defecto: de la prenda más cara a la más barata
+    if (orden === "precio-asc") consulta = consulta.order("precio", { ascending: true });
+    else if (orden === "recientes") consulta = consulta.order("creado_en", { ascending: false });
+    else consulta = consulta.order("precio", { ascending: false }).order("nombre", { ascending: true });
+    return consulta.limit(500);
+  });
   registrarError("obtenerProductos", error);
-  return data || [];
+  // Un solo modelo por prenda (Oxford y Casual juntos)
+  return agruparModelos(data || []);
 }
 
 export async function obtenerProductoPorSlug(slug) {
   const supabase = obtenerClientePublico();
   if (!supabase) return null;
-  const { data, error } = await supabase
-    .from("productos")
-    .select(CAMPOS_PRODUCTO)
-    .eq("slug", slug)
-    .maybeSingle();
+  const { data, error } = await conCampos((campos) => supabase.from("productos").select(campos).eq("slug", slug).maybeSingle());
   registrarError("obtenerProductoPorSlug", error);
-  return data || null;
+  if (!data) return null;
+  // Las otras versiones del mismo modelo (Oxford / Casual, u otro lote)
+  let variantes = [data];
+  if (data.grupo) {
+    const r = await supabase.from("productos").select(CAMPOS_PRODUCTO).eq("grupo", data.grupo).order("creado_en");
+    registrarError("obtenerProductoPorSlug (variantes)", r.error);
+    if (r.data?.length) variantes = r.data;
+  }
+  return { ...data, variantes };
 }
 
 export async function obtenerRelacionados(producto, limite = 4) {
   const supabase = obtenerClientePublico();
   if (!supabase || !producto?.categoria?.id) return [];
-  const { data, error } = await supabase
-    .from("productos")
-    .select(CAMPOS_PRODUCTO)
-    .eq("categoria_id", producto.categoria.id)
-    .neq("id", producto.id)
-    .limit(limite);
+  const { data, error } = await conCampos((campos) =>
+    supabase.from("productos").select(campos).eq("categoria_id", producto.categoria.id).limit(40)
+  );
   registrarError("obtenerRelacionados", error);
-  return data || [];
+  const propios = new Set((producto.variantes || [producto]).map((v) => v.id));
+  return agruparModelos((data || []).filter((p) => !propios.has(p.id)))
+    .filter((m) => m.tallas.some((t) => t.stock > 0))
+    .slice(0, limite);
 }
 
 // Número real de pedidos entregados (función pública en Supabase; null si no está disponible)

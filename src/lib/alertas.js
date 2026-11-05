@@ -17,7 +17,7 @@ export async function enviarAlertasStock(admin, urlSitio) {
 
   const ids = [...new Set(pendientes.map((a) => a.producto_id))];
   const [{ data: productos }, { data: tallas }] = await Promise.all([
-    admin.from("productos").select("id, nombre, sku").in("id", ids),
+    admin.from("productos").select("*").in("id", ids),
     admin.from("producto_tallas").select("producto_id, talla, stock").in("producto_id", ids),
   ]);
   const prod = new Map((productos || []).map((p) => [p.id, p]));
@@ -27,7 +27,7 @@ export async function enviarAlertasStock(admin, urlSitio) {
   for (const a of pendientes) unicas.set(`${a.producto_id}-${a.talla}`, a);
   const alertas = [...unicas.values()].map((a) => ({
     ...a,
-    nombre: prod.get(a.producto_id)?.nombre || "Producto",
+    nombre: prod.get(a.producto_id)?.nombre_interno || prod.get(a.producto_id)?.nombre || "Producto",
     sku: prod.get(a.producto_id)?.sku || "",
     stock_actual: (tallas || []).find((t) => t.producto_id === a.producto_id && t.talla === a.talla)?.stock ?? a.stock,
   }));

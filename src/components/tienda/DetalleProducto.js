@@ -4,13 +4,32 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCarrito } from "@/context/CarritoContext";
 import { TIENDA } from "@/config/tienda";
-import { enlaceWhatsApp, formatearPrecio, ordenarTallas } from "@/lib/utilidades";
+import { enlaceWhatsApp, formatearPrecio, nombreConOpcion, ordenarTallas, stockTotal } from "@/lib/utilidades";
 import GuiaTallas from "./GuiaTallas";
 import { IconoWhatsApp } from "./Iconos";
 
-export default function DetalleProducto({ producto }) {
-  const imagenes = producto.imagenes?.length ? producto.imagenes : [null];
-  const tallas = ordenarTallas(producto.tallas || []);
+// Une las versiones de una misma opción: por cada talla usa la que tenga más stock
+function tallasDeOpcion(candidatos) {
+  const mejor = {};
+  for (const v of candidatos) {
+    for (const t of ordenarTallas(v.tallas || [])) {
+      if (!mejor[t.talla] || t.stock > mejor[t.talla].stock) mejor[t.talla] = { talla: t.talla, stock: t.stock, producto: v };
+    }
+  }
+  return ordenarTallas(Object.values(mejor));
+}
+
+export default function DetalleProducto({ producto: inicial }) {
+  const variantes = inicial.variantes?.length ? inicial.variantes : [inicial];
+  const opciones = [...new Set(variantes.map((v) => v.opcion).filter(Boolean))].sort();
+  const opcionInicial =
+    inicial.opcion && stockTotal(inicial.tallas) > 0
+      ? inicial.opcion
+      : opciones.find((o) => variantes.some((v) => v.opcion === o && stockTotal(v.tallas) > 0)) || inicial.opcion || opciones[0] || null;
+
+  const [opcion, setOpcion] = useState(opcionInicial);
+  const candidatos = opciones.length ? variantes.filter((v) => v.opcion === opcion) : variantes;
+  const tallas = tallasDeOpcion(candidatos.length ? candidatos : [inicial]);
   const primeraDisponible = tallas.find((t) => t.stock > 0)?.talla || null;
 
   const [fotoActiva, setFotoActiva] = useState(0);
@@ -23,6 +42,23 @@ export default function DetalleProducto({ producto }) {
 
   const tallaSeleccionada = tallas.find((t) => t.talla === talla);
   const stockDisponible = tallaSeleccionada?.stock || 0;
+  // La prenda exacta que se vende: la versión con stock en esa talla
+  const producto =
+    tallaSeleccionada?.producto ||
+    candidatos.find((v) => stockTotal(v.tallas) > 0) ||
+    candidatos[0] ||
+    inicial;
+  const fotos = (candidatos.find((v) => v.imagenes?.length) || variantes.find((v) => v.imagenes?.length) || producto).imagenes;
+  const imagenes = fotos?.length ? fotos : [null];
+
+  function elegirOpcion(nueva) {
+    setOpcion(nueva);
+    const lista = tallasDeOpcion(variantes.filter((v) => v.opcion === nueva));
+    const sigue = lista.find((t) => t.talla === talla && t.stock > 0);
+    setTalla(sigue ? talla : lista.find((t) => t.stock > 0)?.talla || null);
+    setCantidad(1);
+    setFotoActiva(0);
+  }
   const agotado = !primeraDisponible;
   const enOferta = producto.precio_anterior && Number(producto.precio_anterior) > Number(producto.precio);
 
@@ -31,9 +67,9 @@ export default function DetalleProducto({ producto }) {
     agregar({
       productoId: producto.id,
       slug: producto.slug,
-      nombre: producto.nombre,
+      nombre: nombreConOpcion(producto),
       precio: Number(producto.precio),
-      imagen: producto.imagenes?.[0] || null,
+      imagen: imagenes[0] || null,
       talla,
       cantidad,
       stock: stockDisponible,
@@ -45,7 +81,7 @@ export default function DetalleProducto({ producto }) {
   const mensajeWhatsApp = [
     `¡Hola Brunel Brand! Me interesa este producto:`,
     ``,
-    `• ${producto.nombre} (código ${producto.sku})`,
+    `• ${nombreConOpcion(producto)} (código ${producto.sku})`,
     talla ? `• Talla: ${talla}` : null,
     `• Cantidad: ${cantidad}`,
     `• Precio: ${formatearPrecio(producto.precio)}`,
@@ -102,6 +138,32 @@ export default function DetalleProducto({ producto }) {
             <span className="text-marino/50 line-through">{formatearPrecio(producto.precio_anterior)}</span>
           )}
         </div>
+
+        {/* Corte: Oxford / Casual */}
+        {opciones.length > 1 && (
+          <div className="mt-8">
+            <p className="etiqueta">Estilo {opcion && <span className="text-ocre">· {opcion}</span>}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {opciones.map((o) => {
+                const hay = variantes.some((v) => v.opcion === o && stockTotal(v.tallas) > 0);
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() => elegirOpcion(o)}
+                    className={`h-12 rounded-lg border px-5 text-sm font-semibold transition ${
+                      opcion === o ? "border-marino bg-marino text-white" : "border-marino/25 bg-white hover:border-marino"
+                    } ${hay ? "" : "opacity-40"}`}
+                  >
+                    {o}
+                    {!hay && <span className="ml-1 text-[10px] font-normal">(agotada)</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {opciones.length === 1 && <p className="mt-3 text-sm text-marino/70">Estilo: {opciones[0]}</p>}
 
         {/* Tallas */}
         <div className="mt-8">

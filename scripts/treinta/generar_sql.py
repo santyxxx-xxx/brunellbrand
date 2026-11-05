@@ -2,8 +2,10 @@ import json
 d = json.load(open('procesado.json'))
 q = lambda v: 'null' if v is None else "'" + str(v).replace("'", "''") + "'"
 out = ["""-- =====================================================================
--- BRUNEL BRAND · IMPORTACIÓN ÚNICA DEL HISTORIAL DE TREINTA (01/2026 – 10/2026)
--- 207 ventas, 397 líneas de prendas, 34 gastos. Requiere historico.sql.
+-- BRUNEL BRAND · IMPORTACIÓN DEL HISTORIAL DE TREINTA (01/2026 – 04/11/2026)
+-- 209 ventas, 402 líneas de prendas, 34 gastos. Ejecuta antes fase5.sql.
+-- Si una venta de Treinta ya está registrada en el panel (misma fecha y mismo
+-- total en una venta de tienda), NO se importa para no contarla dos veces.
 -- Se puede ejecutar más de una vez: no duplica filas (usa clave_origen) y
 -- respeta las prendas que ya confirmaste en el panel.
 -- NO toca el stock ni los productos.
@@ -31,7 +33,12 @@ insert into public.ventas_historicas
   (origen, clave_origen, fecha, vendedor, vendedor_original, descripcion_original, contacto_original,
    cliente_nombre, cliente_nota, estado, metodo_pago, valor, costo)
 select 'treinta', clave, fecha, vendedor, vendedor_original, descripcion, contacto, cliente, nota, estado, metodo, valor, costo
-from _ventas
+from _ventas t
+where not exists (
+  select 1 from public.orders o
+  where o.canal = 'tienda' and o.estado <> 'cancelado'
+    and (o.creado_en at time zone 'America/Guayaquil')::date = t.fecha
+    and o.total = t.valor)
 on conflict (clave_origen) do update set
   fecha = excluded.fecha, vendedor = excluded.vendedor, vendedor_original = excluded.vendedor_original,
   descripcion_original = excluded.descripcion_original, contacto_original = excluded.contacto_original,
@@ -54,7 +61,8 @@ insert into public.prendas_historicas (clave, nombre, unidades, producto_id, sug
 select t.clave, t.nombre, t.unidades,
        case when t.estado = 'automatico' then p.id end,
        p.id,
-       case when t.estado in ('automatico', 'dudoso') and p.id is null then 'sin_coincidencia' else t.estado end,
+       -- Las que no existen en el catálogo son prendas que ya se acabaron: quedan con su nombre, sin revisar
+       case when p.id is null or t.estado = 'sin_coincidencia' then 'descartado' else t.estado end,
        t.confianza
 from _prendas t
 left join public.productos p on p.sku = t.sku
@@ -81,7 +89,8 @@ on conflict (clave_origen) do update set
 
 drop table if exists _ventas, _gastos, _prendas;
 
--- 5. Revisión: debe decir 207 ventas · $30346.90 · costo $13696.00 · 397 líneas · 34 gastos
+-- 5. Revisión: debe decir 209 ventas · $30786.90 · costo $13889.00 · 402 líneas · 34 gastos
+--    (menos las que ya estaban en el panel) y solo 2 prendas dudosas
 select (select count(*) from public.ventas_historicas where origen = 'treinta') as ventas,
        (select sum(valor) from public.ventas_historicas where origen = 'treinta') as total_ventas,
        (select sum(costo) from public.ventas_historicas where origen = 'treinta') as total_costo,
@@ -89,7 +98,7 @@ select (select count(*) from public.ventas_historicas where origen = 'treinta') 
        (select count(*) from public.gastos_historicos where origen = 'treinta') as gastos,
        (select count(*) filter (where estado = 'automatico') || ' automáticas · ' ||
                count(*) filter (where estado = 'dudoso') || ' dudosas · ' ||
-               count(*) filter (where estado = 'sin_coincidencia') || ' sin coincidencia'
+               count(*) filter (where estado = 'descartado') || ' ya no están en el catálogo'
           from public.prendas_historicas) as prendas;
 """)
 open('/home/claude/brunelbrand/supabase/importar-treinta.sql', 'w').write('\n'.join(out))

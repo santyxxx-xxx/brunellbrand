@@ -69,3 +69,13 @@ export async function borrarFotos(urls = []) {
     .map((u) => decodeURIComponent(u.split(marcador)[1]));
   if (rutas.length) await supabase.storage.from(BUCKET).remove(rutas);
 }
+
+// Consulta con las columnas de fase5.sql (nombre_interno, grupo, opción, visible);
+// si la base todavía no las tiene, repite la consulta sin ellas.
+export async function consultarConFase5(armar, campos) {
+  const r = await armar(campos);
+  if (r.error && /nombre_interno|grupo|opcion|visible/.test(r.error.message || "")) {
+    return armar(campos.replace(/,\s*(nombre_interno|grupo|opcion|visible)\b/g, ""));
+  }
+  return r;
+}

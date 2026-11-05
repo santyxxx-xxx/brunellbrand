@@ -90,6 +90,9 @@ export default function DetallePedido() {
             <span className="rounded-full bg-marino/10 px-2.5 py-0.5">{pedido.canal === "tienda" ? "Venta en tienda" : "Venta web"}</span>
             {pedido.vendedor_nombre && <span className="rounded-full bg-ocre/15 px-2.5 py-0.5">Vendedor: {pedido.vendedor_nombre}</span>}
             {pedido.metodo_pago && <span className="rounded-full bg-marino/10 px-2.5 py-0.5 capitalize">{pedido.metodo_pago}</span>}
+            {pedido.canal === "tienda" && pedido.envio_nombre && pedido.envio_nombre !== "Venta en tienda" && (
+              <span className="rounded-full bg-marino/10 px-2.5 py-0.5">{pedido.envio_nombre}</span>
+            )}
           </p>
           <p className="text-sm text-marino/60">
             Creado {new Date(pedido.creado_en).toLocaleString("es-EC")}
@@ -169,6 +172,35 @@ export default function DetallePedido() {
 
         <form onSubmit={guardar} className="h-fit space-y-4 rounded-xl bg-white p-5 lg:sticky lg:top-28">
           <h2 className="etiqueta">Gestionar pedido</h2>
+          {pedido.estado === "por_cobrar" && (
+            <div className="rounded-lg bg-orange-50 p-3">
+              <p className="text-sm font-semibold text-orange-900">Falta cobrar {formatearPrecio(pedido.total)}</p>
+              <p className="mb-2 text-xs text-orange-900/70">¿Cómo pagó?</p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  ["efectivo", "Efectivo"],
+                  ["transferencia", "Transferencia"],
+                  ["tarjeta", "Tarjeta"],
+                ].map(([valor, texto]) => (
+                  <button
+                    key={valor}
+                    type="button"
+                    disabled={guardando}
+                    onClick={() =>
+                      enviar({
+                        accion: "actualizar",
+                        estado: pedido.entrega && pedido.entrega !== "personal" ? "pagado" : "entregado",
+                        metodoPago: valor,
+                      })
+                    }
+                    className="rounded-lg bg-marino px-2 py-2 text-[11px] font-semibold text-white"
+                  >
+                    {texto}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <label className="block text-sm">
             <span className="mb-1 block font-medium">Estado</span>
             <select className="campo" value={form.estado} onChange={(e) => setForm({ ...form, estado: e.target.value })}>

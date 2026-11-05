@@ -42,15 +42,17 @@ export default function PrendasHistoricas() {
       supabase
         .from("prendas_historicas")
         .select(
-          "clave, nombre, unidades, estado, confianza, producto_id, sugerido_id, revisado_por, revisado_en, producto:productos!prendas_historicas_producto_id_fkey(nombre, sku), sugerido:productos!prendas_historicas_sugerido_id_fkey(nombre, sku)"
+          "clave, nombre, unidades, estado, confianza, producto_id, sugerido_id, revisado_por, revisado_en, producto:productos!prendas_historicas_producto_id_fkey(*), sugerido:productos!prendas_historicas_sugerido_id_fkey(*)"
         )
         .order("unidades", { ascending: false }),
-      supabase.from("productos").select("id, nombre, sku").order("nombre"),
+      supabase.from("productos").select("*").order("nombre"),
       supabase.rpc("mi_rol"),
     ]);
     if (error) setError(error.message);
-    setPrendas(data || []);
-    setCatalogo(prods || []);
+    // En el panel se usa el nombre interno
+    const interno = (p) => (p ? { ...p, nombre: p.nombre_interno || p.nombre } : p);
+    setPrendas((data || []).map((x) => ({ ...x, producto: interno(x.producto), sugerido: interno(x.sugerido) })));
+    setCatalogo((prods || []).map(interno));
     setUsuario(rol?.nombre || "");
   }
 
@@ -93,8 +95,10 @@ export default function PrendasHistoricas() {
       <div>
         <h1 className="font-serif text-3xl">Prendas del historial</h1>
         <p className="mt-1 max-w-2xl text-sm text-marino/60">
-          Relaciona las prendas vendidas en Treinta con tu catálogo actual. Las “automáticas” tienen el mismo nombre y corte;
-          las dudosas y las que no se encontraron esperan tu decisión. Esto solo afecta los reportes: no cambia stock ni productos.
+          Las prendas vendidas en Treinta ya están relacionadas solas con tu catálogo (mismo nombre y corte, sin importar
+          mayúsculas, orden de palabras o “(Casual)” / “casual”). Las que ya no existen en el catálogo quedan con su nombre.
+          Solo te toca revisar las dudosas: por ejemplo, cuando en Treinta no se anotó si era Oxford o Casual.
+          Esto solo afecta los reportes: no cambia stock ni productos.
         </p>
       </div>
 

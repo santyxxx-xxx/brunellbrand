@@ -25,7 +25,11 @@ const NOMBRES = {
 
 const n = (v) => Number(v) || 0;
 const pct = (a, b) => (n(b) > 0 ? ((n(a) - n(b)) / n(b)) * 100 : null);
-const margen = (u, v) => (n(v) > 0 ? (n(u) / n(v)) * 100 : null);
+const margen = (u, v) => (u === null || u === undefined ? null : n(v) > 0 ? (n(u) / n(v)) * 100 : null);
+const sinDato = (v) => v === null || v === undefined;
+// Meses de 2024–2025 solo tienen el total anotado: no hay utilidad ni número de ventas
+const utilidadTexto = (u) => (sinDato(u) ? "—" : formatearPrecio(u));
+const conteoTexto = (d) => (sinDato(d?.n) ? `${n(d?.prendas)} prendas` : `${d.n} ventas`);
 const mesTexto = (yyyymm, largo = false) => {
   const [a, m] = yyyymm.split("-");
   return largo ? `${MESES[Number(m) - 1]} ${a}` : `${MESES[Number(m) - 1]} ${a.slice(2)}`;
@@ -98,7 +102,7 @@ export default function Balance() {
       <div>
         <h1 className="font-serif text-3xl">Balance</h1>
         <p className="text-sm text-marino/60">
-          Historial de Treinta + ventas nuevas (web y tienda) · {fechaTexto(datos.desde)} – {fechaTexto(datos.hasta)}
+          Treinta (2026) + ventas del panel y la web + totales anotados de 2024–2025 · {fechaTexto(datos.desde)} – {fechaTexto(datos.hasta)}
         </p>
       </div>
 
@@ -165,6 +169,13 @@ export default function Balance() {
         <p className="mt-3 text-[11px] text-marino/50">Se compara el mes de la fecha final del filtro.</p>
       </Tarjeta>
 
+      {/* Por año */}
+      {datos.anual?.length > 0 && (
+        <Tarjeta titulo="Año por año">
+          <PorAnio anios={datos.anual} />
+        </Tarjeta>
+      )}
+
       {/* Ganancia de cada uno */}
       {datos.ganancias && (
         <Tarjeta titulo="Ganancia de cada vendedor">
@@ -191,7 +202,11 @@ export default function Balance() {
 
       {/* Día a día */}
       <Tarjeta titulo="Ventas y utilidad día a día">
-        <LineaDiaria diario={datos.diario} desde={datos.desde} hasta={datos.hasta} />
+        <LineaDiaria
+          diario={datos.diario}
+          desde={datos.primera_venta && datos.primera_venta > datos.desde ? datos.primera_venta : datos.desde}
+          hasta={datos.hasta}
+        />
       </Tarjeta>
 
       {/* Mes a mes */}
@@ -375,12 +390,52 @@ function Cambio({ valor }) {
   );
 }
 
+function PorAnio({ anios }) {
+  const max = Math.max(1, ...anios.map((a) => n(a.ventas)));
+  const anioActual = new Date().getFullYear();
+  return (
+    <div className="space-y-3">
+      {anios.map((a, i) => {
+        const crec = i > 0 ? pct(a.ventas, anios[i - 1].ventas) : null;
+        return (
+          <div key={a.anio}>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
+              <span className="font-semibold">
+                {a.anio}
+                {a.anio === anioActual && <span className="ml-1 text-xs font-normal text-marino/50">(en curso)</span>}
+              </span>
+              <span>
+                <strong>{formatearPrecio(a.ventas)}</strong>
+                {i > 0 && (
+                  <span className="ml-2 text-xs">
+                    <Cambio valor={crec} />
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="mt-1 h-3 overflow-hidden rounded-full bg-hueso">
+              <div className="h-full rounded-full" style={{ width: `${(n(a.ventas) / max) * 100}%`, background: C_VENTAS }} />
+            </div>
+            <p className="mt-1 text-[11px] text-marino/60">
+              {n(a.prendas)} prendas · promedio {formatearPrecio(n(a.ventas) / Math.max(1, n(a.meses)))} al mes
+              {sinDato(a.utilidad) ? "" : ` · utilidad ${formatearPrecio(a.utilidad)}`}
+              {a.con_notas ? " · de las notas (solo totales)" : ""}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function BloqueMes({ titulo, datos }) {
   return (
     <div className="rounded-xl bg-hueso p-3">
       <p className="text-xs font-semibold capitalize">{titulo}</p>
       <p className="mt-1 font-serif text-2xl">{formatearPrecio(datos.ventas)}</p>
-      <p className="text-xs text-marino/60">Utilidad {formatearPrecio(datos.utilidad)} · {datos.n} ventas</p>
+      <p className="text-xs text-marino/60">
+        {sinDato(datos.utilidad) ? "Sin utilidad (solo total anotado)" : `Utilidad ${formatearPrecio(datos.utilidad)}`} · {conteoTexto(datos)}
+      </p>
     </div>
   );
 }
@@ -390,8 +445,11 @@ function BloqueComparado({ titulo, actual, base }) {
     <div className="rounded-xl bg-hueso p-3 text-sm">
       <p className="text-xs font-semibold">{titulo}</p>
       <p className="mt-1">Ventas: <strong><Cambio valor={pct(actual.ventas, base.ventas)} /></strong></p>
-      <p>Utilidad: <strong><Cambio valor={pct(actual.utilidad, base.utilidad)} /></strong></p>
-      <p className="mt-1 text-[11px] text-marino/50">Antes: {formatearPrecio(base.ventas)} · {base.n} ventas</p>
+      <p>Utilidad: <strong>{sinDato(base.utilidad) || sinDato(actual.utilidad) ? <span className="text-marino/40">sin dato</span> : <Cambio valor={pct(actual.utilidad, base.utilidad)} />}</strong></p>
+      {!sinDato(base.prendas) && (
+        <p>Prendas: <strong><Cambio valor={pct(actual.prendas, base.prendas)} /></strong></p>
+      )}
+      <p className="mt-1 text-[11px] text-marino/50">Antes: {formatearPrecio(base.ventas)} · {conteoTexto(base)}{base.fuente === "notas" ? " (notas)" : ""}</p>
     </div>
   );
 }
@@ -475,13 +533,16 @@ function BarrasMensuales({ meses }) {
               <div
                 key={m.mes}
                 className="flex h-full flex-1 flex-col justify-end"
-                title={`${mesTexto(m.mes, true)}\nVentas: ${formatearPrecio(m.ventas)}\nUtilidad: ${formatearPrecio(m.utilidad)}\nVentas: ${m.n}${crec === null ? "" : `\nCrecimiento: ${crec.toFixed(1)}%`}`}
+                title={`${mesTexto(m.mes, true)}\nVentas: ${formatearPrecio(m.ventas)}\nUtilidad: ${utilidadTexto(m.utilidad)}\n${conteoTexto(m)}${m.fuente === "notas" ? " (de las notas)" : ""}${crec === null ? "" : `\nCrecimiento: ${crec.toFixed(1)}%`}`}
               >
                 <span className={`mb-1 h-4 text-center text-[10px] font-semibold ${crec === null ? "" : crec >= 0 ? "text-green-700" : "text-red-700"}`}>
                   {crec === null ? "" : `${crec >= 0 ? "+" : ""}${crec.toFixed(0)}%`}
                 </span>
                 <div className="flex h-[85%] items-end justify-center gap-[2px]">
-                  <div className="w-1/2 max-w-5 rounded-t-[4px]" style={{ height: `${(n(m.ventas) / max) * 100}%`, background: C_VENTAS }} />
+                  <div
+                    className="w-1/2 max-w-5 rounded-t-[4px]"
+                    style={{ height: `${(n(m.ventas) / max) * 100}%`, background: C_VENTAS, opacity: m.fuente === "notas" ? 0.55 : 1 }}
+                  />
                   <div className="w-1/2 max-w-5 rounded-t-[4px]" style={{ height: `${(Math.max(0, n(m.utilidad)) / max) * 100}%`, background: C_UTILIDAD }} />
                 </div>
               </div>
@@ -493,11 +554,14 @@ function BarrasMensuales({ meses }) {
         </div>
       </div>
       <Leyenda items={[{ texto: "Ventas", color: C_VENTAS }, { texto: "Utilidad", color: C_UTILIDAD }]} />
+      {meses.some((m) => m.fuente === "notas") && (
+        <p className="mt-1 text-[11px] text-marino/50">Barras claras: meses con solo el total anotado (2024–2025), sin utilidad.</p>
+      )}
       <details className="mt-3 text-xs">
         <summary className="cursor-pointer text-marino/60">Ver tabla</summary>
         <table className="mt-2 w-full text-left">
           <thead className="text-marino/50">
-            <tr><th>Mes</th><th className="text-right">Ventas</th><th className="text-right">Utilidad</th><th className="text-right">Margen</th><th className="text-right">vs. ant.</th></tr>
+            <tr><th>Mes</th><th className="text-right">Ventas</th><th className="text-right">Prendas</th><th className="text-right">Utilidad</th><th className="text-right">Margen</th><th className="text-right">vs. ant.</th></tr>
           </thead>
           <tbody>
             {meses.map((m, i) => {
@@ -507,7 +571,8 @@ function BarrasMensuales({ meses }) {
                 <tr key={m.mes} className="border-t border-marino/5">
                   <td className="py-1 capitalize">{mesTexto(m.mes, true)}</td>
                   <td className="text-right">{formatearPrecio(m.ventas)}</td>
-                  <td className="text-right">{formatearPrecio(m.utilidad)}</td>
+                  <td className="text-right">{sinDato(m.prendas) ? "—" : m.prendas}</td>
+                  <td className="text-right">{utilidadTexto(m.utilidad)}</td>
                   <td className="text-right">{mg === null ? "—" : `${mg.toFixed(0)}%`}</td>
                   <td className="text-right"><Cambio valor={crec} /></td>
                 </tr>

@@ -1,6 +1,8 @@
 -- =====================================================================
--- BRUNEL BRAND · IMPORTACIÓN ÚNICA DEL HISTORIAL DE TREINTA (01/2026 – 10/2026)
--- 207 ventas, 397 líneas de prendas, 34 gastos. Requiere historico.sql.
+-- BRUNEL BRAND · IMPORTACIÓN DEL HISTORIAL DE TREINTA (01/2026 – 04/11/2026)
+-- 209 ventas, 402 líneas de prendas, 34 gastos. Ejecuta antes fase5.sql.
+-- Si una venta de Treinta ya está registrada en el panel (misma fecha y mismo
+-- total en una venta de tienda), NO se importa para no contarla dos veces.
 -- Se puede ejecutar más de una vez: no duplica filas (usa clave_origen) y
 -- respeta las prendas que ya confirmaste en el panel.
 -- NO toca el stock ni los productos.
@@ -220,7 +222,9 @@ insert into _ventas values
 ('e5fe15363ceed1d0c100','2026-10-29','Mateo','Mateo Vargas','1 Chaqueta 2 bolsillos verde olivo (L)','Daniel Sanchez Camisas Polo Talla M','Daniel Sanchez','Camisas Polo Talla M','pagado','payphone',160.0,75.0,'[{"cantidad": 1, "nombre": "Chaqueta 2 bolsillos verde olivo", "talla": "L", "corte": null, "prenda_clave": "chaqueta 2 bolsillos verde olivo"}]'::jsonb),
 ('bb9eb8db5df1b7aa6afe','2026-10-30','Santiago','Santecio Vargas','1 Camisa a cuadros azul royal (Casual M), 1 Camisa a cuadros verde (Casual M), 1 Camisa a cuadros celestes (Casual M)',null,null,null,'pagado','transferencia',210.0,96.0,'[{"cantidad": 1, "nombre": "Camisa a cuadros azul royal", "talla": "M", "corte": "Casual", "prenda_clave": "camisa a cuadros azul royal|casual"}, {"cantidad": 1, "nombre": "Camisa a cuadros verde", "talla": "M", "corte": "Casual", "prenda_clave": "camisa a cuadros verde|casual"}, {"cantidad": 1, "nombre": "Camisa a cuadros celestes", "talla": "M", "corte": "Casual", "prenda_clave": "camisa a cuadros celestes|casual"}]'::jsonb),
 ('41310bae67460af10895','2026-10-30','Mateo','Mateo Vargas','1 Camisa rayas finas rosadas (Casual S)',null,null,null,'pagado','efectivo',70.0,32.0,'[{"cantidad": 1, "nombre": "Camisa rayas finas rosadas", "talla": "S", "corte": "Casual", "prenda_clave": "camisa rayas finas rosadas|casual"}]'::jsonb),
-('1fb2e38c5afb6c5b9132','2026-10-31','Mateo','Mateo Vargas','1 Camisa negra (Casual M), 1 Camisa celeste oscuro (M Oxford)','Holger Torres camisas Polo Talla M','Holger Torres','camisas Polo Talla M','pagado','transferencia',140.0,64.0,'[{"cantidad": 1, "nombre": "Camisa negra", "talla": "M", "corte": "Casual", "prenda_clave": "camisa negra|casual"}, {"cantidad": 1, "nombre": "Camisa celeste oscuro", "talla": "M", "corte": "Oxford", "prenda_clave": "camisa celeste oscuro|oxford"}]'::jsonb);
+('1fb2e38c5afb6c5b9132','2026-10-31','Mateo','Mateo Vargas','1 Camisa negra (Casual M), 1 Camisa celeste oscuro (M Oxford)','Holger Torres camisas Polo Talla M','Holger Torres','camisas Polo Talla M','pagado','transferencia',140.0,64.0,'[{"cantidad": 1, "nombre": "Camisa negra", "talla": "M", "corte": "Casual", "prenda_clave": "camisa negra|casual"}, {"cantidad": 1, "nombre": "Camisa celeste oscuro", "talla": "M", "corte": "Oxford", "prenda_clave": "camisa celeste oscuro|oxford"}]'::jsonb),
+('a5db1929fc140911212d','2026-11-03','Mateo','Mateo Vargas','1 Camisa rayas gruesa celeste (L Oxford), 1 Camisa oxford verde (L Oxford)','Alex Ruano Camisas Polo TallaL','Alex Ruano','Camisas Polo TallaL','pagado','transferencia',150.0,64.0,'[{"cantidad": 1, "nombre": "Camisa rayas gruesa celeste", "talla": "L", "corte": "Oxford", "prenda_clave": "camisa rayas gruesa celeste|oxford"}, {"cantidad": 1, "nombre": "Camisa oxford verde", "talla": "L", "corte": "Oxford", "prenda_clave": "camisa oxford verde|oxford"}]'::jsonb),
+('dcd48957aeb6e04c1c0f','2026-11-04','Mateo','Mateo Vargas','1 Camisa oxford a rayas verde claro (L), 1 Camisa rayas gruesa celeste (Casual L), 1 Chaqueta gabardina azul (M)','Ramiro Erazo Camisas Polo Talla L','Ramiro Erazo','Camisas Polo Talla L','pagado','efectivo',290.0,129.0,'[{"cantidad": 1, "nombre": "Camisa oxford a rayas verde claro", "talla": "L", "corte": null, "prenda_clave": "camisa oxford a rayas verde claro"}, {"cantidad": 1, "nombre": "Camisa rayas gruesa celeste", "talla": "L", "corte": "Casual", "prenda_clave": "camisa rayas gruesa celeste|casual"}, {"cantidad": 1, "nombre": "Chaqueta gabardina azul", "talla": "M", "corte": null, "prenda_clave": "chaqueta gabardina azul"}]'::jsonb);
 
 insert into _gastos values
 ('e817923db634874b7bc7','2026-01-07','operativo','Gasto','Pago sesión de fotos',null,'transferencia','Mateo',50.0),
@@ -263,11 +267,11 @@ insert into _prendas values
 ('camisa azul marino susy|oxford','Camisa azul marino susy (Oxford)',12,'BR-Y7JE0','automatico',1.0),
 ('camisa celeste oxford susy|oxford','Camisa celeste oxford susy (Oxford)',8,'BR-D9JXK','automatico',1.0),
 ('camisa celeste caspeado oxford susy|oxford','Camisa celeste caspeado Oxford Susy (Oxford)',3,'BR-74WLB','automatico',1.0),
-('despojo','Despojo',1,null,'sin_coincidencia',0.4),
+('despojo','Despojo',1,null,'sin_coincidencia',0),
 ('camisa a rayas verde oxford|oxford','Camisa a rayas verde oxford (Oxford)',2,'BR-3BE36','automatico',1.0),
-('camisa rayas gruesa celeste|casual','Camisa rayas gruesa celeste (Casual)',12,'BR-5W83E','automatico',1.0),
-('camisa casual azul noche|casual','Camisa casual azul noche (Casual)',2,'BR-H6F5E','dudoso',0.89),
-('camisetas basicas lacoste','Camisetas básicas lacoste',3,null,'sin_coincidencia',0.75),
+('camisa rayas gruesa celeste|casual','Camisa rayas gruesa celeste (Casual)',13,'BR-5W83E','automatico',1.0),
+('camisa casual azul noche|casual','Camisa casual azul noche (Casual)',2,'BR-H6F5E','automatico',1.0),
+('camisetas basicas lacoste','Camisetas básicas lacoste',3,null,'sin_coincidencia',0.5),
 ('camisa negra|casual','Camisa negra (Casual)',8,'BR-LR55A','automatico',1.0),
 ('camisa celeste|casual','Camisa celeste (Casual)',3,'BR-RGSA7','automatico',1.0),
 ('camisa a cuadros azul royal|casual','Camisa a cuadros azul royal (Casual)',12,'BR-UH87R','automatico',1.0),
@@ -276,72 +280,72 @@ insert into _prendas values
 ('camisa rosada|oxford','Camisa rosada (Oxford)',4,'BR-0X3AM','automatico',1.0),
 ('camisa azul marino|oxford','Camisa azul marino (Oxford)',1,'BR-CKV4Y','automatico',1.0),
 ('camisa blanca|casual','Camisa blanca (Casual)',18,'BR-NLD29','automatico',1.0),
-('basica azul marino','Basica azul marino',2,null,'sin_coincidencia',0.7),
-('basica negra','Basica negra',2,null,'sin_coincidencia',0.58),
-('camiseta basica blanca','Camiseta basica blanca',5,null,'sin_coincidencia',0.7),
-('camiseta basica verde','Camiseta basica verde',1,null,'sin_coincidencia',0.68),
-('polo negra prl','Polo negra PRL',4,null,'sin_coincidencia',0.58),
-('polo verde prl','Polo verde PRL',3,null,'sin_coincidencia',0.5),
+('basica azul marino','Basica azul marino',2,'BR-PJZ2Z','automatico',1.0),
+('basica negra','Basica negra',2,'BR-ZGL1E','automatico',1.0),
+('camiseta basica blanca','Camiseta basica blanca',5,'BR-JYVHP','automatico',1.0),
+('camiseta basica verde','Camiseta basica verde',1,'BR-5DJJH','automatico',1.0),
+('polo negra prl','Polo negra PRL',4,'BR-NWE5E','automatico',1.0),
+('polo verde prl','Polo verde PRL',3,'BR-AVEHH','automatico',1.0),
 ('camisa negra|oxford','Camisa negra (Oxford)',5,'BR-Z8TC5','automatico',1.0),
 ('camisa celeste|oxford','Camisa celeste (Oxford)',17,'BR-SYX1X','automatico',1.0),
-('polo azul','Polo Azul',1,null,'sin_coincidencia',0.8),
-('lacoste cafe claro','Lacoste Café claro',2,null,'sin_coincidencia',0.5),
-('polo blanca','Polo Blanca',2,null,'sin_coincidencia',0.56),
-('tommy negra basica','Tommy negra básica',2,null,'sin_coincidencia',0.59),
-('tommy blanca basica','Tommy blanca básica',3,null,'sin_coincidencia',0.62),
+('polo azul','Polo Azul',1,null,'sin_coincidencia',0.67),
+('lacoste cafe claro','Lacoste Café claro',2,'BR-JJ0S0','automatico',1.0),
+('polo blanca','Polo Blanca',2,'BR-NYPLB','automatico',1.0),
+('tommy negra basica','Tommy negra básica',2,'BR-27D29','automatico',1.0),
+('tommy blanca basica','Tommy blanca básica',3,'BR-71RN2','automatico',1.0),
 ('camisa oxford rayas celestes|oxford','Camisa oxford rayas celestes (Oxford)',2,'BR-D7A3K','automatico',1.0),
 ('camisa lino blanco','Camisa lino blanco',1,'BR-H2BPE','automatico',1.0),
 ('camisa rayas gruesas azul italiano|casual','Camisa rayas gruesas azul italiano (Casual)',23,'BR-1CNH2','automatico',1.0),
 ('camisa a cuadros celestes|casual','Camisa a cuadros celestes (Casual)',10,'BR-HTSC0','automatico',1.0),
 ('camisa blanca|oxford','Camisa blanca (Oxford)',7,'BR-BKR77','automatico',1.0),
-('lacoste blanco hueso','Lacoste blanco hueso',1,null,'sin_coincidencia',0.78),
-('polo gris','Polo gris',1,null,'sin_coincidencia',0.53),
+('lacoste blanco hueso','Lacoste blanco hueso',1,null,'sin_coincidencia',0.5),
+('polo gris','Polo gris',1,'BR-JNF4J','automatico',1.0),
 ('camisa oxford rayas plomas|oxford','Camisa oxford rayas plomas (Oxford)',3,'BR-PP4ZQ','automatico',1.0),
 ('camisa azul noche|casual','Camisa azul noche (Casual)',18,'BR-H6F5E','automatico',1.0),
 ('camisa amarilla|oxford','Camisa amarilla (Oxford)',3,'BR-RMFCM','automatico',1.0),
-('camisa oxford verde|oxford','Camisa oxford verde (Oxford)',4,'BR-NFU9G','automatico',1.0),
+('camisa oxford verde|oxford','Camisa oxford verde (Oxford)',5,'BR-NFU9G','automatico',1.0),
 ('camisa lino rosado','Camisa lino rosado',3,'BR-YL75T','automatico',1.0),
 ('camisa a cuadros verde|casual','Camisa a cuadros verde (Casual)',4,'BR-6EGWH','automatico',1.0),
 ('camisa rayas finas celeste|casual','Camisa rayas finas celeste (Casual)',6,'BR-JUU7F','automatico',1.0),
 ('camisa a rayas rosada gruesa|casual','Camisa a rayas rosada gruesa (Casual)',5,'BR-56FGT','automatico',1.0),
 ('camisa lino amarillo maiz','Camisa lino amarillo maiz',5,'BR-QVSVN','automatico',1.0),
 ('camisa oxford rayas azules|oxford','Camisa oxford rayas azules (Oxford)',3,'BR-TVT4B','automatico',1.0),
-('polo amarillo bebe','Polo amarillo bebé',1,null,'sin_coincidencia',0.56),
-('polo roja prl','Polo roja PRL',3,null,'sin_coincidencia',0.59),
-('polo rosada prl','Polo rosada PRL',2,null,'sin_coincidencia',0.62),
-('polo azul noche','Polo azul noche',1,null,'sin_coincidencia',0.67),
-('polo blanca prl','Polo blanca PRL',8,null,'sin_coincidencia',0.51),
-('polo coral','Polo coral',2,null,'sin_coincidencia',0.67),
+('polo amarillo bebe','Polo amarillo bebé',1,'BR-EPMWE','automatico',1.0),
+('polo roja prl','Polo roja PRL',3,'BR-5MELM','automatico',1.0),
+('polo rosada prl','Polo rosada PRL',2,'BR-ZLPSS','automatico',1.0),
+('polo azul noche','Polo azul noche',1,'BR-RYURW','automatico',1.0),
+('polo blanca prl','Polo blanca PRL',8,'BR-KU9Y3','automatico',1.0),
+('polo coral','Polo coral',2,'BR-SWGGE','automatico',1.0),
 ('camisa cuadros azul noche|casual','Camisa cuadros azul noche (Casual)',5,'BR-5YF3T','automatico',1.0),
-('chaqueta 3 bolsillos','Chaqueta 3 bolsillos',2,'BR-WW3Z6','dudoso',0.89),
+('chaqueta 3 bolsillos','Chaqueta 3 bolsillos',2,'BR-WW3Z6','dudoso',0.75),
 ('camisa verde aceituna','Camisa verde aceituna',2,'BR-QAW53','automatico',1.0),
 ('chaqueta harrington azul','Chaqueta Harrington azul',2,'BR-PFN0Q','automatico',1.0),
 ('chaqueta harrington beige','Chaqueta Harrington Beige',1,'BR-YZNV8','automatico',1.0),
 ('camisa rosada|casual','Camisa rosada (Casual)',2,'BR-7VFFK','automatico',1.0),
 ('camisa rayas rojas','Camisa rayas rojas',1,'BR-UPK20','automatico',1.0),
-('saco trenzado azul','Saco trenzado azul',1,null,'sin_coincidencia',0.73),
+('saco trenzado azul','Saco trenzado azul',1,null,'sin_coincidencia',0.5),
 ('camisa rayas finas rosadas|casual','Camisa rayas finas rosadas (Casual)',5,'BR-0F9LQ','automatico',1.0),
 ('camisa blanco hueso|casual','Camisa blanco hueso (Casual)',2,'BR-9QQVW','automatico',1.0),
 ('camisa verde botella','Camisa verde botella',4,'BR-CBLGW','dudoso',0.9),
-('saco trenzado negro','Saco trenzado negro',1,null,'sin_coincidencia',0.76),
-('saco trenzado gris','Saco trenzado gris',1,null,'sin_coincidencia',0.68),
+('saco trenzado negro','Saco trenzado negro',1,null,'sin_coincidencia',0.4),
+('saco trenzado gris','Saco trenzado gris',1,null,'sin_coincidencia',0.4),
 ('camisa lino beige','Camisa lino Beige',2,'BR-VPJHT','automatico',1.0),
 ('camisa azul noche|oxford','Camisa azul noche (Oxford)',7,'BR-2LZJT','automatico',1.0),
-('polo turquesa','Polo Turquesa',2,null,'sin_coincidencia',0.54),
+('polo turquesa','Polo Turquesa',2,'BR-KS5XN','automatico',1.0),
 ('polo boss azul','Polo Boss azul',1,'BR-8PYQ5','automatico',1.0),
-('chaqueta 3 bolsillos negra','Chaqueta 3 bolsillos negra',1,'BR-WW3Z6','dudoso',0.86),
+('chaqueta 3 bolsillos negra','Chaqueta 3 bolsillos negra',1,null,'sin_coincidencia',0.6),
 ('camisa celeste oscuro|casual','Camisa celeste oscuro (Casual)',1,'BR-2Q2N4','automatico',1.0),
 ('camisa color menta|oxford','Camisa color menta (Oxford)',5,'BR-K5KPN','automatico',1.0),
 ('camisa oxford rayas amarillas','Camisa oxford rayas amarillas',2,'BR-74UUX','automatico',1.0),
 ('chaqueta acolchada azul','Chaqueta acolchada azul',6,'BR-D8JZ7','automatico',1.0),
-('polo ralph lauren chaqueta verde','Polo Ralph Lauren chaqueta verde',3,'BR-3LKVQ','dudoso',0.91),
-('chaqueta negra acolchada','Chaqueta negra acolchada',1,'BR-H1KF7','automatico',1.0),
+('polo ralph lauren chaqueta verde','Polo Ralph Lauren chaqueta verde',3,null,'sin_coincidencia',0.67),
+('chaqueta negra acolchada','Chaqueta negra acolchada',1,'BR-Y2EGR','automatico',1.0),
 ('chaqueta 3 bolsillos azul','Chaqueta 3 bolsillos azul',10,'BR-WW3Z6','automatico',1.0),
 ('chaqueta acolchada negra','Chaqueta acolchada negra',3,'BR-Y2EGR','automatico',1.0),
-('camisa rayas gruesa celeste|oxford','Camisa rayas gruesa celeste (Oxford)',6,'BR-J4D7M','automatico',1.0),
-('polo azul acero','Polo azul acero',3,null,'sin_coincidencia',0.67),
-('polo ploma','Polo ploma',1,null,'sin_coincidencia',0.5),
-('polo celeste','Polo celeste',1,null,'sin_coincidencia',0.52),
+('camisa rayas gruesa celeste|oxford','Camisa rayas gruesa celeste (Oxford)',7,'BR-J4D7M','automatico',1.0),
+('polo azul acero','Polo azul acero',3,'BR-H5MCQ','automatico',1.0),
+('polo ploma','Polo ploma',1,'BR-LUP6E','automatico',1.0),
+('polo celeste','Polo celeste',1,'BR-L2E1S','automatico',1.0),
 ('polo ralph lauren chaqueta negra','Polo Ralph Lauren chaqueta negra',3,'BR-3LKVQ','automatico',1.0),
 ('camisa cuadros salmon','Camisa cuadros salmon',3,'BR-16ME0','automatico',1.0),
 ('saco oso palos de golf azul','Saco Oso palos de golf azul',4,'BR-ZM1TR','automatico',1.0),
@@ -354,20 +358,21 @@ insert into _prendas values
 ('chaqueta 2 bolsillos azul','Chaqueta 2 bolsillos azul',4,'BR-DHGGD','automatico',1.0),
 ('camisa a rayas rosada gruesa|oxford','Camisa a rayas rosada gruesa (Oxford)',3,'BR-6NE3P','automatico',1.0),
 ('chaqueta 2 bolsillos verde olivo','Chaqueta 2 bolsillos verde olivo',5,'BR-UT8G6','automatico',1.0),
-('camiseta basica azul petroleo','Camiseta basica azul petróleo',2,null,'sin_coincidencia',0.65),
+('camiseta basica azul petroleo','Camiseta basica azul petróleo',2,'BR-0C3PD','automatico',1.0),
 ('saco de oso abuelo','Saco de oso abuelo',1,'BR-PZR66','automatico',1.0),
-('basica amarilla','Basica amarilla',1,null,'sin_coincidencia',0.65),
+('basica amarilla','Basica amarilla',1,'BR-VWR1F','automatico',1.0),
 ('chaqueta 3 bolsillos chocolate','Chaqueta 3 bolsillos chocolate',1,'BR-2BNYP','automatico',1.0),
 ('chaqueta 2 bolsillos chocolate','Chaqueta 2 bolsillos chocolate',2,'BR-U5LZA','automatico',1.0),
 ('chaqueta 4 bolsillos cafe','Chaqueta 4 bolsillos café',1,'BR-TQ82L','automatico',1.0),
-('camiseta basica ploma','Camiseta basica ploma',1,null,'sin_coincidencia',0.63),
+('camiseta basica ploma','Camiseta basica ploma',1,'BR-NSRYD','automatico',1.0),
 ('camisa verde botella|casual','Camisa verde botella (Casual)',1,'BR-CBLGW','automatico',1.0),
 ('polo ralph lauren azul medio cierre','Polo Ralph Lauren azul medio cierre',1,'BR-GHTN6','automatico',1.0),
-('camisa oxford a rayas verde claro','Camisa oxford a rayas verde claro',1,'BR-WYP9H','automatico',1.0),
+('camisa oxford a rayas verde claro','Camisa oxford a rayas verde claro',2,'BR-WYP9H','automatico',1.0),
 ('camisa a cuadros rosados|casual','Camisa a cuadros rosados (Casual)',1,'BR-34GJW','automatico',1.0),
 ('camisa rayas finas azul royal|casual','Camisa rayas finas azul royal (Casual)',1,'BR-56AJC','automatico',1.0),
 ('blazer azul','Blazer azul',1,'BR-WBK38','automatico',1.0),
-('camisa celeste oscuro|oxford','Camisa celeste oscuro (Oxford)',1,'BR-H20JW','automatico',1.0);
+('camisa celeste oscuro|oxford','Camisa celeste oscuro (Oxford)',1,'BR-H20JW','automatico',1.0),
+('chaqueta gabardina azul','Chaqueta gabardina azul',1,'BR-EHN1Y','automatico',1.0);
 
 
 -- 1. Ventas (crea o actualiza sin duplicar)
@@ -375,7 +380,12 @@ insert into public.ventas_historicas
   (origen, clave_origen, fecha, vendedor, vendedor_original, descripcion_original, contacto_original,
    cliente_nombre, cliente_nota, estado, metodo_pago, valor, costo)
 select 'treinta', clave, fecha, vendedor, vendedor_original, descripcion, contacto, cliente, nota, estado, metodo, valor, costo
-from _ventas
+from _ventas t
+where not exists (
+  select 1 from public.orders o
+  where o.canal = 'tienda' and o.estado <> 'cancelado'
+    and (o.creado_en at time zone 'America/Guayaquil')::date = t.fecha
+    and o.total = t.valor)
 on conflict (clave_origen) do update set
   fecha = excluded.fecha, vendedor = excluded.vendedor, vendedor_original = excluded.vendedor_original,
   descripcion_original = excluded.descripcion_original, contacto_original = excluded.contacto_original,
@@ -398,7 +408,8 @@ insert into public.prendas_historicas (clave, nombre, unidades, producto_id, sug
 select t.clave, t.nombre, t.unidades,
        case when t.estado = 'automatico' then p.id end,
        p.id,
-       case when t.estado in ('automatico', 'dudoso') and p.id is null then 'sin_coincidencia' else t.estado end,
+       -- Las que no existen en el catálogo son prendas que ya se acabaron: quedan con su nombre, sin revisar
+       case when p.id is null or t.estado = 'sin_coincidencia' then 'descartado' else t.estado end,
        t.confianza
 from _prendas t
 left join public.productos p on p.sku = t.sku
@@ -425,7 +436,8 @@ on conflict (clave_origen) do update set
 
 drop table if exists _ventas, _gastos, _prendas;
 
--- 5. Revisión: debe decir 207 ventas · $30346.90 · costo $13696.00 · 397 líneas · 34 gastos
+-- 5. Revisión: debe decir 209 ventas · $30786.90 · costo $13889.00 · 402 líneas · 34 gastos
+--    (menos las que ya estaban en el panel) y solo 2 prendas dudosas
 select (select count(*) from public.ventas_historicas where origen = 'treinta') as ventas,
        (select sum(valor) from public.ventas_historicas where origen = 'treinta') as total_ventas,
        (select sum(costo) from public.ventas_historicas where origen = 'treinta') as total_costo,
@@ -433,5 +445,5 @@ select (select count(*) from public.ventas_historicas where origen = 'treinta') 
        (select count(*) from public.gastos_historicos where origen = 'treinta') as gastos,
        (select count(*) filter (where estado = 'automatico') || ' automáticas · ' ||
                count(*) filter (where estado = 'dudoso') || ' dudosas · ' ||
-               count(*) filter (where estado = 'sin_coincidencia') || ' sin coincidencia'
+               count(*) filter (where estado = 'descartado') || ' ya no están en el catálogo'
           from public.prendas_historicas) as prendas;

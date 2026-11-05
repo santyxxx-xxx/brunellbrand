@@ -38,6 +38,7 @@ export async function POST(request, { params }) {
     if (!ESTADOS_PEDIDO[cuerpo.estado]) return NextResponse.json({ error: "Estado inválido." }, { status: 400 });
     cambios.estado = cuerpo.estado;
   }
+  if (["efectivo", "transferencia", "tarjeta"].includes(cuerpo.metodoPago)) cambios.metodo_pago = cuerpo.metodoPago;
   if (cuerpo.numeroGuia !== undefined) cambios.numero_guia = String(cuerpo.numeroGuia).trim().slice(0, 60) || null;
   if (cuerpo.notasInternas !== undefined) cambios.notas_internas = String(cuerpo.notasInternas).slice(0, 2000) || null;
 

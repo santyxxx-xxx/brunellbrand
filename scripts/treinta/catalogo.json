@@ -1,0 +1,1783 @@
+[
+ {
+  "sku": "BR-UCB8E",
+  "interno": "Camisa amarilla (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa amarilla",
+  "opcion": "Casual",
+  "grupo": "camisa-amarilla"
+ },
+ {
+  "sku": "BR-RMFCM",
+  "interno": "Camisa amarilla (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa amarilla",
+  "opcion": "Oxford",
+  "grupo": "camisa-amarilla"
+ },
+ {
+  "sku": "BR-V6Y86",
+  "interno": "Camisa azul marino (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa azul marino",
+  "opcion": "Casual",
+  "grupo": "camisa-azul-marino"
+ },
+ {
+  "sku": "BR-CKV4Y",
+  "interno": "Camisa azul marino (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa azul marino",
+  "opcion": "Oxford",
+  "grupo": "camisa-azul-marino"
+ },
+ {
+  "sku": "BR-H6F5E",
+  "interno": "Camisa azul noche (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa azul noche",
+  "opcion": "Casual",
+  "grupo": "camisa-azul-noche"
+ },
+ {
+  "sku": "BR-2LZJT",
+  "interno": "Camisa azul noche (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa azul noche",
+  "opcion": "Oxford",
+  "grupo": "camisa-azul-noche"
+ },
+ {
+  "sku": "BR-NLD29",
+  "interno": "Camisa blanca (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa blanca",
+  "opcion": "Casual",
+  "grupo": "camisa-blanca"
+ },
+ {
+  "sku": "BR-BKR77",
+  "interno": "Camisa blanca (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa blanca",
+  "opcion": "Oxford",
+  "grupo": "camisa-blanca"
+ },
+ {
+  "sku": "BR-9QQVW",
+  "interno": "Camisa blanco hueso (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa blanco hueso",
+  "opcion": "Casual",
+  "grupo": "camisa-blanco-hueso"
+ },
+ {
+  "sku": "BR-LFRHR",
+  "interno": "Camisa blanco hueso (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa blanco hueso",
+  "opcion": "Oxford",
+  "grupo": "camisa-blanco-hueso"
+ },
+ {
+  "sku": "BR-RGSA7",
+  "interno": "Camisa celeste (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa celeste",
+  "opcion": "Casual",
+  "grupo": "camisa-celeste"
+ },
+ {
+  "sku": "BR-SYX1X",
+  "interno": "Camisa celeste (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa celeste",
+  "opcion": "Oxford",
+  "grupo": "camisa-celeste"
+ },
+ {
+  "sku": "BR-2Q2N4",
+  "interno": "Camisa celeste oscuro (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa celeste oscuro",
+  "opcion": "Casual",
+  "grupo": "camisa-celeste-oscuro"
+ },
+ {
+  "sku": "BR-H20JW",
+  "interno": "Camisa celeste oscuro (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa celeste oscuro",
+  "opcion": "Oxford",
+  "grupo": "camisa-celeste-oscuro"
+ },
+ {
+  "sku": "BR-N8CRZ",
+  "interno": "Camisa color menta (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa color menta",
+  "opcion": "Casual",
+  "grupo": "camisa-color-menta"
+ },
+ {
+  "sku": "BR-K5KPN",
+  "interno": "Camisa color menta (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa color menta",
+  "opcion": "Oxford",
+  "grupo": "camisa-color-menta"
+ },
+ {
+  "sku": "BR-LR55A",
+  "interno": "Camisa negra (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa negra",
+  "opcion": "Casual",
+  "grupo": "camisa-negra"
+ },
+ {
+  "sku": "BR-Z8TC5",
+  "interno": "Camisa negra (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa negra",
+  "opcion": "Oxford",
+  "grupo": "camisa-negra"
+ },
+ {
+  "sku": "BR-M7J1F",
+  "interno": "Camisa oxford verde (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa verde",
+  "opcion": "Casual",
+  "grupo": "camisa-verde"
+ },
+ {
+  "sku": "BR-NFU9G",
+  "interno": "Camisa oxford verde (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa verde",
+  "opcion": "Oxford",
+  "grupo": "camisa-verde"
+ },
+ {
+  "sku": "BR-7VFFK",
+  "interno": "Camisa rosada (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa rosada",
+  "opcion": "Casual",
+  "grupo": "camisa-rosada"
+ },
+ {
+  "sku": "BR-0X3AM",
+  "interno": "Camisa rosada (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa rosada",
+  "opcion": "Oxford",
+  "grupo": "camisa-rosada"
+ },
+ {
+  "sku": "BR-QAW53",
+  "interno": "Camisa verde aceituna",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa verde aceituna",
+  "opcion": null,
+  "grupo": "camisa-verde-aceituna"
+ },
+ {
+  "sku": "BR-CBLGW",
+  "interno": "Camisa verde botella (Casual)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa verde botella",
+  "opcion": "Casual",
+  "grupo": "camisa-verde-botella"
+ },
+ {
+  "sku": "BR-31J8K",
+  "interno": "Camisa verde botella (Oxford)",
+  "cat_original": "Camisas colores enteros",
+  "nuevo": false,
+  "publico": "Camisa verde botella",
+  "opcion": "Oxford",
+  "grupo": "camisa-verde-botella"
+ },
+ {
+  "sku": "BR-8PCDD",
+  "interno": "Camisa a rayas rojas oxford (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas rojas",
+  "opcion": "Casual",
+  "grupo": "camisa-a-rayas-rojas"
+ },
+ {
+  "sku": "BR-FFRCJ",
+  "interno": "Camisa a rayas rojas oxford (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas rojas",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-rayas-rojas"
+ },
+ {
+  "sku": "BR-56FGT",
+  "interno": "Camisa a rayas rosada gruesa (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas gruesas rosada",
+  "opcion": "Casual",
+  "grupo": "camisa-a-rayas-gruesas-rosada"
+ },
+ {
+  "sku": "BR-6NE3P",
+  "interno": "Camisa a rayas rosada gruesa (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas gruesas rosada",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-rayas-gruesas-rosada"
+ },
+ {
+  "sku": "BR-LMGBH",
+  "interno": "Camisa a rayas verde oxford (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas verde",
+  "opcion": "Casual",
+  "grupo": "camisa-a-rayas-verde"
+ },
+ {
+  "sku": "BR-3BE36",
+  "interno": "Camisa a rayas verde oxford (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas verde",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-rayas-verde"
+ },
+ {
+  "sku": "BR-WYP9H",
+  "interno": "Camisa oxford a rayas verde claro",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa a rayas verde claro",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-rayas-verde-claro"
+ },
+ {
+  "sku": "BR-74UUX",
+  "interno": "Camisa oxford rayas amarillas",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas amarillas",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-amarillas"
+ },
+ {
+  "sku": "BR-GXSR6",
+  "interno": "Camisa oxford rayas azules (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas azules",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-azules"
+ },
+ {
+  "sku": "BR-TVT4B",
+  "interno": "Camisa oxford rayas azules (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas azules",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-azules"
+ },
+ {
+  "sku": "BR-SD6ZB",
+  "interno": "Camisa oxford rayas celestes (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas celestes",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-celestes"
+ },
+ {
+  "sku": "BR-D7A3K",
+  "interno": "Camisa oxford rayas celestes (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas celestes",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-celestes"
+ },
+ {
+  "sku": "BR-0BBQD",
+  "interno": "Camisa oxford rayas plomas (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas plomas",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-plomas"
+ },
+ {
+  "sku": "BR-PP4ZQ",
+  "interno": "Camisa oxford rayas plomas (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas plomas",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-plomas"
+ },
+ {
+  "sku": "BR-5W83E",
+  "interno": "Camisa rayas gruesa celeste (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas gruesas celeste",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-gruesas-celeste"
+ },
+ {
+  "sku": "BR-J4D7M",
+  "interno": "Camisa rayas gruesa celeste (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas gruesas celeste",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-gruesas-celeste"
+ },
+ {
+  "sku": "BR-1CNH2",
+  "interno": "Camisa rayas gruesas azul italiano (Casual)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas gruesas azul italiano",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-gruesas-azul-italiano"
+ },
+ {
+  "sku": "BR-NGS9H",
+  "interno": "Camisa rayas gruesas azul italiano (Oxford)",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas gruesas azul italiano",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-gruesas-azul-italiano"
+ },
+ {
+  "sku": "BR-UPK20",
+  "interno": "Camisa rayas rojas",
+  "cat_original": "Camisas a rayas",
+  "nuevo": false,
+  "publico": "Camisa rayas rojas",
+  "opcion": null,
+  "grupo": "camisa-rayas-rojas"
+ },
+ {
+  "sku": "BR-JEM4G",
+  "interno": "Camisa mil rayas rosado (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa mil rayas rosado",
+  "opcion": "Casual",
+  "grupo": "camisa-mil-rayas-rosado"
+ },
+ {
+  "sku": "BR-KKRWW",
+  "interno": "Camisa mil rayas rosado (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa mil rayas rosado",
+  "opcion": "Oxford",
+  "grupo": "camisa-mil-rayas-rosado"
+ },
+ {
+  "sku": "BR-39CSQ",
+  "interno": "Camisa rayas finas azul",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas azul",
+  "opcion": null,
+  "grupo": "camisa-rayas-finas-azul"
+ },
+ {
+  "sku": "BR-56AJC",
+  "interno": "Camisa rayas finas azul royal (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas azul royal",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-finas-azul-royal"
+ },
+ {
+  "sku": "BR-EQ4TN",
+  "interno": "Camisa rayas finas azul royal (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas azul royal",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-finas-azul-royal"
+ },
+ {
+  "sku": "BR-JUU7F",
+  "interno": "Camisa rayas finas celeste (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas celeste",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-finas-celeste"
+ },
+ {
+  "sku": "BR-DQWFS",
+  "interno": "Camisa rayas finas celeste (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas celeste",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-finas-celeste"
+ },
+ {
+  "sku": "BR-J78C1",
+  "interno": "Camisa rayas finas rojas (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas rojas",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-finas-rojas"
+ },
+ {
+  "sku": "BR-32Q7C",
+  "interno": "Camisa rayas finas rojas (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas rojas",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-finas-rojas"
+ },
+ {
+  "sku": "BR-0F9LQ",
+  "interno": "Camisa rayas finas rosadas (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas rosadas",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-finas-rosadas"
+ },
+ {
+  "sku": "BR-92UQD",
+  "interno": "Camisa rayas finas rosadas (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas rosadas",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-finas-rosadas"
+ },
+ {
+  "sku": "BR-E6LBE",
+  "interno": "Camisa rayas finas verde (Casual)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas verde",
+  "opcion": "Casual",
+  "grupo": "camisa-rayas-finas-verde"
+ },
+ {
+  "sku": "BR-KBHGW",
+  "interno": "Camisa rayas finas verde (Oxford)",
+  "cat_original": "Camisas a rayas finas",
+  "nuevo": false,
+  "publico": "Camisa rayas finas verde",
+  "opcion": "Oxford",
+  "grupo": "camisa-rayas-finas-verde"
+ },
+ {
+  "sku": "BR-UH87R",
+  "interno": "Camisa a cuadros azul royal (Casual)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros azul royal",
+  "opcion": "Casual",
+  "grupo": "camisa-a-cuadros-azul-royal"
+ },
+ {
+  "sku": "BR-XRLKP",
+  "interno": "Camisa a cuadros azul royal (Oxford)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros azul royal",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-cuadros-azul-royal"
+ },
+ {
+  "sku": "BR-HTSC0",
+  "interno": "Camisa a cuadros celestes (Casual)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros celestes",
+  "opcion": "Casual",
+  "grupo": "camisa-a-cuadros-celestes"
+ },
+ {
+  "sku": "BR-N9GXY",
+  "interno": "Camisa a cuadros celestes (Oxford)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros celestes",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-cuadros-celestes"
+ },
+ {
+  "sku": "BR-34GJW",
+  "interno": "Camisa a cuadros rosados (Casual)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros rosados",
+  "opcion": "Casual",
+  "grupo": "camisa-a-cuadros-rosados"
+ },
+ {
+  "sku": "BR-S5UA1",
+  "interno": "Camisa a cuadros rosados (Oxford)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros rosados",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-cuadros-rosados"
+ },
+ {
+  "sku": "BR-6EGWH",
+  "interno": "Camisa a cuadros verde (Casual)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros verde",
+  "opcion": "Casual",
+  "grupo": "camisa-a-cuadros-verde"
+ },
+ {
+  "sku": "BR-9Q3VN",
+  "interno": "Camisa a cuadros verde (Oxford)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa a cuadros verde",
+  "opcion": "Oxford",
+  "grupo": "camisa-a-cuadros-verde"
+ },
+ {
+  "sku": "BR-5YF3T",
+  "interno": "Camisa cuadros azul noche (Casual)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa cuadros azul noche",
+  "opcion": "Casual",
+  "grupo": "camisa-cuadros-azul-noche"
+ },
+ {
+  "sku": "BR-85D6K",
+  "interno": "Camisa cuadros azul noche (Oxford)",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa cuadros azul noche",
+  "opcion": "Oxford",
+  "grupo": "camisa-cuadros-azul-noche"
+ },
+ {
+  "sku": "BR-16ME0",
+  "interno": "Camisa cuadros salmon",
+  "cat_original": "Camisas a cuadros",
+  "nuevo": false,
+  "publico": "Camisa cuadros salmón",
+  "opcion": null,
+  "grupo": "camisa-cuadros-salmon"
+ },
+ {
+  "sku": "BR-GW0FH",
+  "interno": "Camisa celeste lino",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino celeste",
+  "opcion": null,
+  "grupo": "camisa-de-lino-celeste"
+ },
+ {
+  "sku": "BR-QVSVN",
+  "interno": "Camisa lino amarillo maiz",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino amarillo maíz",
+  "opcion": null,
+  "grupo": "camisa-de-lino-amarillo-maiz"
+ },
+ {
+  "sku": "BR-VPJHT",
+  "interno": "Camisa lino Beige",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino beige",
+  "opcion": null,
+  "grupo": "camisa-de-lino-beige"
+ },
+ {
+  "sku": "BR-H2BPE",
+  "interno": "Camisa lino blanco",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino blanco",
+  "opcion": null,
+  "grupo": "camisa-de-lino-blanco"
+ },
+ {
+  "sku": "BR-YL75T",
+  "interno": "Camisa lino rosado",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino rosado",
+  "opcion": null,
+  "grupo": "camisa-de-lino-rosado"
+ },
+ {
+  "sku": "BR-33Y36",
+  "interno": "Lino negro",
+  "cat_original": "Lino",
+  "nuevo": false,
+  "publico": "Camisa de lino negro",
+  "opcion": null,
+  "grupo": "camisa-de-lino-negro"
+ },
+ {
+  "sku": "BR-7M2UD",
+  "interno": "Camisa azul marino susy (Casual)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa azul marino",
+  "opcion": "Casual",
+  "grupo": "camisa-azul-marino"
+ },
+ {
+  "sku": "BR-Y7JE0",
+  "interno": "Camisa azul marino susy (Oxford)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa azul marino",
+  "opcion": "Oxford",
+  "grupo": "camisa-azul-marino"
+ },
+ {
+  "sku": "BR-2FVC8",
+  "interno": "Camisa blanca Oxford Susy (Casual)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa blanca",
+  "opcion": "Casual",
+  "grupo": "camisa-blanca"
+ },
+ {
+  "sku": "BR-7A2DM",
+  "interno": "Camisa blanca Oxford Susy (Oxford)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa blanca",
+  "opcion": "Oxford",
+  "grupo": "camisa-blanca"
+ },
+ {
+  "sku": "BR-C0743",
+  "interno": "Camisa celeste caspeado Oxford Susy (Casual)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa celeste caspeado",
+  "opcion": "Casual",
+  "grupo": "camisa-celeste-caspeado"
+ },
+ {
+  "sku": "BR-74WLB",
+  "interno": "Camisa celeste caspeado Oxford Susy (Oxford)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa celeste caspeado",
+  "opcion": "Oxford",
+  "grupo": "camisa-celeste-caspeado"
+ },
+ {
+  "sku": "BR-25VEB",
+  "interno": "Camisa celeste oxford susy (Casual)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa celeste",
+  "opcion": "Casual",
+  "grupo": "camisa-celeste"
+ },
+ {
+  "sku": "BR-D9JXK",
+  "interno": "Camisa celeste oxford susy (Oxford)",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa celeste",
+  "opcion": "Oxford",
+  "grupo": "camisa-celeste"
+ },
+ {
+  "sku": "BR-3A3ZU",
+  "interno": "Camisas Lacoste",
+  "cat_original": "Ropa Susy",
+  "nuevo": false,
+  "publico": "Camisa Lacoste",
+  "opcion": null,
+  "grupo": "camisa-lacoste"
+ },
+ {
+  "sku": "BR-WBK38",
+  "interno": "Blazer azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Blazer azul",
+  "opcion": null,
+  "grupo": "blazer-azul"
+ },
+ {
+  "sku": "BR-2FKWR",
+  "interno": "Blazer negro",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Blazer negro",
+  "opcion": null,
+  "grupo": "blazer-negro"
+ },
+ {
+  "sku": "BR-DHGGD",
+  "interno": "Chaqueta 2 bolsillos azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 2 bolsillos azul",
+  "opcion": null,
+  "grupo": "chaqueta-2-bolsillos-azul"
+ },
+ {
+  "sku": "BR-U5LZA",
+  "interno": "Chaqueta 2 bolsillos chocolate",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 2 bolsillos chocolate",
+  "opcion": null,
+  "grupo": "chaqueta-2-bolsillos-chocolate"
+ },
+ {
+  "sku": "BR-UT8G6",
+  "interno": "Chaqueta 2 bolsillos verde olivo",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 2 bolsillos verde olivo",
+  "opcion": null,
+  "grupo": "chaqueta-2-bolsillos-verde-olivo"
+ },
+ {
+  "sku": "BR-WW3Z6",
+  "interno": "Chaqueta 3 bolsillos azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 3 bolsillos azul",
+  "opcion": null,
+  "grupo": "chaqueta-3-bolsillos-azul"
+ },
+ {
+  "sku": "BR-2BNYP",
+  "interno": "Chaqueta 3 bolsillos chocolate",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 3 bolsillos chocolate",
+  "opcion": null,
+  "grupo": "chaqueta-3-bolsillos-chocolate"
+ },
+ {
+  "sku": "BR-TQ82L",
+  "interno": "Chaqueta 4 bolsillos café",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta 4 bolsillos café",
+  "opcion": null,
+  "grupo": "chaqueta-4-bolsillos-cafe"
+ },
+ {
+  "sku": "BR-ZSKN2",
+  "interno": "Chaqueta acolchada 4 bolsillos",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta acolchada 4 bolsillos",
+  "opcion": null,
+  "grupo": "chaqueta-acolchada-4-bolsillos"
+ },
+ {
+  "sku": "BR-D8JZ7",
+  "interno": "Chaqueta acolchada azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta acolchada azul",
+  "opcion": null,
+  "grupo": "chaqueta-acolchada-azul"
+ },
+ {
+  "sku": "BR-Y2EGR",
+  "interno": "Chaqueta acolchada negra",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta acolchada negra",
+  "opcion": null,
+  "grupo": "chaqueta-acolchada-negra"
+ },
+ {
+  "sku": "BR-EHN1Y",
+  "interno": "Chaqueta gabardina azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta gabardina azul",
+  "opcion": null,
+  "grupo": "chaqueta-gabardina-azul"
+ },
+ {
+  "sku": "BR-PFN0Q",
+  "interno": "Chaqueta Harrington azul",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta Harrington azul",
+  "opcion": null,
+  "grupo": "chaqueta-harrington-azul"
+ },
+ {
+  "sku": "BR-YZNV8",
+  "interno": "Chaqueta Harrington Beige",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta Harrington beige",
+  "opcion": null,
+  "grupo": "chaqueta-harrington-beige"
+ },
+ {
+  "sku": "BR-H1KF7",
+  "interno": "Chaqueta negra acolchada",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta acolchada negra",
+  "opcion": null,
+  "grupo": "chaqueta-acolchada-negra"
+ },
+ {
+  "sku": "BR-3LKVQ",
+  "interno": "Polo Ralph Lauren chaqueta negra",
+  "cat_original": "Chaquetas",
+  "nuevo": false,
+  "publico": "Chaqueta Ralph Lauren negra",
+  "opcion": null,
+  "grupo": "chaqueta-ralph-lauren-negra"
+ },
+ {
+  "sku": "BR-J6GBQ",
+  "interno": "Polo Ralph Lauren azul marino",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco Ralph Lauren azul marino",
+  "opcion": null,
+  "grupo": "saco-ralph-lauren-azul-marino"
+ },
+ {
+  "sku": "BR-D8JWH",
+  "interno": "Saco azul oso con gorra",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco azul oso con gorra",
+  "opcion": null,
+  "grupo": "saco-azul-oso-con-gorra"
+ },
+ {
+  "sku": "BR-6UG4M",
+  "interno": "Saco bandera azul",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco bandera azul",
+  "opcion": null,
+  "grupo": "saco-bandera-azul"
+ },
+ {
+  "sku": "BR-UB6FH",
+  "interno": "Saco blanco oso con faro",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco blanco oso con faro",
+  "opcion": null,
+  "grupo": "saco-blanco-oso-con-faro"
+ },
+ {
+  "sku": "BR-50DER",
+  "interno": "Saco de lana blanco oso con taza",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco de lana blanco oso con taza",
+  "opcion": null,
+  "grupo": "saco-de-lana-blanco-oso-con-taza"
+ },
+ {
+  "sku": "BR-PZR66",
+  "interno": "Saco de oso abuelo",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco de oso abuelo",
+  "opcion": null,
+  "grupo": "saco-de-oso-abuelo"
+ },
+ {
+  "sku": "BR-75H6T",
+  "interno": "Saco Estados Unidos Blanco",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco Estados Unidos blanco",
+  "opcion": null,
+  "grupo": "saco-estados-unidos-blanco"
+ },
+ {
+  "sku": "BR-ZM1TR",
+  "interno": "Saco Oso palos de golf azul",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco oso palos de golf azul",
+  "opcion": null,
+  "grupo": "saco-oso-palos-de-golf-azul"
+ },
+ {
+  "sku": "BR-VZMBN",
+  "interno": "Saco trenzado blanco hueso",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco trenzado blanco hueso",
+  "opcion": null,
+  "grupo": "saco-trenzado-blanco-hueso"
+ },
+ {
+  "sku": "BR-354G6",
+  "interno": "Saco verde oso universitario",
+  "cat_original": "Sacos de lana",
+  "nuevo": false,
+  "publico": "Saco verde oso universitario",
+  "opcion": null,
+  "grupo": "saco-verde-oso-universitario"
+ },
+ {
+  "sku": "BR-GHTN6",
+  "interno": "Polo Ralph Lauren azul medio cierre",
+  "cat_original": "Buzos medio cierre",
+  "nuevo": false,
+  "publico": "Buzo medio cierre Ralph Lauren azul",
+  "opcion": null,
+  "grupo": "buzo-medio-cierre-ralph-lauren-azul"
+ },
+ {
+  "sku": "BR-Y2R22",
+  "interno": "Polo Ralph Lauren gris medio cierre",
+  "cat_original": "Buzos medio cierre",
+  "nuevo": false,
+  "publico": "Buzo medio cierre Ralph Lauren gris",
+  "opcion": null,
+  "grupo": "buzo-medio-cierre-ralph-lauren-gris"
+ },
+ {
+  "sku": "BR-FZFRM",
+  "interno": "Camisa polo azul quemada",
+  "cat_original": "",
+  "nuevo": false,
+  "publico": "Camisa polo azul quemada",
+  "opcion": null,
+  "grupo": "camisa-polo-azul-quemada"
+ },
+ {
+  "sku": "BR-8PYQ5",
+  "interno": "Polo Boss azul",
+  "cat_original": "",
+  "nuevo": false,
+  "publico": "Polo Boss azul",
+  "opcion": null,
+  "grupo": "polo-boss-azul"
+ },
+ {
+  "interno": "Basica amarilla",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   13.0,
+   13.0,
+   13.0,
+   13.0
+  ],
+  "stock": {
+   "M": 0,
+   "L": 0,
+   "XL": 0,
+   "S": 0
+  },
+  "nuevo": true,
+  "sku": "BR-VWR1F",
+  "precio": 25.0,
+  "costo": 13.0,
+  "publico": "Camiseta básica amarilla",
+  "opcion": null,
+  "grupo": "camiseta-basica-amarilla"
+ },
+ {
+  "interno": "Basica azul marino",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0,
+   "XL": 1
+  },
+  "nuevo": true,
+  "sku": "BR-PJZ2Z",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica azul marino",
+  "opcion": null,
+  "grupo": "camiseta-basica-azul-marino"
+ },
+ {
+  "interno": "Basica negra",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-ZGL1E",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica negra",
+  "opcion": null,
+  "grupo": "camiseta-basica-negra"
+ },
+ {
+  "interno": "Camiseta basica azul petróleo",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "M": 0,
+   "XL": 0,
+   "L": 0,
+   "S": 0
+  },
+  "nuevo": true,
+  "sku": "BR-0C3PD",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica azul petróleo",
+  "opcion": null,
+  "grupo": "camiseta-basica-azul-petroleo"
+ },
+ {
+  "interno": "Camiseta basica blanca",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-JYVHP",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica blanca",
+  "opcion": null,
+  "grupo": "camiseta-basica-blanca"
+ },
+ {
+  "interno": "Camiseta basica ploma",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-NSRYD",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica ploma",
+  "opcion": null,
+  "grupo": "camiseta-basica-ploma"
+ },
+ {
+  "interno": "Camiseta basica verde",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "M": 0,
+   "XL": 1,
+   "S": 0,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-5DJJH",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica verde",
+  "opcion": null,
+  "grupo": "camiseta-basica-verde"
+ },
+ {
+  "interno": "Lacoste Café claro",
+  "cat_original": "Polos Lacoste",
+  "precios": [
+   50.0,
+   50.0,
+   50.0
+  ],
+  "costos": [
+   13.0,
+   13.0,
+   13.0
+  ],
+  "stock": {
+   "L": 1,
+   "S": 0,
+   "M": 0
+  },
+  "nuevo": true,
+  "sku": "BR-JJ0S0",
+  "precio": 50.0,
+  "costo": 13.0,
+  "publico": "Polo Lacoste café claro",
+  "opcion": null,
+  "grupo": "polo-lacoste-cafe-claro"
+ },
+ {
+  "interno": "Polo amarillo bebé",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 2,
+   "L": 0,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-EPMWE",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren amarillo bebé",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-amarillo-bebe"
+ },
+ {
+  "interno": "Polo azul acero",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "L": 2,
+   "XL": 0,
+   "M": 1,
+   "S": 0
+  },
+  "nuevo": true,
+  "sku": "BR-H5MCQ",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren azul acero",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-azul-acero"
+ },
+ {
+  "interno": "Polo azul marino",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 1,
+   "M": 1,
+   "L": 1,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-V3KSE",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren azul marino",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-azul-marino"
+ },
+ {
+  "interno": "Polo azul noche",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 2,
+   "M": 0,
+   "L": 3
+  },
+  "nuevo": true,
+  "sku": "BR-RYURW",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren azul noche",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-azul-noche"
+ },
+ {
+  "interno": "Polo Blanca",
+  "cat_original": "Polos Lacoste",
+  "precios": [
+   50.0,
+   50.0,
+   50.0
+  ],
+  "costos": [
+   13.0,
+   13.0,
+   13.0
+  ],
+  "stock": {
+   "M": 0,
+   "S": 0,
+   "L": 1
+  },
+  "nuevo": true,
+  "sku": "BR-NYPLB",
+  "precio": 50.0,
+  "costo": 13.0,
+  "publico": "Polo Lacoste blanco",
+  "opcion": null,
+  "grupo": "polo-lacoste-blanco"
+ },
+ {
+  "interno": "Polo blanca PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "L": 4,
+   "M": 0,
+   "S": 7
+  },
+  "nuevo": true,
+  "sku": "BR-KU9Y3",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren blanco",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-blanco"
+ },
+ {
+  "interno": "Polo celeste",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "L": 1,
+   "XL": 0,
+   "M": 2,
+   "S": 0
+  },
+  "nuevo": true,
+  "sku": "BR-L2E1S",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren celeste",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-celeste"
+ },
+ {
+  "interno": "Polo coral",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 1,
+   "L": 0,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-SWGGE",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren coral",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-coral"
+ },
+ {
+  "interno": "Polo gris",
+  "cat_original": "Polos Lacoste",
+  "precios": [
+   50.0,
+   50.0,
+   50.0
+  ],
+  "costos": [
+   13.0,
+   13.0,
+   13.0
+  ],
+  "stock": {
+   "M": 0,
+   "S": 0,
+   "L": 1
+  },
+  "nuevo": true,
+  "sku": "BR-JNF4J",
+  "precio": 50.0,
+  "costo": 13.0,
+  "publico": "Polo Lacoste gris",
+  "opcion": null,
+  "grupo": "polo-lacoste-gris"
+ },
+ {
+  "interno": "Polo Lacoste Negra",
+  "cat_original": "Polos Lacoste",
+  "precios": [
+   50.0,
+   50.0,
+   50.0
+  ],
+  "costos": [
+   13.0,
+   13.0,
+   13.0
+  ],
+  "stock": {
+   "L": 0,
+   "M": 0,
+   "S": 1
+  },
+  "nuevo": true,
+  "sku": "BR-DW909",
+  "precio": 50.0,
+  "costo": 13.0,
+  "publico": "Polo Lacoste negro",
+  "opcion": null,
+  "grupo": "polo-lacoste-negro"
+ },
+ {
+  "interno": "Polo menta PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "L": 0,
+   "M": 0
+  },
+  "nuevo": true,
+  "sku": "BR-TKA8R",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren menta",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-menta"
+ },
+ {
+  "interno": "Polo negra PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "L": 2,
+   "M": 1
+  },
+  "nuevo": true,
+  "sku": "BR-NWE5E",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren negro",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-negro"
+ },
+ {
+  "interno": "Polo ploma",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   60.0,
+   60.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 2,
+   "M": 1,
+   "L": 1
+  },
+  "nuevo": true,
+  "sku": "BR-LUP6E",
+  "precio": 60.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren plomo",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-plomo"
+ },
+ {
+  "interno": "Polo roja PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-5MELM",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren rojo",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-rojo"
+ },
+ {
+  "interno": "Polo rosada PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 3,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-ZLPSS",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren rosado",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-rosado"
+ },
+ {
+  "interno": "Polo Turquesa",
+  "cat_original": "Polos PRL",
+  "precios": [
+   60.0,
+   65.0,
+   60.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "M": 3,
+   "L": 0,
+   "S": 1
+  },
+  "nuevo": true,
+  "sku": "BR-KS5XN",
+  "precio": 60.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren turquesa",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-turquesa"
+ },
+ {
+  "interno": "Polo verde PRL",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   65.0,
+   65.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 2,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-AVEHH",
+  "precio": 65.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren verde",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-verde"
+ },
+ {
+  "interno": "Polo Vino",
+  "cat_original": "Polos PRL",
+  "precios": [
+   65.0,
+   60.0,
+   60.0
+  ],
+  "costos": [
+   22.0,
+   22.0,
+   22.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0
+  },
+  "nuevo": true,
+  "sku": "BR-BB6C6",
+  "precio": 60.0,
+  "costo": 22.0,
+  "publico": "Polo Ralph Lauren vino",
+  "opcion": null,
+  "grupo": "polo-ralph-lauren-vino"
+ },
+ {
+  "interno": "Tommy blanca básica",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-71RN2",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica Tommy blanca",
+  "opcion": null,
+  "grupo": "camiseta-basica-tommy-blanca"
+ },
+ {
+  "interno": "Tommy negra básica",
+  "cat_original": "Basicas",
+  "precios": [
+   25.0,
+   25.0,
+   25.0,
+   25.0
+  ],
+  "costos": [
+   12.0,
+   12.0,
+   12.0,
+   12.0
+  ],
+  "stock": {
+   "S": 0,
+   "M": 0,
+   "L": 0,
+   "XL": 0
+  },
+  "nuevo": true,
+  "sku": "BR-27D29",
+  "precio": 25.0,
+  "costo": 12.0,
+  "publico": "Camiseta básica Tommy negra",
+  "opcion": null,
+  "grupo": "camiseta-basica-tommy-negra"
+ }
+]

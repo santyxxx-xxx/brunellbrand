@@ -55,8 +55,9 @@ export default function ImportarCsv() {
 
       // 2. Productos existentes (para no borrar fotos/descripción si el CSV las trae vacías)
       setProgreso("Revisando productos existentes...");
-      const { data: actuales, error: errAct } = await supabase.from("productos").select("sku, descripcion, imagenes");
+      const { data: actuales, error: errAct } = await supabase.from("productos").select("*");
       if (errAct) throw errAct;
+      const hayFase5 = Boolean(actuales?.length) && "nombre_interno" in actuales[0];
       const actualesPorSku = new Map((actuales || []).map((p) => [p.sku, p]));
 
       // 3. Guarda productos por lotes (crea o actualiza según el código)
@@ -65,10 +66,14 @@ export default function ImportarCsv() {
       for (const lote of enLotes(resultado.productos, 50)) {
         const registros = lote.map((p) => {
           const anterior = actualesPorSku.get(p.sku);
+          // El nombre del CSV es el del panel: si la prenda ya tiene nombre para la web, ese se respeta
+          const conNombreWeb = Boolean(anterior) && hayFase5;
           return {
             sku: p.sku,
-            nombre: p.nombre,
-            slug: p.slug,
+            nombre: conNombreWeb ? anterior.nombre : p.nombre,
+            // Todas las filas llevan las mismas columnas (si no, las que faltan quedarían vacías)
+            ...(hayFase5 ? { nombre_interno: p.nombre, grupo: anterior?.grupo || crearSlug(p.nombre) } : {}),
+            slug: conNombreWeb ? anterior.slug : p.slug,
             descripcion: p.descripcion ?? anterior?.descripcion ?? null,
             precio: p.precio,
             precio_anterior: p.precio_anterior,

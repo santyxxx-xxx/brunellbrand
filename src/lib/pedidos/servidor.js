@@ -9,6 +9,7 @@ import { obtenerPasarela, nuevoClientTransactionId, aCentavos } from "@/lib/pago
 import { enviarCorreo, correoAdmin, correosAdmin } from "@/lib/correo/enviar";
 import { comprobanteCliente, avisoAdmin, avisoEnvio } from "@/lib/correo/plantillas";
 import { enviarAlertasStock } from "@/lib/alertas";
+import { nombreConOpcion } from "@/lib/utilidades";
 
 export class ErrorPedido extends Error {
   constructor(mensaje, estado = 400) {
@@ -25,10 +26,13 @@ const redondear = (n) => Math.round(n * 100) / 100;
  */
 export async function calcularPedido(admin, items, tarifaId, provincia) {
   const ids = [...new Set(items.map((i) => i.productoId))];
-  const { data: productos, error } = await admin
+  const campos = "id, sku, nombre, precio, imagenes, activo, tallas:producto_tallas(talla, stock)";
+  let { data: productos, error } = await admin
     .from("productos")
-    .select("id, sku, nombre, precio, imagenes, activo, tallas:producto_tallas(talla, stock)")
+    .select(`${campos}, opcion, categoria:categorias(visible)`)
     .in("id", ids);
+  // Si la base aún no tiene las columnas de fase5.sql
+  if (error) ({ data: productos, error } = await admin.from("productos").select(campos).in("id", ids));
   if (error) throw new ErrorPedido("No pudimos revisar los productos. Intenta de nuevo.", 500);
 
   const porId = new Map((productos || []).map((p) => [p.id, p]));
@@ -41,7 +45,8 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
 
   for (const item of items) {
     const producto = porId.get(item.productoId);
-    if (!producto || !producto.activo) {
+    // Las prendas de categorías ocultas (Básicas, Polos) se venden solo en tienda
+    if (!producto || !producto.activo || producto.categoria?.visible === false) {
       problemas.push("Un producto de tu carrito ya no está disponible.");
       continue;
     }
@@ -50,8 +55,8 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
     if (stock < item.cantidad) {
       problemas.push(
         stock === 0
-          ? `${producto.nombre} (talla ${item.talla}) está agotado.`
-          : `${producto.nombre} (talla ${item.talla}): solo quedan ${stock} unidades.`
+          ? `${nombreConOpcion(producto)} (talla ${item.talla}) está agotado.`
+          : `${nombreConOpcion(producto)} (talla ${item.talla}): solo quedan ${stock} unidades.`
       );
       continue;
     }
@@ -59,7 +64,7 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
     lineas.push({
       producto_id: producto.id,
       sku: producto.sku,
-      nombre: producto.nombre,
+      nombre: nombreConOpcion(producto),
       talla: item.talla,
       imagen: producto.imagenes?.[0] || null,
       precio_unitario: precio,

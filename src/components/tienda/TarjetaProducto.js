@@ -7,6 +7,10 @@ export default function TarjetaProducto({ producto }) {
   const tallas = ordenarTallas(producto.tallas || []);
   const agotado = stockTotal(tallas) === 0;
   const enOferta = producto.precio_anterior && Number(producto.precio_anterior) > Number(producto.precio);
+  // Modelo con varias versiones (Oxford / Casual): precio "desde" y opciones disponibles
+  const precioMin = producto.precioMin ?? Number(producto.precio);
+  const variosPrecios = producto.precioMax != null && producto.precioMax > precioMin;
+  const opciones = producto.opciones || (producto.opcion ? [producto.opcion] : []);
 
   return (
     <Link href={`/producto/${producto.slug}`} className="group block">
@@ -45,9 +49,13 @@ export default function TarjetaProducto({ producto }) {
           <p className="etiqueta text-marino/50">{producto.categoria.nombre}</p>
         )}
         <h3 className="line-clamp-2 text-sm font-medium leading-snug">{producto.nombre}</h3>
+        {opciones.length > 0 && <p className="text-[11px] text-marino/60">{opciones.join(" · ")}</p>}
         <div className="flex items-baseline gap-2">
-          <span className="font-semibold">{formatearPrecio(producto.precio)}</span>
-          {enOferta && (
+          <span className="font-semibold">
+            {variosPrecios && <span className="text-xs font-normal text-marino/60">Desde </span>}
+            {formatearPrecio(precioMin)}
+          </span>
+          {enOferta && !variosPrecios && (
             <span className="text-xs text-marino/50 line-through">{formatearPrecio(producto.precio_anterior)}</span>
           )}
         </div>

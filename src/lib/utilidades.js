@@ -48,3 +48,49 @@ export function ordenarTallas(tallas = []) {
 export function stockTotal(tallas = []) {
   return tallas.filter((t) => TALLAS.includes(t.talla)).reduce((suma, t) => suma + (Number(t.stock) || 0), 0);
 }
+
+// Nombre para el cliente: "Camisa blanca (Oxford)"
+export function nombreConOpcion(producto) {
+  if (!producto) return "";
+  return producto.opcion ? `${producto.nombre} (${producto.opcion})` : producto.nombre;
+}
+
+// Nombre para el panel: el interno (con proveedor/jerga) si existe
+export function nombreInterno(producto) {
+  if (!producto) return "";
+  return producto.nombre_interno || producto.nombre;
+}
+
+/**
+ * Une en un solo modelo las prendas del mismo "grupo" (por ejemplo, la misma camisa
+ * en Oxford y Casual, o repetida de dos proveedores). Respeta el orden recibido.
+ * Cada modelo: { ...producto representativo, tallas sumadas, opciones, precioMin, precioMax, variantes }
+ */
+export function agruparModelos(productos = []) {
+  const grupos = new Map();
+  for (const p of productos) {
+    const clave = p.grupo || p.id;
+    if (!grupos.has(clave)) grupos.set(clave, []);
+    grupos.get(clave).push(p);
+  }
+  return [...grupos.values()].map((variantes) => {
+    const conStock = variantes.find((v) => stockTotal(v.tallas) > 0);
+    const conFoto = variantes.find((v) => v.imagenes?.length);
+    const base = conStock || variantes[0];
+    const stockPorTalla = {};
+    for (const v of variantes) {
+      for (const t of v.tallas || []) stockPorTalla[t.talla] = (stockPorTalla[t.talla] || 0) + (Number(t.stock) || 0);
+    }
+    const precios = variantes.map((v) => Number(v.precio));
+    const opciones = [...new Set(variantes.map((v) => v.opcion).filter(Boolean))].sort();
+    return {
+      ...base,
+      imagenes: base.imagenes?.length ? base.imagenes : conFoto?.imagenes || [],
+      tallas: Object.entries(stockPorTalla).map(([talla, stock]) => ({ talla, stock })),
+      opciones,
+      precioMin: Math.min(...precios),
+      precioMax: Math.max(...precios),
+      variantes,
+    };
+  });
+}
