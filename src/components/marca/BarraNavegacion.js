@@ -38,8 +38,12 @@ function Barra() {
       temporizador.current = setInterval(() => setAncho((a) => (a < 90 ? a + (90 - a) * 0.12 : a)), 200);
     }
     document.addEventListener("click", alHacerClic, true);
+    // En iPhone el estilo "presionado" (:active) solo se activa si la página escucha toques
+    const tocar = () => {};
+    document.addEventListener("touchstart", tocar, { passive: true });
     return () => {
       document.removeEventListener("click", alHacerClic, true);
+      document.removeEventListener("touchstart", tocar);
       clearInterval(temporizador.current);
     };
   }, []);

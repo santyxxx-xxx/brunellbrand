@@ -193,14 +193,15 @@ body {
 /* Quita la espera de ~300 ms del doble toque en celulares */
 a, button, label, summary, select, input, [role="button"] { touch-action: manipulation; }
 
-/* Se "hunde" apenas se presiona, antes de que cargue lo que sigue */
+/* Al presionar: cambio inmediato (sin animación de color, que se sentía como retraso) */
 a, button, summary, [role="button"] {
-  transition-property: transform, color, background-color, border-color, opacity, box-shadow;
-  transition-duration: 120ms;
+  transition-property: transform, opacity, box-shadow !important;
+  transition-duration: 120ms !important;
 }
 a:active, button:not(:disabled):active, summary:active, [role="button"]:active {
   transform: scale(0.97);
-  transition-duration: 40ms;
+  filter: brightness(0.88);
+  transition-duration: 0ms !important;
 }
 
 /* Barra de carga superior al navegar */
