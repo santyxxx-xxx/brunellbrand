@@ -376,16 +376,31 @@ insert into _prendas values
 
 
 -- 1. Ventas (crea o actualiza sin duplicar)
+-- Ventas que se quitaron por repetidas (fase9): no se vuelven a importar
+create table if not exists public.ventas_historicas_quitadas (
+  like public.ventas_historicas, quitada_en timestamptz not null default now(), motivo text);
+alter table public.ventas_historicas_quitadas enable row level security;
+revoke all on public.ventas_historicas_quitadas from anon, authenticated;
+
 insert into public.ventas_historicas
   (origen, clave_origen, fecha, vendedor, vendedor_original, descripcion_original, contacto_original,
    cliente_nombre, cliente_nota, estado, metodo_pago, valor, costo)
 select 'treinta', clave, fecha, vendedor, vendedor_original, descripcion, contacto, cliente, nota, estado, metodo, valor, costo
 from _ventas t
 where not exists (
-  select 1 from public.orders o
-  where o.canal = 'tienda' and o.estado <> 'cancelado'
-    and (o.creado_en at time zone 'America/Guayaquil')::date = t.fecha
-    and o.total = t.valor)
+  -- Ya está en el panel: misma venta, o varias ventas del mismo cliente (o del día) que suman lo mismo
+  select 1 from (
+    select (o.creado_en at time zone 'America/Guayaquil')::date as fecha,
+           lower(regexp_replace(trim(o.cliente_nombre), '\s+', ' ', 'g')) as cliente, o.total
+    from public.orders o
+    where o.canal = 'tienda' and o.estado in ('por_cobrar', 'pagado', 'enviado', 'entregado')
+  ) p
+  where p.fecha = t.fecha
+  group by grouping sets ((), (p.cliente))
+  having bool_or(p.total = t.valor)
+      or (grouping(p.cliente) = 1 and sum(p.total) = t.valor)
+      or (grouping(p.cliente) = 0 and p.cliente = lower(regexp_replace(trim(coalesce(t.cliente, '')), '\s+', ' ', 'g')) and sum(p.total) = t.valor))
+  and not exists (select 1 from public.ventas_historicas_quitadas q where q.clave_origen = t.clave)
 on conflict (clave_origen) do update set
   fecha = excluded.fecha, vendedor = excluded.vendedor, vendedor_original = excluded.vendedor_original,
   descripcion_original = excluded.descripcion_original, contacto_original = excluded.contacto_original,
