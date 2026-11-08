@@ -3,17 +3,20 @@ import { agruparModelos } from "@/lib/utilidades";
 
 // Campos que usan las tarjetas y la página de producto
 const CAMPOS_PRODUCTO = `
-  id, sku, nombre, slug, descripcion, precio, precio_anterior, imagenes, destacado, grupo, opcion, creado_en,
+  id, sku, nombre, slug, descripcion, precio, precio_anterior, imagenes, destacado, grupo, opcion, marca, creado_en,
   categoria:categorias ( id, nombre, slug ),
   tallas:producto_tallas ( talla, stock )
 `;
 // Mientras no se ejecute fase5.sql (sin grupo/opción)
-const CAMPOS_BASICOS = CAMPOS_PRODUCTO.replace(" grupo, opcion,", "");
+const CAMPOS_SIN_MARCA = CAMPOS_PRODUCTO.replace(" marca,", "");
+const CAMPOS_BASICOS = CAMPOS_SIN_MARCA.replace(" grupo, opcion,", "");
 
 // Ejecuta la consulta con los campos nuevos y, si la base aún no los tiene, con los básicos
 async function conCampos(armar) {
-  const r = await armar(CAMPOS_PRODUCTO);
-  if (r.error && /grupo|opcion/.test(r.error.message || "")) return armar(CAMPOS_BASICOS);
+  let r = await armar(CAMPOS_PRODUCTO);
+  // Sin fase7.sql (marca) o sin fase5.sql (grupo/opción)
+  if (r.error && /marca/.test(r.error.message || "")) r = await armar(CAMPOS_SIN_MARCA);
+  if (r.error && /grupo|opcion/.test(r.error.message || "")) r = await armar(CAMPOS_BASICOS);
   return r;
 }
 
@@ -111,7 +114,7 @@ export async function obtenerProductoPorSlug(slug) {
   // Las otras versiones del mismo modelo (Oxford / Casual, u otro lote)
   let variantes = [data];
   if (data.grupo) {
-    const r = await supabase.from("productos").select(CAMPOS_PRODUCTO).eq("grupo", data.grupo).order("creado_en");
+    const r = await conCampos((campos) => supabase.from("productos").select(campos).eq("grupo", data.grupo).order("creado_en"));
     registrarError("obtenerProductoPorSlug (variantes)", r.error);
     if (r.data?.length) variantes = r.data;
   }

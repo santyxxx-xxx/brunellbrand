@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obtenerProductoPorSlug, obtenerRelacionados } from "@/lib/consultas";
+import { nombreWeb } from "@/lib/utilidades";
 import DetalleProducto from "@/components/tienda/DetalleProducto";
 import TarjetaProducto from "@/components/tienda/TarjetaProducto";
 import Revelar from "@/components/marca/Revelar";
@@ -12,8 +13,8 @@ export async function generateMetadata({ params }) {
   const producto = await obtenerProductoPorSlug(slug);
   if (!producto) return { title: "Producto no encontrado" };
   return {
-    title: producto.nombre,
-    description: producto.descripcion?.slice(0, 150) || `${producto.nombre} en Brunel Brand`,
+    title: nombreWeb(producto),
+    description: producto.descripcion?.slice(0, 150) || `${nombreWeb(producto)} en Brunel Brand`,
     openGraph: producto.imagenes?.[0] ? { images: [producto.imagenes[0]] } : undefined,
   };
 }

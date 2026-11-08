@@ -29,8 +29,11 @@ export async function calcularPedido(admin, items, tarifaId, provincia) {
   const campos = "id, sku, nombre, precio, imagenes, activo, tallas:producto_tallas(talla, stock)";
   let { data: productos, error } = await admin
     .from("productos")
-    .select(`${campos}, opcion, categoria:categorias(visible)`)
+    .select(`${campos}, opcion, marca, categoria:categorias(visible)`)
     .in("id", ids);
+  if (error && /marca/.test(error.message || "")) {
+    ({ data: productos, error } = await admin.from("productos").select(`${campos}, opcion, categoria:categorias(visible)`).in("id", ids));
+  }
   // Si la base aún no tiene las columnas de fase5.sql
   if (error) ({ data: productos, error } = await admin.from("productos").select(campos).in("id", ids));
   if (error) throw new ErrorPedido("No pudimos revisar los productos. Intenta de nuevo.", 500);

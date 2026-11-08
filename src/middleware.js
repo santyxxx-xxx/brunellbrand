@@ -27,9 +27,12 @@ export async function middleware(request) {
     }
   );
 
+  // getSession lee la sesión de la cookie sin ir a internet: la navegación del panel es instantánea.
+  // La seguridad real no depende de esto: Supabase (RLS) revisa cada consulta y el panel verifica al usuario.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   const { pathname } = request.nextUrl;
   const esLogin = pathname === "/admin/login";

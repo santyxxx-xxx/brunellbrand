@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 import { borrarFotos, consultarConFase5, refrescarTienda } from "@/lib/admin";
-import { formatearPrecio, nombreInterno, ordenarTallas, stockTotal } from "@/lib/utilidades";
+import { formatearPrecio, nombreInterno, nombreWeb, ordenarTallas, stockTotal } from "@/lib/utilidades";
 
 const normalizar = (t) =>
   String(t || "")
@@ -29,7 +29,7 @@ export default function ListaProductos() {
     const [{ data, error }, cats] = await Promise.all([
       consultarConFase5(
         (campos) => supabase.from("productos").select(campos).order("nombre"),
-        "id, sku, nombre, nombre_interno, opcion, slug, precio, imagenes, destacado, activo, categoria_id, tallas:producto_tallas(talla, stock)"
+        "id, sku, nombre, nombre_interno, opcion, marca, slug, precio, imagenes, destacado, activo, categoria_id, tallas:producto_tallas(talla, stock)"
       ),
       consultarConFase5(
         (campos) => supabase.from("categorias").select(campos).order("orden"),
@@ -188,9 +188,9 @@ export default function ListaProductos() {
                   </div>
                   <div className="space-y-0.5 p-2 sm:p-3">
                     <p className="line-clamp-2 text-[11px] font-medium leading-tight sm:text-sm">{nombreInterno(p)}</p>
-                    {p.nombre_interno && p.nombre_interno !== p.nombre && (
+                    {p.nombre_interno && p.nombre_interno !== nombreWeb(p) && (
                       <p className="line-clamp-1 text-[10px] text-marino/50 sm:text-xs" title="Nombre en la web">
-                        🌐 {p.nombre}
+                        🌐 {nombreWeb(p)}
                         {p.opcion ? ` · ${p.opcion}` : ""}
                       </p>
                     )}

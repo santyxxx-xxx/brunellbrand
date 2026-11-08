@@ -49,10 +49,16 @@ export function stockTotal(tallas = []) {
   return tallas.filter((t) => TALLAS.includes(t.talla)).reduce((suma, t) => suma + (Number(t.stock) || 0), 0);
 }
 
-// Nombre para el cliente: "Camisa blanca (Oxford)"
+// Nombre de la web con la marca al final: "Polo azul Ralph Lauren"
+export function nombreWeb(producto) {
+  if (!producto) return "";
+  return producto.marca ? `${producto.nombre} ${producto.marca}` : producto.nombre;
+}
+
+// Nombre para el cliente con el estilo: "Camisa blanca (Oxford)"
 export function nombreConOpcion(producto) {
   if (!producto) return "";
-  return producto.opcion ? `${producto.nombre} (${producto.opcion})` : producto.nombre;
+  return producto.opcion ? `${nombreWeb(producto)} (${producto.opcion})` : nombreWeb(producto);
 }
 
 // Nombre para el panel: el interno (con proveedor/jerga) si existe

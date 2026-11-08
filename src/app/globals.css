@@ -186,3 +186,31 @@ body {
   }
   .revelar { opacity: 1; transform: none; }
 }
+
+/* =====================================================================
+   Respuesta inmediata al tocar (web y panel)
+   ===================================================================== */
+/* Quita la espera de ~300 ms del doble toque en celulares */
+a, button, label, summary, select, input, [role="button"] { touch-action: manipulation; }
+
+/* Se "hunde" apenas se presiona, antes de que cargue lo que sigue */
+a, button, summary, [role="button"] {
+  transition-property: transform, color, background-color, border-color, opacity, box-shadow;
+  transition-duration: 120ms;
+}
+a:active, button:not(:disabled):active, summary:active, [role="button"]:active {
+  transform: scale(0.97);
+  transition-duration: 40ms;
+}
+
+/* Barra de carga superior al navegar */
+.barra-navegacion {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 9999;
+  height: 3px;
+  background: var(--color-ocre);
+  box-shadow: 0 0 8px rgba(201, 154, 46, 0.6);
+  pointer-events: none;
+  transition: width 0.25s ease, opacity 0.3s ease;
+}

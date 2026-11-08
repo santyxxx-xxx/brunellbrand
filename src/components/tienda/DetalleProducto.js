@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCarrito } from "@/context/CarritoContext";
 import { TIENDA } from "@/config/tienda";
-import { enlaceWhatsApp, formatearPrecio, nombreConOpcion, ordenarTallas, stockTotal } from "@/lib/utilidades";
+import { enlaceWhatsApp, formatearPrecio, nombreConOpcion, nombreWeb, ordenarTallas, stockTotal } from "@/lib/utilidades";
 import GuiaTallas from "./GuiaTallas";
 import { IconoWhatsApp } from "./Iconos";
 
@@ -97,7 +97,7 @@ export default function DetalleProducto({ producto: inicial }) {
       <div>
         <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-hueso-oscuro">
           {imagenes[fotoActiva] ? (
-            <img src={imagenes[fotoActiva]} alt={producto.nombre} className="h-full w-full object-cover" />
+            <img src={imagenes[fotoActiva]} alt={nombreWeb(producto)} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full items-center justify-center">
             <img src="/marca/grifo-negro.webp" alt="" className="h-32 w-auto opacity-15" />
@@ -130,7 +130,7 @@ export default function DetalleProducto({ producto: inicial }) {
             {producto.categoria.nombre}
           </Link>
         )}
-        <h1 className="mt-2 font-serif text-3xl font-medium leading-tight sm:text-4xl">{producto.nombre}</h1>
+        <h1 className="mt-2 font-serif text-3xl font-medium leading-tight sm:text-4xl">{nombreWeb(producto)}</h1>
 
         <div className="mt-4 flex items-baseline gap-3">
           <span className="text-2xl font-semibold">{formatearPrecio(producto.precio)}</span>

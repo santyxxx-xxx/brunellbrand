@@ -74,8 +74,8 @@ export async function borrarFotos(urls = []) {
 // si la base todavía no las tiene, repite la consulta sin ellas.
 export async function consultarConFase5(armar, campos) {
   const r = await armar(campos);
-  if (r.error && /nombre_interno|grupo|opcion|visible/.test(r.error.message || "")) {
-    return armar(campos.replace(/,\s*(nombre_interno|grupo|opcion|visible)\b/g, ""));
+  if (r.error && /nombre_interno|grupo|opcion|visible|marca/.test(r.error.message || "")) {
+    return armar(campos.replace(/,\s*(nombre_interno|grupo|opcion|visible|marca)\b/g, ""));
   }
   return r;
 }

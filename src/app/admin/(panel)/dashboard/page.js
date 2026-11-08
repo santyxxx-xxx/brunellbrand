@@ -55,6 +55,31 @@ function rangoPreset(clave) {
   return { desde: null, hasta: null }; // todo
 }
 
+// El mismo período, corrido hacia atrás (para comparar)
+function correr(rango, { dias = 0, meses = 0, anios = 0 }) {
+  const mover = (texto) => {
+    const d = new Date(`${texto}T12:00:00`);
+    const dia = d.getDate();
+    d.setDate(1);
+    d.setFullYear(d.getFullYear() - anios);
+    d.setMonth(d.getMonth() - meses);
+    const ultimo = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    d.setDate(Math.min(dia, ultimo));
+    d.setDate(d.getDate() - dias);
+    return iso(d);
+  };
+  return { desde: mover(rango.desde), hasta: mover(rango.hasta) };
+}
+
+function rangoAnterior(preset, rango) {
+  if (!rango.desde || !rango.hasta) return null;
+  if (preset === "mes" || preset === "mes_pasado") return correr(rango, { meses: 1 });
+  if (preset === "3m") return correr(rango, { meses: 3 });
+  if (preset === "anio") return correr(rango, { anios: 1 });
+  const dias = Math.round((new Date(rango.hasta) - new Date(rango.desde)) / 86400000) + 1;
+  return correr(rango, { dias });
+}
+
 const PRESETS = [
   { clave: "hoy", texto: "Hoy" },
   { clave: "semana", texto: "Semana" },
@@ -66,25 +91,42 @@ const PRESETS = [
 ];
 
 export default function Balance() {
-  const [preset, setPreset] = useState("todo");
-  const [rango, setRango] = useState({ desde: null, hasta: null });
+  // Por defecto, solo el mes en curso: todo el dashboard muestra únicamente el período elegido
+  const [preset, setPreset] = useState("mes");
+  const [rango, setRango] = useState(() => rangoPreset("mes"));
   const [datos, setDatos] = useState(null);
+  const [comparar, setComparar] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let vigente = true;
     setCargando(true);
-    obtenerClienteNavegador()
-      .rpc("balance_datos", { p_desde: rango.desde, p_hasta: rango.hasta })
-      .then(({ data, error }) => {
-        if (error) setError(error.message);
-        else {
-          setError("");
-          setDatos(data);
-        }
-        setCargando(false);
-      });
-  }, [rango]);
+    const supabase = obtenerClienteNavegador();
+    const pedir = (x) => supabase.rpc("balance_datos", { p_desde: x.desde, p_hasta: x.hasta });
+    const anterior = rangoAnterior(preset, rango);
+    const anioAntes = rango.desde && rango.hasta ? correr(rango, { anios: 1 }) : null;
+    Promise.all([
+      pedir(rango),
+      anterior ? pedir(anterior) : null,
+      anioAntes && preset !== "anio" ? pedir(anioAntes) : null,
+    ]).then(([principal, previo, haceUnAnio]) => {
+      if (!vigente) return;
+      if (principal.error) setError(principal.error.message);
+      else {
+        setError("");
+        setDatos(principal.data);
+        setComparar({
+          anterior: previo?.data ? { rango: anterior, ...previo.data.resumen } : null,
+          anio: haceUnAnio?.data ? { rango: anioAntes, ...haceUnAnio.data.resumen } : null,
+        });
+      }
+      setCargando(false);
+    });
+    return () => {
+      vigente = false;
+    };
+  }, [rango, preset]);
 
   function elegirPreset(clave) {
     setPreset(clave);
@@ -96,13 +138,17 @@ export default function Balance() {
 
   const r = datos.resumen;
   const comp = datos.comparacion;
+  const nombrePeriodo = PRESETS.find((p) => p.clave === preset)?.texto || "Período elegido";
+  const esMes = preset === "mes" || preset === "mes_pasado";
+  const variosMeses = (datos.mensual || []).length > 1;
+  const prendasPeriodo = n(datos.empresa?.prendas);
 
   return (
     <div className={`space-y-6 transition-opacity ${cargando ? "opacity-60" : ""}`}>
       <div>
-        <h1 className="font-serif text-3xl">Balance</h1>
+        <h1 className="font-serif text-3xl">Balance · {nombrePeriodo}</h1>
         <p className="text-sm text-marino/60">
-          Treinta (2026) + ventas del panel y la web + totales anotados de 2024–2025 · {fechaTexto(datos.desde)} – {fechaTexto(datos.hasta)}
+          Todo lo de esta página es del {fechaTexto(datos.desde)} al {fechaTexto(datos.hasta)}, salvo “Inventario hoy”.
         </p>
       </div>
 
@@ -143,34 +189,57 @@ export default function Balance() {
         </div>
       </div>
 
-      {/* Indicadores */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Indicador titulo="Ventas" valor={formatearPrecio(r.ventas)} detalle={`${r.n} ventas`} />
-        <Indicador titulo="Utilidad (valor − costo)" valor={formatearPrecio(r.utilidad)} />
-        <Indicador titulo="Margen" valor={margen(r.utilidad, r.ventas_con_costo) === null ? "—" : `${margen(r.utilidad, r.ventas_con_costo).toFixed(1)}%`} />
-        <Indicador titulo="Ticket promedio" valor={formatearPrecio(r.ticket)} />
-        <Indicador titulo="Compras de mercadería" valor={formatearPrecio(datos.gastos.compras_mercaderia)} detalle="del historial" />
+      {/* Indicadores del período + inventario de hoy */}
+      <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <Indicador titulo="Ventas" valor={formatearPrecio(r.ventas)} detalle={`${r.n} ${r.n === 1 ? "venta" : "ventas"}`} />
+          <Indicador titulo="Utilidad (valor − costo)" valor={formatearPrecio(r.utilidad)} />
+          <Indicador titulo="Margen" valor={margen(r.utilidad, r.ventas_con_costo) === null ? "—" : `${margen(r.utilidad, r.ventas_con_costo).toFixed(1)}%`} />
+          <Indicador titulo="Ticket promedio" valor={formatearPrecio(r.ticket)} />
+          <Indicador titulo="Prendas vendidas" valor={prendasPeriodo.toLocaleString("es-EC")} />
+          <Indicador titulo="Compras de mercadería" valor={formatearPrecio(datos.gastos.compras_mercaderia)} detalle="en el período" />
+        </div>
+        {datos.inventario && (
+          <InventarioHoy inventario={datos.inventario} reponer={datos.reponer_pronto || []} plata={datos.plata_quieta} />
+        )}
       </div>
 
-      {/* Comparación de meses */}
-      <Tarjeta titulo={`Comparación · ${mesTexto(comp.mes, true)}`}>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <BloqueMes titulo={mesTexto(comp.mes, true)} datos={comp.actual} />
-          <BloqueComparado titulo="vs. mes anterior" actual={comp.actual} base={comp.anterior} />
-          {comp.hay_anio_anterior ? (
-            <BloqueComparado titulo="vs. mismo mes del año anterior" actual={comp.actual} base={comp.anio_anterior} />
-          ) : (
-            <div className="rounded-xl bg-hueso p-3 text-xs text-marino/60">
-              <p className="font-semibold text-marino">vs. mismo mes del año anterior</p>
-              <p className="mt-1">El historial empieza en {fechaTexto(datos.primera_venta)}. Esta comparación aparecerá cuando haya un año de ventas.</p>
-            </div>
-          )}
-        </div>
-        <p className="mt-3 text-[11px] text-marino/50">Se compara el mes de la fecha final del filtro.</p>
-      </Tarjeta>
+      {/* Comparación del período */}
+      {preset !== "todo" && comparar && (
+        <Tarjeta titulo="Comparación">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <BloqueMes titulo={nombrePeriodo} datos={{ ventas: r.ventas, utilidad: r.utilidad, n: r.n }} />
+            {comparar.anterior && (
+              <BloqueComparado
+                titulo={`vs. ${fechaTexto(comparar.anterior.rango.desde)} – ${fechaTexto(comparar.anterior.rango.hasta)}`}
+                actual={{ ventas: r.ventas, utilidad: r.utilidad }}
+                base={comparar.anterior}
+              />
+            )}
+            {comparar.anio && n(comparar.anio.n) > 0 ? (
+              <BloqueComparado
+                titulo={`vs. hace un año (${fechaTexto(comparar.anio.rango.desde)} – ${fechaTexto(comparar.anio.rango.hasta)})`}
+                actual={{ ventas: r.ventas, utilidad: r.utilidad }}
+                base={comparar.anio}
+              />
+            ) : esMes && comp.hay_anio_anterior && comp.anio_anterior?.fuente === "notas" ? (
+              <BloqueComparado
+                titulo={`vs. ${mesTexto(`${Number(comp.mes.slice(0, 4)) - 1}${comp.mes.slice(4)}`, true)} completo (notas)`}
+                actual={{ ventas: r.ventas, utilidad: r.utilidad }}
+                base={comp.anio_anterior}
+              />
+            ) : (
+              <div className="rounded-xl bg-hueso p-3 text-xs text-marino/60">
+                <p className="font-semibold text-marino">vs. hace un año</p>
+                <p className="mt-1">No hay ventas registradas en esas fechas del año pasado.</p>
+              </div>
+            )}
+          </div>
+        </Tarjeta>
+      )}
 
       {/* Por año */}
-      {datos.anual?.length > 0 && (
+      {(preset === "todo" || preset === "anio") && datos.anual?.length > 0 && (
         <Tarjeta titulo="Año por año">
           <PorAnio anios={datos.anual} />
         </Tarjeta>
@@ -189,7 +258,6 @@ export default function Balance() {
           <Empresa
             empresa={datos.empresa}
             mensual={datos.empresa_mensual}
-            inventario={datos.inventario}
             aporte={datos.aporte_por_prenda}
             onGuardarAporte={async (valor) => {
               const { error } = await obtenerClienteNavegador().from("configuracion").upsert({ clave: "aporte_por_prenda", valor });
@@ -209,10 +277,12 @@ export default function Balance() {
         />
       </Tarjeta>
 
-      {/* Mes a mes */}
-      <Tarjeta titulo="Ventas y utilidad mes a mes">
-        <BarrasMensuales meses={datos.mensual} />
-      </Tarjeta>
+      {/* Mes a mes (solo si el período tiene más de un mes) */}
+      {variosMeses && (
+        <Tarjeta titulo="Ventas y utilidad mes a mes">
+          <BarrasMensuales meses={datos.mensual} />
+        </Tarjeta>
+      )}
 
       {/* Vendedores, métodos, estado, canal */}
       <div className="grid gap-6 lg:grid-cols-2">
@@ -261,13 +331,15 @@ export default function Balance() {
       </div>
 
       {/* Prendas */}
-      <Tarjeta titulo="Prendas" accion={<Link href="/admin/prendas" className="text-xs underline underline-offset-4">Revisar coincidencias</Link>}>
+      <Tarjeta titulo="Prendas">
         <TablaPrendas vendidas={datos.prendas_vendidas} rentables={datos.prendas_rentables} />
       </Tarjeta>
 
-      <Tarjeta titulo="Más vendidas mes a mes (unidades)">
-        <PrendasMensual filas={datos.prendas_mensual} />
-      </Tarjeta>
+      {variosMeses && (
+        <Tarjeta titulo="Más vendidas mes a mes (unidades)">
+          <PrendasMensual filas={datos.prendas_mensual} />
+        </Tarjeta>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Tarjeta titulo="Casi no se movieron">
@@ -287,46 +359,6 @@ export default function Balance() {
           )}
           <p className="mt-2 text-[11px] text-marino/50">Productos visibles del catálogo con 0 o 1 unidad vendida en el periodo.</p>
         </Tarjeta>
-
-        {datos.reponer_pronto && (
-          <Tarjeta titulo="Reponer pronto">
-            {datos.reponer_pronto.length === 0 ? (
-              <Vacio texto="Nada urgente: ninguna talla que se venda está por acabarse." />
-            ) : (
-              <ul className="divide-y divide-marino/10 text-sm">
-                {datos.reponer_pronto.map((p, i) => (
-                  <li key={i} className="flex items-center justify-between gap-3 py-2">
-                    <span className="min-w-0">
-                      <span className="block truncate">{p.nombre} · talla {p.talla}</span>
-                      <span className="text-[11px] text-marino/50">Vendiste {p.unidades_60d} en 60 días</span>
-                    </span>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${p.stock === 0 ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-800"}`}>
-                      {p.stock === 0 ? "Agotada" : `Quedan ${p.stock} · ~${p.dias} días`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="mt-2 text-[11px] text-marino/50">Tallas con 3 o menos que sí se venden, ordenadas por cuándo se acaban.</p>
-          </Tarjeta>
-        )}
-
-        {datos.plata_quieta && (
-          <Tarjeta titulo="Plata quieta">
-            <p className="font-serif text-3xl">{formatearPrecio(datos.plata_quieta.total)}</p>
-            <p className="text-xs text-marino/60">
-              a costo, en {datos.plata_quieta.productos} productos con stock que no se vendieron en este periodo
-            </p>
-            <ul className="mt-3 divide-y divide-marino/10 text-sm">
-              {datos.plata_quieta.top.map((p, i) => (
-                <li key={i} className="flex justify-between gap-3 py-2">
-                  <span className="truncate">{p.nombre}</span>
-                  <span className="shrink-0 text-xs text-marino/60">{p.stock} u. · {formatearPrecio(p.valor)}</span>
-                </li>
-              ))}
-            </ul>
-          </Tarjeta>
-        )}
 
         <Tarjeta titulo="Compras de mercadería">
           <ComprasMensuales compras={datos.gastos.compras_mensual} />
@@ -351,6 +383,70 @@ function Tarjeta({ titulo, accion, children }) {
       </div>
       {children}
     </section>
+  );
+}
+
+// Lo que hay hoy en la tienda (no depende del período elegido)
+function InventarioHoy({ inventario, reponer, plata }) {
+  const [abierto, setAbierto] = useState(false);
+  const urgentes = reponer.filter((p) => p.stock === 0 || p.dias <= 15).length;
+  return (
+    <div className="rounded-2xl bg-marino p-4 text-hueso">
+      <p className="etiqueta text-ocre">Inventario hoy</p>
+      <p className="mt-2 font-serif text-3xl">{formatearPrecio(inventario.a_costo)}</p>
+      <p className="text-[11px] text-hueso/70">
+        {n(inventario.prendas).toLocaleString("es-EC")} prendas a costo · reponerlas hoy {formatearPrecio(inventario.a_reposicion)}
+      </p>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <button type="button" onClick={() => setAbierto((a) => !a)} className="rounded-xl bg-white/10 p-2.5 text-left">
+          <span className="block text-hueso/70">Reponer pronto</span>
+          <strong className="text-base">{reponer.length}</strong>
+          {urgentes > 0 && <span className="ml-1 text-ocre">· {urgentes} urgentes</span>}
+        </button>
+        {plata && (
+          <button type="button" onClick={() => setAbierto((a) => !a)} className="rounded-xl bg-white/10 p-2.5 text-left">
+            <span className="block text-hueso/70">Plata quieta</span>
+            <strong className="text-base">{formatearPrecio(plata.total)}</strong>
+          </button>
+        )}
+      </div>
+      {abierto && (
+        <div className="mt-3 space-y-3 rounded-xl bg-white p-3 text-marino">
+          <div>
+            <p className="text-xs font-semibold">Reponer pronto</p>
+            {reponer.length === 0 ? (
+              <p className="text-xs text-marino/60">Nada urgente.</p>
+            ) : (
+              <ul className="divide-y divide-marino/10 text-xs">
+                {reponer.map((p, i) => (
+                  <li key={i} className="flex justify-between gap-2 py-1.5">
+                    <span className="min-w-0 truncate">{p.nombre} · {p.talla}</span>
+                    <span className={`shrink-0 font-semibold ${p.stock === 0 ? "text-red-700" : "text-amber-700"}`}>
+                      {p.stock === 0 ? "Agotada" : `Quedan ${p.stock} · ~${p.dias} d`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {plata && (
+            <div>
+              <p className="text-xs font-semibold">Plata quieta</p>
+              <p className="text-[11px] text-marino/60">A costo, en {plata.productos} productos con stock que no se vendieron en el período.</p>
+              <ul className="divide-y divide-marino/10 text-xs">
+                {plata.top.map((p, i) => (
+                  <li key={i} className="flex justify-between gap-2 py-1.5">
+                    <span className="truncate">{p.nombre}</span>
+                    <span className="shrink-0 text-marino/60">{p.stock} u. · {formatearPrecio(p.valor)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <Link href="/admin/reponer" className="block text-center text-xs underline underline-offset-4">Ver todo en Por reponer</Link>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -808,7 +904,7 @@ function GananciasVendedor({ ganancias, mensual, aporte }) {
   );
 }
 
-function Empresa({ empresa, mensual, inventario, aporte, onGuardarAporte }) {
+function Empresa({ empresa, mensual, aporte, onGuardarAporte }) {
   const [editando, setEditando] = useState(false);
   const [valor, setValor] = useState(String(aporte));
   const [mensaje, setMensaje] = useState("");
@@ -816,7 +912,7 @@ function Empresa({ empresa, mensual, inventario, aporte, onGuardarAporte }) {
   const saldo = n(empresa.saldo);
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
         <div className="rounded-xl bg-hueso p-3">
           <p className="text-xs text-marino/60">Recibió de las ventas</p>
           <p className="font-serif text-2xl">{formatearPrecio(recibido)}</p>
@@ -832,16 +928,9 @@ function Empresa({ empresa, mensual, inventario, aporte, onGuardarAporte }) {
           <p className={`font-serif text-2xl ${saldo < 0 ? "text-red-700" : "text-green-700"}`}>{formatearPrecio(saldo)}</p>
           <p className="text-[11px] text-marino/50">{saldo >= 0 ? "gana: el inventario puede crecer" : "pierde: reponer cuesta más de lo que entra"}</p>
         </div>
-        <div className="rounded-xl bg-hueso p-3">
-          <p className="text-xs text-marino/60">Inventario hoy</p>
-          <p className="font-serif text-2xl">{formatearPrecio(inventario.a_costo)}</p>
-          <p className="text-[11px] text-marino/50">
-            {inventario.prendas} prendas · a reposición {formatearPrecio(inventario.a_reposicion)}
-          </p>
-        </div>
       </div>
 
-      {mensual.length > 0 && (
+      {mensual.length > 1 && (
         <div className="-mx-5 mt-4 overflow-x-auto px-5">
           <table className="w-full min-w-[460px] text-right text-xs">
             <thead className="text-marino/50">

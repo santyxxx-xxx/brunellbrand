@@ -13,6 +13,7 @@ const MENU = [
   { href: "/admin/pedidos", texto: "Pedidos" },
   { href: "/admin/reponer", texto: "Por reponer" },
   { href: "/admin/historial", texto: "Historial de ventas", soloAdmin: true },
+  { href: "/admin/clientes", texto: "Clientes", soloAdmin: true },
   { href: "/admin", texto: "Productos" },
   { href: "/admin/productos/nuevo", texto: "Nuevo producto" },
   { href: "/admin/categorias", texto: "Categorías" },

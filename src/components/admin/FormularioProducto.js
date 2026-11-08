@@ -13,6 +13,7 @@ const VACIO = {
   nombre: "",
   nombre_interno: "",
   opcion: "",
+  marca: "",
   descripcion: "",
   precio: "",
   precio_anterior: "",
@@ -77,6 +78,7 @@ export default function FormularioProducto({ productoId }) {
             nombre: data.nombre,
             nombre_interno: data.nombre_interno || "",
             opcion: data.opcion || "",
+            marca: data.marca || "",
             descripcion: data.descripcion || "",
             precio: data.precio ?? "",
             precio_anterior: data.precio_anterior ?? "",
@@ -157,14 +159,16 @@ export default function FormularioProducto({ productoId }) {
     const extra = {
       nombre_interno: datos.nombre_interno.trim() || datos.nombre.trim(),
       opcion: datos.opcion || null,
-      grupo: crearSlug(datos.nombre),
+      grupo: crearSlug(`${datos.nombre} ${datos.marca}`),
     };
+    const conMarca = { ...extra, marca: datos.marca.trim() || null };
     const enviar = (fila) =>
       esEdicion
         ? supabase.from("productos").update(fila).eq("id", productoId).select("id").single()
         : supabase.from("productos").insert(fila).select("id").single();
-    let respuesta = await enviar({ ...registro, ...extra });
-    // Si aún no se ejecutó fase5.sql
+    let respuesta = await enviar({ ...registro, ...conMarca });
+    // Si aún no se ejecutó fase7.sql (marca) o fase5.sql
+    if (respuesta.error && /marca/.test(respuesta.error.message || "")) respuesta = await enviar({ ...registro, ...extra });
     if (respuesta.error && /nombre_interno|grupo|opcion/.test(respuesta.error.message || "")) respuesta = await enviar(registro);
 
     if (respuesta.error) {
@@ -225,6 +229,14 @@ export default function FormularioProducto({ productoId }) {
         </Campo>
         <Campo etiqueta="Nombre en la web *" ayuda="Lo que ve el cliente. Prendas con el mismo nombre se muestran juntas y el cliente elige el estilo.">
           <input className="campo" value={datos.nombre} onChange={(e) => cambiar("nombre", e.target.value)} placeholder="Camisa blanca" required />
+        </Campo>
+        <Campo etiqueta="Marca" ayuda="En la web va al final del nombre: “Polo azul Ralph Lauren”. Vacío si no tiene.">
+          <input className="campo" list="marcas" value={datos.marca} onChange={(e) => cambiar("marca", e.target.value)} placeholder="Ralph Lauren" />
+          <datalist id="marcas">
+            {["Ralph Lauren", "Lacoste", "Boss", "Tommy Hilfiger", "Calvin Klein", "Brunel"].map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
         </Campo>
         <Campo etiqueta="Estilo" ayuda="Para camisas que vienen en Oxford y en Casual.">
           <select className="campo" value={datos.opcion} onChange={(e) => cambiar("opcion", e.target.value)}>

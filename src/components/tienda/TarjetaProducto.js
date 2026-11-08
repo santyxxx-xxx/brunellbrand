@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatearPrecio, ordenarTallas, stockTotal } from "@/lib/utilidades";
+import { formatearPrecio, nombreWeb, ordenarTallas, stockTotal } from "@/lib/utilidades";
 
 export default function TarjetaProducto({ producto }) {
   const portada = producto.imagenes?.[0];
@@ -19,7 +19,7 @@ export default function TarjetaProducto({ producto }) {
           <>
             <img
               src={portada}
-              alt={producto.nombre}
+              alt={nombreWeb(producto)}
               loading="lazy"
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
@@ -48,7 +48,7 @@ export default function TarjetaProducto({ producto }) {
         {producto.categoria?.nombre && (
           <p className="etiqueta text-marino/50">{producto.categoria.nombre}</p>
         )}
-        <h3 className="line-clamp-2 text-sm font-medium leading-snug">{producto.nombre}</h3>
+        <h3 className="line-clamp-2 text-sm font-medium leading-snug">{nombreWeb(producto)}</h3>
         {opciones.length > 0 && <p className="text-[11px] text-marino/60">{opciones.join(" · ")}</p>}
         <div className="flex items-baseline gap-2">
           <span className="font-semibold">

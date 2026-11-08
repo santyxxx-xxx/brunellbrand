@@ -2,6 +2,7 @@ import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { CarritoProvider } from "@/context/CarritoContext";
 import { TIENDA } from "@/config/tienda";
+import BarraNavegacion from "@/components/marca/BarraNavegacion";
 
 const fuenteTitulos = Cormorant_Garamond({
   subsets: ["latin"],
@@ -18,7 +19,7 @@ const fuenteTexto = Manrope({
 
 export const metadata = {
   title: {
-    default: `${TIENDA.nombre} · Ropa para hombre en Quito`,
+    default: `${TIENDA.nombre} · Ropa para hombre en Ecuador`,
     template: `%s · ${TIENDA.nombre}`,
   },
   description: TIENDA.descripcion,
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es-EC" suppressHydrationWarning className={`${fuenteTitulos.variable} ${fuenteTexto.variable}`}>
       <body className="min-h-screen antialiased">
+        <BarraNavegacion />
         <CarritoProvider>{children}</CarritoProvider>
       </body>
     </html>
