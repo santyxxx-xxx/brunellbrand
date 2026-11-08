@@ -27,8 +27,8 @@ export const TIENDA = {
 // Si subes una foto al bucket "productos" (o cualquier URL), ponla en "imagen".
 export const BANNER = {
   antetitulo: "Nueva colección",
-  titulo: "Elegancia que se nota sin decir nada",
-  texto: "Camisas y polos de corte preciso, telas que respiran y acabados que duran.",
+  titulo: "La elegancia está en los detalles.",
+  texto: "Camisas y polos para hombre. Envíos a todo el Ecuador.",
   boton: "Ver catálogo",
   imagen: "", // ej: "https://kxzsjipplrsausstryez.supabase.co/storage/v1/object/public/productos/banner.jpg"
 };

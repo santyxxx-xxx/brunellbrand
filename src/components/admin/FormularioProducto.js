@@ -13,7 +13,7 @@ const VACIO = {
   nombre: "",
   nombre_interno: "",
   opcion: "",
-  marca: "",
+  marca: "Polo Ralph Lauren",
   descripcion: "",
   precio: "",
   precio_anterior: "",
@@ -230,10 +230,10 @@ export default function FormularioProducto({ productoId }) {
         <Campo etiqueta="Nombre en la web *" ayuda="Lo que ve el cliente. Prendas con el mismo nombre se muestran juntas y el cliente elige el estilo.">
           <input className="campo" value={datos.nombre} onChange={(e) => cambiar("nombre", e.target.value)} placeholder="Camisa blanca" required />
         </Campo>
-        <Campo etiqueta="Marca" ayuda="En la web va al final del nombre: “Polo azul Ralph Lauren”. Vacío si no tiene.">
+        <Campo etiqueta="Marca" ayuda="En la web va al final del nombre: “Camisa blanca Polo Ralph Lauren”.">
           <input className="campo" list="marcas" value={datos.marca} onChange={(e) => cambiar("marca", e.target.value)} placeholder="Ralph Lauren" />
           <datalist id="marcas">
-            {["Ralph Lauren", "Lacoste", "Boss", "Tommy Hilfiger", "Calvin Klein", "Brunel"].map((m) => (
+            {["Polo Ralph Lauren", "Lacoste", "Boss", "Tommy Hilfiger", "Calvin Klein"].map((m) => (
               <option key={m} value={m} />
             ))}
           </datalist>

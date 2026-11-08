@@ -49,10 +49,14 @@ export function stockTotal(tallas = []) {
   return tallas.filter((t) => TALLAS.includes(t.talla)).reduce((suma, t) => suma + (Number(t.stock) || 0), 0);
 }
 
-// Nombre de la web con la marca al final: "Polo azul Ralph Lauren"
+// Nombre de la web con la marca al final: "Camisa blanca Polo Ralph Lauren".
+// En los polos no se repite la palabra: "Polo azul Ralph Lauren".
 export function nombreWeb(producto) {
   if (!producto) return "";
-  return producto.marca ? `${producto.nombre} ${producto.marca}` : producto.nombre;
+  let marca = (producto.marca || "").trim();
+  if (!marca) return producto.nombre;
+  if (/^polo\s/i.test(producto.nombre) && /^polo\s/i.test(marca)) marca = marca.replace(/^polo\s+/i, "");
+  return `${producto.nombre} ${marca}`;
 }
 
 // Nombre para el cliente con el estilo: "Camisa blanca (Oxford)"
