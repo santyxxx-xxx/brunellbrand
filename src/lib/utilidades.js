@@ -40,6 +40,28 @@ export function enlaceWhatsApp(numero, mensaje) {
   return `https://wa.me/${limpio}?text=${encodeURIComponent(mensaje)}`;
 }
 
+// Mensaje de WhatsApp con el pedido completo (se arma con los precios que calculó el servidor)
+export function mensajePedidoWhatsApp(pedido, items = []) {
+  const lineas = [
+    `¡Hola Brunel Brand! Acabo de hacer el pedido #${pedido.numero} en la web:`,
+    "",
+    ...items.map((i) => `• ${i.cantidad} x ${i.nombre} — Talla ${i.talla} — ${formatearPrecio(i.subtotal)}`),
+    "",
+    `Subtotal: ${formatearPrecio(pedido.subtotal)}`,
+    `Envío (${pedido.envio_nombre}): ${formatearPrecio(pedido.costo_envio)}`,
+    `*Total: ${formatearPrecio(pedido.total)}*`,
+    "",
+    `Nombre: ${pedido.cliente_nombre}`,
+    `Teléfono: ${pedido.cliente_telefono}`,
+    `Dirección: ${[pedido.direccion, pedido.sector, pedido.ciudad, pedido.provincia].filter(Boolean).join(", ")}`,
+    pedido.referencia ? `Referencia: ${pedido.referencia}` : null,
+    pedido.notas_cliente ? `Nota: ${pedido.notas_cliente}` : null,
+    "",
+    "¿Cómo hago el pago?",
+  ];
+  return lineas.filter((l) => l !== null).join("\n");
+}
+
 // Deja solo las tallas que maneja la tienda (S, M, L) y las ordena
 export function ordenarTallas(tallas = []) {
   return tallas.filter((t) => TALLAS.includes(t.talla)).sort((a, b) => TALLAS.indexOf(a.talla) - TALLAS.indexOf(b.talla));

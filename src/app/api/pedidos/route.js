@@ -4,6 +4,8 @@ import { obtenerClienteServidor } from "@/lib/supabase/servidor";
 import { validarCliente, validarItems } from "@/lib/pedidos/validar";
 import { calcularPedido, crearPedido, iniciarPago, ErrorPedido } from "@/lib/pedidos/servidor";
 import { urlSitio } from "@/lib/sitio";
+import { TIENDA } from "@/config/tienda";
+import { enlaceWhatsApp, mensajePedidoWhatsApp } from "@/lib/utilidades";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +65,18 @@ export async function POST(request) {
     }
 
     const urlPedido = `/pedido/${pedido.id}?t=${pedido.token_acceso}`;
+
+    // Sin pasarela: el pedido queda guardado y se termina por WhatsApp
+    if (!TIENDA.pagoEnLinea) {
+      const mensaje = mensajePedidoWhatsApp(pedido, calculo.lineas);
+      return NextResponse.json({
+        pedidoId: pedido.id,
+        numero: pedido.numero,
+        urlPedido,
+        urlWhatsApp: enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensaje),
+      });
+    }
+
     const pago = await iniciarPago(admin, pedido, urlSitio(request));
 
     return NextResponse.json({

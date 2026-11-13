@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { obtenerPedidosEntregados, obtenerPrendasEntregadas } from "@/lib/consultas";
+import { TIENDA } from "@/config/tienda";
 
 function Icono({ tipo }) {
   const comun = { className: "h-5 w-5 shrink-0 text-ocre", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, "aria-hidden": true };
@@ -32,7 +33,9 @@ export default async function FranjaConfianza({ compacta = false }) {
     contador && { tipo: "entregados", ...contador },
     { tipo: "envios", titulo: "Envíos a todo el país", texto: "Servientrega y entrega local en Quito" },
     { tipo: "cambios", titulo: "Cambios fáciles", texto: "15 días para cambiar tu prenda", href: "/politicas/cambios-y-devoluciones" },
-    { tipo: "pago", titulo: "Pago seguro", texto: "Tarjeta de crédito o débito con PayPhone" },
+    TIENDA.pagoEnLinea
+      ? { tipo: "pago", titulo: "Pago seguro", texto: "Tarjeta de crédito o débito con PayPhone" }
+      : { tipo: "pago", titulo: "Paga como prefieras", texto: "Transferencia, efectivo o tarjeta" },
   ].filter(Boolean);
 
   return (

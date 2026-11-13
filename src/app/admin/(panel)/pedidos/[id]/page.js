@@ -172,9 +172,11 @@ export default function DetallePedido() {
 
         <form onSubmit={guardar} className="h-fit space-y-4 rounded-xl bg-white p-5 lg:sticky lg:top-28">
           <h2 className="etiqueta">Gestionar pedido</h2>
-          {pedido.estado === "por_cobrar" && (
+          {(pedido.estado === "por_cobrar" || (pedido.estado === "pendiente_pago" && pedido.canal === "web")) && (
             <div className="rounded-lg bg-orange-50 p-3">
-              <p className="text-sm font-semibold text-orange-900">Falta cobrar {formatearPrecio(pedido.total)}</p>
+              <p className="text-sm font-semibold text-orange-900">
+                {pedido.estado === "pendiente_pago" ? "Pedido por WhatsApp · " : ""}Falta cobrar {formatearPrecio(pedido.total)}
+              </p>
               <p className="mb-2 text-xs text-orange-900/70">¿Cómo pagó?</p>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
@@ -189,7 +191,8 @@ export default function DetallePedido() {
                     onClick={() =>
                       enviar({
                         accion: "actualizar",
-                        estado: pedido.entrega && pedido.entrega !== "personal" ? "pagado" : "entregado",
+                        // Web, a domicilio o Servientrega: queda "Pagado" para enviarlo; entrega personal: "Entregado"
+                        estado: pedido.canal === "web" || (pedido.entrega && pedido.entrega !== "personal") ? "pagado" : "entregado",
                         metodoPago: valor,
                       })
                     }

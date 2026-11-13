@@ -1,4 +1,5 @@
 import { PROVINCIAS } from "@/config/envios";
+import { TIENDA } from "@/config/tienda";
 
 function texto(valor, max = 200) {
   return String(valor ?? "").trim().replace(/\s+/g, " ").slice(0, max);
@@ -24,7 +25,8 @@ export function validarCliente(entrada = {}) {
   if (c.cedula && !(c.cedula.length === 10 || c.cedula.length === 13)) {
     errores.cedula = "La cédula debe tener 10 dígitos (o 13 si es RUC).";
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.correo)) errores.correo = "Ingresa un correo válido.";
+  // Con pedidos por WhatsApp el correo es opcional; con pago en línea, obligatorio (ahí llega el comprobante)
+  if ((TIENDA.pagoEnLinea || c.correo) && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.correo)) errores.correo = "Ingresa un correo válido.";
   if (c.telefono.replace(/\D/g, "").length < 9) errores.telefono = "Ingresa un teléfono válido (ej: 0991234567).";
   if (!PROVINCIAS.includes(c.provincia)) errores.provincia = "Elige tu provincia.";
   if (c.ciudad.length < 2) errores.ciudad = "Ingresa tu ciudad.";

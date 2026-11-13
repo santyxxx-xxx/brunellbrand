@@ -6,6 +6,11 @@ import { useCarrito } from "@/context/CarritoContext";
 import { obtenerClienteNavegador } from "@/lib/supabase/cliente";
 import { PROVINCIAS } from "@/config/envios";
 import { formatearPrecio } from "@/lib/utilidades";
+import { TIENDA } from "@/config/tienda";
+import { IconoWhatsApp } from "@/components/tienda/Iconos";
+
+// Mientras no esté la pasarela, el pedido se guarda y se termina por WhatsApp
+const POR_WHATSAPP = !TIENDA.pagoEnLinea;
 
 const VACIO = {
   nombre: "",
@@ -21,7 +26,7 @@ const VACIO = {
 };
 
 export default function Checkout() {
-  const { items, cargado, subtotal } = useCarrito();
+  const { items, cargado, subtotal, vaciar } = useCarrito();
   const [datos, setDatos] = useState(VACIO);
   const [errores, setErrores] = useState({});
   const [tarifas, setTarifas] = useState([]);
@@ -117,6 +122,12 @@ export default function Checkout() {
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
+      // Pedido por WhatsApp: queda guardado en el panel y se abre el chat con todo el detalle
+      if (r.urlWhatsApp) {
+        vaciar();
+        window.location.href = r.urlWhatsApp;
+        return;
+      }
       // Pedido creado: ir a pagar (o a la página del pedido si la pasarela no respondió)
       window.location.href = r.urlPago || `${r.urlPedido}${r.aviso ? "&pago=error" : ""}`;
     } catch {
@@ -139,7 +150,12 @@ export default function Checkout() {
   return (
     <div className="contenedor pt-8">
       <p className="etiqueta text-ocre">Finalizar compra</p>
-      <h1 className="titulo-seccion mt-1">Datos de envío y pago</h1>
+      <h1 className="titulo-seccion mt-1">{POR_WHATSAPP ? "Datos de envío" : "Datos de envío y pago"}</h1>
+      {POR_WHATSAPP && (
+        <p className="mt-2 text-sm text-marino/70">
+          Llena tus datos y te llevamos a WhatsApp con tu pedido listo. Ahí confirmamos el stock y coordinamos el pago.
+        </p>
+      )}
 
       {!usuario && (
         <p className="mt-3 text-sm text-marino/70">
@@ -162,7 +178,11 @@ export default function Checkout() {
               <Campo etiqueta="Nombre y apellido *" error={errores.nombre} className="sm:col-span-2">
                 <input className="campo" autoComplete="name" value={datos.nombre} onChange={(e) => cambiar("nombre", e.target.value)} />
               </Campo>
-              <Campo etiqueta="Correo electrónico *" error={errores.correo} ayuda="Aquí te llega el comprobante de compra.">
+              <Campo
+                etiqueta={POR_WHATSAPP ? "Correo electrónico (opcional)" : "Correo electrónico *"}
+                error={errores.correo}
+                ayuda={POR_WHATSAPP ? null : "Aquí te llega el comprobante de compra."}
+              >
                 <input className="campo" type="email" autoComplete="email" inputMode="email" value={datos.correo} onChange={(e) => cambiar("correo", e.target.value)} />
               </Campo>
               <Campo etiqueta="Teléfono / WhatsApp *" error={errores.telefono}>
@@ -279,12 +299,26 @@ export default function Checkout() {
             </span>
           </label>
 
-          <button type="submit" disabled={enviando || !tarifa} className="btn-ocre mt-5 w-full py-4">
-            {enviando ? "Procesando..." : `Pagar ${formatearPrecio(total)}`}
-          </button>
-          <p className="mt-3 text-center text-[11px] text-marino/50">
-            Pago seguro con tarjeta de crédito o débito a través de PayPhone. Los valores finales se confirman al procesar tu pedido.
-          </p>
+          {POR_WHATSAPP ? (
+            <>
+              <button type="submit" disabled={enviando || !tarifa} className="btn-ocre mt-5 w-full py-4">
+                <IconoWhatsApp className="h-5 w-5" />
+                {enviando ? "Abriendo WhatsApp..." : `Enviar pedido por WhatsApp · ${formatearPrecio(total)}`}
+              </button>
+              <p className="mt-3 text-center text-[11px] text-marino/50">
+                Tu pedido queda registrado y se abre WhatsApp con el detalle. Pagas por transferencia, efectivo o tarjeta, como prefieras.
+              </p>
+            </>
+          ) : (
+            <>
+              <button type="submit" disabled={enviando || !tarifa} className="btn-ocre mt-5 w-full py-4">
+                {enviando ? "Procesando..." : `Pagar ${formatearPrecio(total)}`}
+              </button>
+              <p className="mt-3 text-center text-[11px] text-marino/50">
+                Pago seguro con tarjeta de crédito o débito a través de PayPhone. Los valores finales se confirman al procesar tu pedido.
+              </p>
+            </>
+          )}
         </aside>
       </form>
     </div>

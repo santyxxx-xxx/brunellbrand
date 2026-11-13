@@ -11,7 +11,12 @@ export const TIENDA = {
   descripcion: "Camisas y polos para hombre con corte impecable. Envíos a todo el Ecuador.",
 
   // Instagram: pega aquí el enlace completo de tu perfil.
-  instagram: "https://www.instagram.com/brunelbrand",
+  instagram: "https://www.instagram.com/brunelbrand_ec",
+
+  // Pago con tarjeta en la web (PayPhone).
+  //   false = los pedidos se terminan por WhatsApp (el pedido igual queda guardado en el panel).
+  //   true  = el checkout lleva a pagar con PayPhone (cuando la cuenta y las claves estén listas).
+  pagoEnLinea: false,
 
   // WhatsApp: formato internacional SIN "+", SIN espacios.
   // Ejemplo Ecuador: 0991234567  ->  593991234567

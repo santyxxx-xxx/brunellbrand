@@ -10,6 +10,7 @@ import { enviarCorreo, correoAdmin, correosAdmin } from "@/lib/correo/enviar";
 import { comprobanteCliente, avisoAdmin, avisoEnvio } from "@/lib/correo/plantillas";
 import { enviarAlertasStock } from "@/lib/alertas";
 import { nombreConOpcion } from "@/lib/utilidades";
+import { TIENDA } from "@/config/tienda";
 
 export class ErrorPedido extends Error {
   constructor(mensaje, estado = 400) {
@@ -101,7 +102,7 @@ export async function crearPedido(admin, { cliente, calculo, userId }) {
       user_id: userId || null,
       cliente_nombre: cliente.nombre,
       cliente_cedula: cliente.cedula || null,
-      cliente_correo: cliente.correo,
+      cliente_correo: cliente.correo || "-",
       cliente_telefono: cliente.telefono,
       provincia: cliente.provincia,
       ciudad: cliente.ciudad,
@@ -117,7 +118,9 @@ export async function crearPedido(admin, { cliente, calculo, userId }) {
       total: calculo.total,
       acepto_politicas_en: new Date().toISOString(),
       canal: "web",
-      metodo_pago: "payphone",
+      // Sin pago en línea, el pedido se cierra por WhatsApp y el método se anota al cobrar
+      metodo_pago: TIENDA.pagoEnLinea ? "payphone" : null,
+      notas_internas: TIENDA.pagoEnLinea ? null : "Pedido por WhatsApp desde la web",
     })
     .select("*")
     .single();
@@ -260,16 +263,18 @@ export async function enviarCorreosPago(admin, pedido, urlSitio) {
   const cliente = comprobanteCliente(datos);
   const aviso = avisoAdmin(datos);
 
-  const envios = [
-    enviarCorreo({ para: pedido.cliente_correo, asunto: cliente.asunto, html: cliente.html, responderA: correoAdmin() || undefined }),
-  ];
+  // Pedidos por WhatsApp pueden no tener correo del cliente
+  const tieneCorreo = String(pedido.cliente_correo || "").includes("@");
+  const envios = tieneCorreo
+    ? [enviarCorreo({ para: pedido.cliente_correo, asunto: cliente.asunto, html: cliente.html, responderA: correoAdmin() || undefined })]
+    : [];
   if (correosAdmin().length) {
-    envios.push(enviarCorreo({ para: correosAdmin(), asunto: aviso.asunto, html: aviso.html, responderA: pedido.cliente_correo }));
+    envios.push(enviarCorreo({ para: correosAdmin(), asunto: aviso.asunto, html: aviso.html, responderA: tieneCorreo ? pedido.cliente_correo : undefined }));
   }
   const resultados = await Promise.all(envios);
 
   // Si el correo al cliente falló, se permite reintentar más tarde
-  if (!resultados[0].ok) {
+  if (tieneCorreo && !resultados[0].ok) {
     await admin.from("orders").update({ correos_enviados: false }).eq("id", pedido.id);
   }
 }
@@ -277,5 +282,6 @@ export async function enviarCorreosPago(admin, pedido, urlSitio) {
 /** Aviso al cliente de que su pedido fue enviado. */
 export async function enviarAvisoEnvio(pedido, urlSitio) {
   const correo = avisoEnvio({ pedido, urlSitio });
+  if (!String(pedido.cliente_correo || "").includes("@")) return { ok: true, omitido: true };
   return enviarCorreo({ para: pedido.cliente_correo, asunto: correo.asunto, html: correo.html, responderA: correoAdmin() || undefined });
 }

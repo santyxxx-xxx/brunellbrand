@@ -87,18 +87,29 @@ export default function PaginaCarrito() {
           </div>
           <p className="mt-1 text-xs text-marino/60">El envío se calcula en el siguiente paso según tu provincia.</p>
 
-          <Link href="/checkout" className="btn-ocre mt-6 w-full py-4">
-            Continuar al pago
-          </Link>
-          <p className="mt-2 text-center text-[11px] text-marino/50">Pago seguro con tarjeta vía PayPhone</p>
-          <a
-            href={enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensaje)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-borde mt-4 w-full"
-          >
-            <IconoWhatsApp className="h-5 w-5" /> Prefiero pedir por WhatsApp
-          </a>
+          {TIENDA.pagoEnLinea ? (
+            <>
+              <Link href="/checkout" className="btn-ocre mt-6 w-full py-4">
+                Continuar al pago
+              </Link>
+              <p className="mt-2 text-center text-[11px] text-marino/50">Pago seguro con tarjeta vía PayPhone</p>
+              <a href={enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensaje)} target="_blank" rel="noopener noreferrer" className="btn-borde mt-4 w-full">
+                <IconoWhatsApp className="h-5 w-5" /> Prefiero pedir por WhatsApp
+              </a>
+            </>
+          ) : (
+            <>
+              <Link href="/checkout" className="btn-ocre mt-6 w-full py-4">
+                <IconoWhatsApp className="h-5 w-5" /> Finalizar pedido por WhatsApp
+              </Link>
+              <p className="mt-2 text-center text-[11px] text-marino/50">
+                Pones tus datos de envío y te llevamos a WhatsApp con el pedido listo.
+              </p>
+              <a href={enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensaje)} target="_blank" rel="noopener noreferrer" className="mt-4 block text-center text-xs text-marino/70 underline underline-offset-4">
+                O escríbenos directo con lo que llevas en el carrito
+              </a>
+            </>
+          )}
           <button type="button" onClick={vaciar} className="mt-3 w-full text-center text-xs text-marino/60 underline underline-offset-4">
             Vaciar carrito
           </button>

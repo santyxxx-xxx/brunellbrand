@@ -4,7 +4,7 @@ import { obtenerClienteAdmin } from "@/lib/supabase/admin";
 import { obtenerClienteServidor } from "@/lib/supabase/servidor";
 import { ESTADOS_PEDIDO } from "@/config/envios";
 import { TIENDA } from "@/config/tienda";
-import { enlaceWhatsApp, formatearPrecio } from "@/lib/utilidades";
+import { enlaceWhatsApp, formatearPrecio, mensajePedidoWhatsApp } from "@/lib/utilidades";
 import { LimpiarCarrito, ReintentarPago } from "@/components/pedido/AccionesPedido";
 import { IconoWhatsApp } from "@/components/tienda/Iconos";
 
@@ -53,6 +53,21 @@ export default async function PaginaPedido({ params, searchParams }) {
           <p className="mt-2 text-sm text-hueso/75">
             Tu pago fue confirmado. Te enviamos el comprobante de compra a <strong>{pedido.cliente_correo}</strong>.
           </p>
+        </div>
+      ) : pedido.estado === "pendiente_pago" && !TIENDA.pagoEnLinea ? (
+        <div className="rounded-2xl bg-white p-6 sm:p-8">
+          <h1 className="font-serif text-3xl">Recibimos tu pedido</h1>
+          <p className="mt-2 text-sm text-marino/70">
+            Envíanos el pedido por WhatsApp para confirmar el stock y coordinar el pago y la entrega.
+          </p>
+          <a
+            href={enlaceWhatsApp(TIENDA.whatsapp[0]?.numero, mensajePedidoWhatsApp(pedido, items || []))}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-ocre mt-5 w-full py-4 sm:w-auto"
+          >
+            <IconoWhatsApp className="h-5 w-5" /> Enviar pedido por WhatsApp
+          </a>
         </div>
       ) : pedido.estado === "pendiente_pago" ? (
         <div className="rounded-2xl bg-white p-6 sm:p-8">
